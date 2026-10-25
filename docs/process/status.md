@@ -13,12 +13,12 @@
 - Шаблоны задач и PR перенесены в `.github/`.
 - Личные заметки о ПК вынесены из общих правил в `CLAUDE.local.md` (в `.gitignore`).
 - Первый коммит правил — в `dev`.
+- Ранние черновики (видение, геймплей, архитектура, арт, сюжет, скрипт Blender) перенесены в `_archive/2026-10-25-early-drafts/` — не решения, только история.
 
 **Следующие шаги:**
-1. Решить судьбу ранних черновиков (`docs/game/vision.md`, `gameplay.md`, `architecture.md`, `docs/story/`, `docs/art/style-guide.md`, `docs/art/asset-pipeline.md`, `tools/blender/`): в репозиторий они не попали. Архитектуру и механики решаем после сценария.
-2. Войти в GitHub CLI (`gh auth login`), создать лейблы из `workflow.md` и доску GitHub Projects.
-3. Включить защиту веток `dev` и `main`; сделать `dev` веткой по умолчанию.
-4. Добавить двух участников в Collaborators; каждый создаёт свой `CLAUDE.local.md`.
-5. Выбрать Discord или Telegram.
+1. Войти в GitHub CLI (`gh auth login`), создать лейблы из `workflow.md` и доску GitHub Projects.
+2. Включить защиту веток `dev` и `main`; сделать `dev` веткой по умолчанию.
+3. Добавить двух участников в Collaborators; каждый создаёт свой `CLAUDE.local.md`.
+4. Выбрать Discord или Telegram.
 
 **Дальше — этап 2:** сценарий и вектор игры (роль story).
