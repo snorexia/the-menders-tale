@@ -1,0 +1,31 @@
+# Godot
+.godot/
+.import/
+export/
+*.translation
+export_presets.cfg.bak
+
+# Blender
+*.blend1
+*.blend2
+
+# Krita
+*.kra~
+*.png~
+
+# Системное
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Личные заметки и настройки каждого участника
+CLAUDE.local.md
+.claude/settings.local.json
+
+# Секреты (ключи Meshy и т.п.)
+.env
+*.key
+
+# Python
+__pycache__/
+*.pyc

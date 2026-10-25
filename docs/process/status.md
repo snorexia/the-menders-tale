@@ -1,0 +1,24 @@
+# Текущий статус
+
+> Обновляй этот файл в конце рабочей сессии — так следующий человек или Claude сразу поймёт, где остановились.
+
+## 2026-10-25 — этап 1: правила и инфраструктура
+
+**Сделано:**
+- Правила работы: `CLAUDE.md`, `docs/process/workflow.md`, `docs/process/tools.md`.
+- Исходная идея: `docs/game/original-brief.md`.
+- Референсы: 6 мокапов в `docs/reference/mockups/` (Git LFS).
+- Репозиторий: `snorexia/the-menders-tale`.
+- Ветки: работа идёт в `dev`, `main` — только готовый продукт. Правила переписаны под это.
+- Шаблоны задач и PR перенесены в `.github/`.
+- Личные заметки о ПК вынесены из общих правил в `CLAUDE.local.md` (в `.gitignore`).
+- Первый коммит правил — в `dev`.
+
+**Следующие шаги:**
+1. Решить судьбу ранних черновиков (`docs/game/vision.md`, `gameplay.md`, `architecture.md`, `docs/story/`, `docs/art/style-guide.md`, `docs/art/asset-pipeline.md`, `tools/blender/`): в репозиторий они не попали. Архитектуру и механики решаем после сценария.
+2. Войти в GitHub CLI (`gh auth login`), создать лейблы из `workflow.md` и доску GitHub Projects.
+3. Включить защиту веток `dev` и `main`; сделать `dev` веткой по умолчанию.
+4. Добавить двух участников в Collaborators; каждый создаёт свой `CLAUDE.local.md`.
+5. Выбрать Discord или Telegram.
+
+**Дальше — этап 2:** сценарий и вектор игры (роль story).
