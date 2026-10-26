@@ -13,7 +13,7 @@
 - Решения: язык — GDScript; роли — snorexia (dev), dobraykduff1234-glitch (story), Weh2 (design).
 
 **В работе:**
-- #2 — основная идея и описание игры (story).
+- #2 — основная идея и описание игры (story), ждёт #7.
 
 **Следующие шаги:**
 1. Участники проходят `docs/onboarding/` и создают свой `CLAUDE.local.md`.
