@@ -108,5 +108,6 @@ py --version
 - **Сервер godot в `/mcp` — failed** → не задан `GODOT_PATH` или путь с опечаткой (шаг 2); приложение Claude не перезапущено после шага 2.
 - **«Could not find a valid Godot executable»** → `GODOT_PATH` указывает не на `.exe` или на версию без `_console`. Проверь путь.
 - **Окно Godot мелькает, когда Claude делает скриншот** → так и должно быть: для снимка Godot отрисовывает кадр на пару секунд.
+- **В игре по F5 не работают Esc или правый клик, а левый клик работает** → игра запущена во встроенном окне редактора, оно перехватывает эти клавиши. Вкладка **Game** → **⋮** → сними **Embed Game on Next Play** (или **Editor → Editor Settings → Run → Window Placement → Game Embed Mode** → **Disabled**) и запусти снова.
 
 Дальше: [05-daily-workflow.md](05-daily-workflow.md).
