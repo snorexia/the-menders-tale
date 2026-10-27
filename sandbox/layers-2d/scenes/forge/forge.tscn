@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3]
+[gd_scene load_steps=14 format=3]
 
 [ext_resource type="Script" path="res://common/mouse_look_camera.gd" id="1_camera"]
 [ext_resource type="Texture2D" path="res://scenes/forge/forge_back.png" id="2_back"]
@@ -7,6 +7,8 @@
 [ext_resource type="Script" path="res://common/flicker_light.gd" id="5_flicker"]
 [ext_resource type="Texture2D" path="res://common/light_glow.tres" id="6_glow"]
 [ext_resource type="Script" path="res://common/scene_link_button.gd" id="7_link"]
+[ext_resource type="Texture2D" path="res://scenes/forge/forge_anvil.png" id="8_anvil"]
+[ext_resource type="Script" path="res://common/scene_link_area.gd" id="9_area"]
 
 [sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_fire"]
 blend_mode = 1
@@ -117,6 +119,22 @@ initial_velocity_max = 110.0
 scale_amount_min = 0.03
 scale_amount_max = 0.05
 color_ramp = SubResource("Gradient_spark")
+
+[node name="AnvilLayer" type="Node2D" parent="."]
+
+[node name="Sprite" type="Sprite2D" parent="AnvilLayer"]
+position = Vector2(-126.8, -71.65)
+scale = Vector2(1.3, 1.3)
+texture = ExtResource("8_anvil")
+centered = false
+
+[node name="AnvilArea" type="Area2D" parent="AnvilLayer/Sprite" node_paths=PackedStringArray("highlight_target")]
+script = ExtResource("9_area")
+target_scene = "res://scenes/anvil/anvil.tscn"
+highlight_target = NodePath("..")
+
+[node name="Shape" type="CollisionPolygon2D" parent="AnvilLayer/Sprite/AnvilArea"]
+polygon = PackedVector2Array(628, 515, 800, 510, 1052, 518, 950, 560, 940, 640, 985, 662, 992, 700, 990, 860, 900, 892, 800, 898, 690, 882, 640, 862, 640, 690, 690, 660, 700, 600, 625, 556)
 
 [node name="FrontLayer" type="Node2D" parent="."]
 

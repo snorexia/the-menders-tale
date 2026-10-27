@@ -14,6 +14,8 @@
       ]
     }
 "feather" — размытие края в пикселях, чтобы шов был мягче (0 — резкий край).
+У слоя можно задать свои "source" и "feather", а "crop": true обрезает PNG
+по многоугольнику (для текстур-кусочков, а не слоёв на весь холст).
 PNG слоёв сохраняются рядом с JSON: <папка JSON>/<name>.png.
 
 Запуск из корня репозитория:
@@ -59,16 +61,23 @@ def cut_layer(source: Image.Image, mask: Image.Image) -> Image.Image:
 
 def cut_layers(config_path: Path) -> None:
     config = load_config(config_path)
-    source = Image.open(config["source"]).convert("RGBA")
-    feather = config.get("feather", 0)
+    sources = {}
 
     for layer in config["layers"]:
+        source_path = layer.get("source", config["source"])
+        if source_path not in sources:
+            sources[source_path] = Image.open(source_path).convert("RGBA")
+        source = sources[source_path]
+        feather = layer.get("feather", config.get("feather", 0))
+
         output_path = config_path.parent / f"{layer['name']}.png"
         polygons = layer.get("polygons")
         if polygons:
             image = cut_layer(source, make_mask(source.size, polygons, feather))
         else:
             image = source
+        if layer.get("crop"):
+            image = image.crop(image.getbbox())
         image.save(output_path, optimize=True)
         print(f"Слой сохранён: {output_path}")
 

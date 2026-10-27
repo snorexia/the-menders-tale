@@ -1,0 +1,179 @@
+[gd_scene load_steps=13 format=3]
+
+[ext_resource type="Texture2D" path="res://scenes/anvil/anvil_floor.png" id="1_floor"]
+[ext_resource type="Texture2D" path="res://scenes/anvil/anvil_wood.png" id="2_wood"]
+[ext_resource type="Texture2D" path="res://scenes/anvil/anvil_metal.png" id="3_metal"]
+[ext_resource type="Texture2D" path="res://scenes/anvil/longsword_top.png" id="4_sword"]
+[ext_resource type="Script" path="res://common/flicker_light.gd" id="5_flicker"]
+[ext_resource type="Texture2D" path="res://common/light_glow.tres" id="6_glow"]
+[ext_resource type="Script" path="res://common/scene_link_button.gd" id="7_link"]
+
+[sub_resource type="Gradient" id="Gradient_vignette"]
+offsets = PackedFloat32Array(0.45, 1)
+colors = PackedColorArray(0, 0, 0, 0, 0, 0, 0, 0.85)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_vignette"]
+gradient = SubResource("Gradient_vignette")
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[sub_resource type="LabelSettings" id="LabelSettings_hint"]
+font_size = 24
+font_color = Color(1, 0.92, 0.8, 0.75)
+outline_size = 6
+outline_color = Color(0, 0, 0, 0.6)
+
+[sub_resource type="LabelSettings" id="LabelSettings_title"]
+font_size = 32
+font_color = Color(1, 0.92, 0.8, 0.9)
+outline_size = 8
+outline_color = Color(0, 0, 0, 0.6)
+
+[node name="Anvil" type="Node2D"]
+
+[node name="Darkness" type="CanvasModulate" parent="."]
+color = Color(0.62, 0.56, 0.5, 1)
+
+[node name="Floor" type="Polygon2D" parent="."]
+texture_repeat = 2
+color = Color(0.55, 0.5, 0.45, 1)
+texture = ExtResource("1_floor")
+texture_scale = Vector2(1, 0.34)
+polygon = PackedVector2Array(0, 0, 1920, 0, 1920, 1080, 0, 1080)
+
+[node name="StumpRim" type="Polygon2D" parent="."]
+color = Color(0.22, 0.13, 0.08, 1)
+polygon = PackedVector2Array(1240, 540, 1236.6, 592.2, 1226.4, 643.5, 1209.6, 693.1, 1186.4, 740, 1157.3, 783.5, 1122.8, 822.8, 1083.5, 857.3, 1040, 886.4, 993.1, 909.6, 943.5, 926.4, 892.2, 936.6, 840, 940, 787.8, 936.6, 736.5, 926.4, 686.9, 909.6, 640, 886.4, 596.5, 857.3, 557.2, 822.8, 522.7, 783.5, 493.6, 740, 470.4, 693.1, 453.6, 643.5, 443.4, 592.2, 440, 540, 443.4, 487.8, 453.6, 436.5, 470.4, 386.9, 493.6, 340, 522.7, 296.5, 557.2, 257.2, 596.5, 222.7, 640, 193.6, 686.9, 170.4, 736.5, 153.6, 787.8, 143.4, 840, 140, 892.2, 143.4, 943.5, 153.6, 993.1, 170.4, 1040, 193.6, 1083.5, 222.7, 1122.8, 257.2, 1157.3, 296.5, 1186.4, 340, 1209.6, 386.9, 1226.4, 436.5, 1236.6, 487.8)
+
+[node name="StumpTop" type="Polygon2D" parent="."]
+texture_repeat = 2
+color = Color(0.72, 0.62, 0.55, 1)
+texture = ExtResource("2_wood")
+polygon = PackedVector2Array(1225, 540, 1221.7, 590.3, 1211.9, 639.6, 1195.7, 687.3, 1173.4, 732.5, 1145.4, 774.4, 1112.2, 812.2, 1074.4, 845.4, 1032.5, 873.4, 987.3, 895.7, 939.6, 911.9, 890.3, 921.7, 840, 925, 789.7, 921.7, 740.4, 911.9, 692.7, 895.7, 647.5, 873.4, 605.6, 845.4, 567.8, 812.2, 534.6, 774.4, 506.6, 732.5, 484.3, 687.3, 468.1, 639.6, 458.3, 590.3, 455, 540, 458.3, 489.7, 468.1, 440.4, 484.3, 392.7, 506.6, 347.5, 534.6, 305.6, 567.8, 267.8, 605.6, 234.6, 647.5, 206.6, 692.7, 184.3, 740.4, 168.1, 789.7, 158.3, 840, 155, 890.3, 158.3, 939.6, 168.1, 987.3, 184.3, 1032.5, 206.6, 1074.4, 234.6, 1112.2, 267.8, 1145.4, 305.6, 1173.4, 347.5, 1195.7, 392.7, 1211.9, 440.4, 1221.7, 489.7)
+
+[node name="AnvilShadow" type="Polygon2D" parent="."]
+color = Color(0, 0, 0, 0.45)
+polygon = PackedVector2Array(521, 412, 656, 445, 1076, 445, 1206, 412, 1216, 708, 1076, 675, 656, 675, 511, 708)
+
+[node name="AnvilBase" type="Polygon2D" parent="."]
+texture_repeat = 3
+color = Color(0.55, 0.55, 0.55, 1)
+texture = ExtResource("3_metal")
+polygon = PackedVector2Array(505, 392, 640, 425, 1060, 425, 1190, 392, 1200, 688, 1060, 655, 640, 655, 495, 688)
+
+[node name="AnvilFace" type="Polygon2D" parent="."]
+texture_repeat = 3
+color = Color(1.25, 1.2, 1.15, 1)
+texture = ExtResource("3_metal")
+polygon = PackedVector2Array(470, 452, 1150, 452, 1260, 470, 1360, 500, 1462, 540, 1360, 580, 1260, 610, 1150, 628, 470, 628)
+
+[node name="TopEdge" type="Line2D" parent="AnvilFace"]
+points = PackedVector2Array(470, 453, 1150, 453, 1260, 471, 1360, 501, 1462, 540)
+width = 4.0
+default_color = Color(0.85, 0.75, 0.62, 0.55)
+
+[node name="HeelEdge" type="Line2D" parent="AnvilFace"]
+points = PackedVector2Array(471, 453, 471, 627)
+width = 4.0
+default_color = Color(0.85, 0.75, 0.62, 0.4)
+
+[node name="BottomEdge" type="Line2D" parent="AnvilFace"]
+points = PackedVector2Array(470, 627, 1150, 627, 1260, 609, 1360, 579, 1462, 540)
+width = 5.0
+default_color = Color(0.05, 0.04, 0.04, 0.7)
+
+[node name="HardyHole" type="Polygon2D" parent="AnvilFace"]
+color = Color(0.06, 0.05, 0.05, 1)
+polygon = PackedVector2Array(520, 516, 556, 516, 556, 552, 520, 552)
+
+[node name="PritchelHole" type="Polygon2D" parent="AnvilFace"]
+color = Color(0.06, 0.05, 0.05, 1)
+polygon = PackedVector2Array(610, 534, 609.2, 537.8, 607.1, 541.1, 603.8, 543.2, 600, 544, 596.2, 543.2, 592.9, 541.1, 590.8, 537.8, 590, 534, 590.8, 530.2, 592.9, 526.9, 596.2, 524.8, 600, 524, 603.8, 524.8, 607.1, 526.9, 609.2, 530.2)
+
+[node name="SwordShadow" type="Sprite2D" parent="."]
+modulate = Color(0, 0, 0, 0.5)
+position = Vector2(790, 556)
+rotation = -0.05
+texture = ExtResource("4_sword")
+
+[node name="Sword" type="Sprite2D" parent="."]
+position = Vector2(778, 540)
+rotation = -0.05
+texture = ExtResource("4_sword")
+
+[node name="ForgeGlow" type="PointLight2D" parent="."]
+position = Vector2(-150, 250)
+color = Color(1, 0.55, 0.2, 1)
+energy = 1.2
+texture = ExtResource("6_glow")
+texture_scale = 9.0
+script = ExtResource("5_flicker")
+strength = 0.3
+scale_strength = 0.04
+speed = 8.0
+
+[node name="LampGlow" type="PointLight2D" parent="."]
+position = Vector2(1500, -100)
+color = Color(1, 0.75, 0.45, 1)
+energy = 0.6
+texture = ExtResource("6_glow")
+texture_scale = 6.0
+script = ExtResource("5_flicker")
+strength = 0.12
+speed = 4.0
+
+[node name="VignetteLayer" type="CanvasLayer" parent="."]
+
+[node name="Vignette" type="TextureRect" parent="VignetteLayer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = SubResource("GradientTexture2D_vignette")
+expand_mode = 1
+
+[node name="UI" type="CanvasLayer" parent="."]
+layer = 2
+
+[node name="BackButton" type="Button" parent="UI"]
+offset_left = 32.0
+offset_top = 32.0
+offset_right = 312.0
+offset_bottom = 112.0
+theme_override_font_sizes/font_size = 32
+text = "◀ В кузню"
+script = ExtResource("7_link")
+target_scene = "res://scenes/forge/forge.tscn"
+is_back_button = true
+
+[node name="Title" type="Label" parent="UI"]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -300.0
+offset_top = 48.0
+offset_right = 300.0
+offset_bottom = 96.0
+grow_horizontal = 2
+text = "Наковальня"
+label_settings = SubResource("LabelSettings_title")
+horizontal_alignment = 1
+
+[node name="Hint" type="Label" parent="UI"]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -400.0
+offset_top = -72.0
+offset_right = 400.0
+offset_bottom = -32.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "Esc или правый клик — назад в кузню"
+label_settings = SubResource("LabelSettings_hint")
+horizontal_alignment = 1
