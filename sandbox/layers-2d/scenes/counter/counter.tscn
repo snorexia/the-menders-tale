@@ -1,6 +1,6 @@
 [gd_scene load_steps=8 format=3]
 
-[ext_resource type="Script" path="res://common/mouse_parallax_camera.gd" id="1_camera"]
+[ext_resource type="Script" path="res://common/mouse_look_camera.gd" id="1_camera"]
 [ext_resource type="Texture2D" path="res://scenes/counter/counter_back.png" id="2_back"]
 [ext_resource type="Texture2D" path="res://scenes/counter/counter_sides.png" id="3_sides"]
 [ext_resource type="Texture2D" path="res://scenes/counter/counter_front.png" id="4_front"]
@@ -17,12 +17,11 @@ script = ExtResource("1_camera")
 [node name="Darkness" type="CanvasModulate" parent="."]
 color = Color(0.72, 0.66, 0.6, 1)
 
-[node name="BackLayer" type="Parallax2D" parent="."]
-scroll_scale = Vector2(0.25, 0.25)
+[node name="BackLayer" type="Node2D" parent="."]
 
 [node name="Sprite" type="Sprite2D" parent="BackLayer"]
-position = Vector2(-26.48, -15.19)
-scale = Vector2(1.18, 1.18)
+position = Vector2(-126.8, -71.65)
+scale = Vector2(1.3, 1.3)
 texture = ExtResource("2_back")
 centered = false
 
@@ -46,12 +45,11 @@ script = ExtResource("5_flicker")
 strength = 0.15
 speed = 4.0
 
-[node name="SidesLayer" type="Parallax2D" parent="."]
-scroll_scale = Vector2(0.6, 0.6)
+[node name="SidesLayer" type="Node2D" parent="."]
 
 [node name="Sprite" type="Sprite2D" parent="SidesLayer"]
-position = Vector2(-26.48, -15.19)
-scale = Vector2(1.18, 1.18)
+position = Vector2(-126.8, -71.65)
+scale = Vector2(1.3, 1.3)
 texture = ExtResource("3_sides")
 centered = false
 
@@ -75,11 +73,11 @@ script = ExtResource("5_flicker")
 strength = 0.3
 speed = 8.0
 
-[node name="FrontLayer" type="Parallax2D" parent="."]
+[node name="FrontLayer" type="Node2D" parent="."]
 
 [node name="Sprite" type="Sprite2D" parent="FrontLayer"]
-position = Vector2(-26.48, -15.19)
-scale = Vector2(1.18, 1.18)
+position = Vector2(-126.8, -71.65)
+scale = Vector2(1.3, 1.3)
 texture = ExtResource("4_front")
 centered = false
 
