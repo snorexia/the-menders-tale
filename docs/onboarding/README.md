@@ -11,6 +11,7 @@
 | 3 | [03-claude-code.md](03-claude-code.md) | Настроишь Claude Code и узнаешь, как давать ему задачи | Всем |
 | 4 | [04-blender-mcp.md](04-blender-mcp.md) | Подключишь Blender к Claude | Дизайнеру, разработчику |
 | 5 | [05-daily-workflow.md](05-daily-workflow.md) | Узнаешь, как работать каждый день: задача → план → PR | Всем |
+| 7 | [07-godot-tools.md](07-godot-tools.md) | Подключишь Godot к Claude: Python, Node.js, MCP, проверка стиля кода | Разработчику; остальным — по желанию |
 | — | [glossary.md](glossary.md) | Словарик терминов | Всем |
 
 Настройка ПК (шаги 1–4) делается один раз, примерно за час.
