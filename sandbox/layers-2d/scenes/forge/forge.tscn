@@ -1,0 +1,149 @@
+[gd_scene load_steps=12 format=3]
+
+[ext_resource type="Script" path="res://common/mouse_parallax_camera.gd" id="1_camera"]
+[ext_resource type="Texture2D" path="res://scenes/forge/forge_back.png" id="2_back"]
+[ext_resource type="Texture2D" path="res://scenes/forge/forge_sides.png" id="3_sides"]
+[ext_resource type="Texture2D" path="res://scenes/forge/forge_front.png" id="4_front"]
+[ext_resource type="Script" path="res://common/flicker_light.gd" id="5_flicker"]
+[ext_resource type="Texture2D" path="res://common/light_glow.tres" id="6_glow"]
+[ext_resource type="Script" path="res://common/scene_link_button.gd" id="7_link"]
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_fire"]
+blend_mode = 1
+light_mode = 1
+
+[sub_resource type="Curve" id="Curve_shrink"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0.2), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="Gradient" id="Gradient_flame"]
+offsets = PackedFloat32Array(0, 0.15, 0.6, 1)
+colors = PackedColorArray(1, 0.85, 0.45, 0, 1, 0.65, 0.25, 0.55, 0.9, 0.3, 0.05, 0.35, 0.5, 0.1, 0, 0)
+
+[sub_resource type="Gradient" id="Gradient_spark"]
+offsets = PackedFloat32Array(0, 0.7, 1)
+colors = PackedColorArray(1, 0.95, 0.6, 1, 1, 0.6, 0.2, 1, 1, 0.3, 0.05, 0)
+
+[node name="Forge" type="Node2D"]
+
+[node name="Camera" type="Camera2D" parent="."]
+position = Vector2(960, 540)
+script = ExtResource("1_camera")
+
+[node name="Darkness" type="CanvasModulate" parent="."]
+color = Color(0.72, 0.66, 0.6, 1)
+
+[node name="BackLayer" type="Parallax2D" parent="."]
+scroll_scale = Vector2(0.25, 0.25)
+
+[node name="Sprite" type="Sprite2D" parent="BackLayer"]
+position = Vector2(-26.48, -15.19)
+scale = Vector2(1.18, 1.18)
+texture = ExtResource("2_back")
+centered = false
+
+[node name="LampLeft" type="PointLight2D" parent="BackLayer/Sprite"]
+position = Vector2(520, 135)
+color = Color(1, 0.72, 0.4, 1)
+energy = 0.7
+texture = ExtResource("6_glow")
+texture_scale = 2.4
+script = ExtResource("5_flicker")
+strength = 0.15
+speed = 4.0
+
+[node name="LampRight" type="PointLight2D" parent="BackLayer/Sprite"]
+position = Vector2(1295, 125)
+color = Color(1, 0.72, 0.4, 1)
+energy = 0.7
+texture = ExtResource("6_glow")
+texture_scale = 2.4
+script = ExtResource("5_flicker")
+strength = 0.15
+speed = 4.0
+
+[node name="SidesLayer" type="Parallax2D" parent="."]
+scroll_scale = Vector2(0.6, 0.6)
+
+[node name="Sprite" type="Sprite2D" parent="SidesLayer"]
+position = Vector2(-26.48, -15.19)
+scale = Vector2(1.18, 1.18)
+texture = ExtResource("3_sides")
+centered = false
+
+[node name="ForgeLight" type="PointLight2D" parent="SidesLayer/Sprite"]
+position = Vector2(285, 370)
+color = Color(1, 0.55, 0.2, 1)
+texture = ExtResource("6_glow")
+texture_scale = 4.0
+script = ExtResource("5_flicker")
+strength = 0.35
+scale_strength = 0.08
+speed = 10.0
+
+[node name="Flames" type="CPUParticles2D" parent="SidesLayer/Sprite"]
+material = SubResource("CanvasItemMaterial_fire")
+position = Vector2(278, 418)
+amount = 60
+lifetime = 0.9
+preprocess = 1.0
+local_coords = true
+texture = ExtResource("6_glow")
+emission_shape = 3
+emission_rect_extents = Vector2(48, 6)
+direction = Vector2(0, -1)
+spread = 12.0
+gravity = Vector2(0, -60)
+initial_velocity_min = 30.0
+initial_velocity_max = 70.0
+scale_amount_min = 0.12
+scale_amount_max = 0.28
+scale_amount_curve = SubResource("Curve_shrink")
+color_ramp = SubResource("Gradient_flame")
+
+[node name="Sparks" type="CPUParticles2D" parent="SidesLayer/Sprite"]
+material = SubResource("CanvasItemMaterial_fire")
+position = Vector2(278, 405)
+amount = 14
+lifetime = 1.0
+preprocess = 1.0
+local_coords = true
+texture = ExtResource("6_glow")
+emission_shape = 3
+emission_rect_extents = Vector2(40, 8)
+direction = Vector2(0, -1)
+spread = 25.0
+gravity = Vector2(0, -10)
+initial_velocity_min = 50.0
+initial_velocity_max = 110.0
+scale_amount_min = 0.03
+scale_amount_max = 0.05
+color_ramp = SubResource("Gradient_spark")
+
+[node name="FrontLayer" type="Parallax2D" parent="."]
+
+[node name="Sprite" type="Sprite2D" parent="FrontLayer"]
+position = Vector2(-26.48, -15.19)
+scale = Vector2(1.18, 1.18)
+texture = ExtResource("4_front")
+centered = false
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="ToCounterButton" type="Button" parent="UI"]
+unique_name_in_owner = true
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -312.0
+offset_top = -40.0
+offset_right = -32.0
+offset_bottom = 40.0
+grow_horizontal = 0
+grow_vertical = 2
+theme_override_font_sizes/font_size = 32
+text = "К прилавку ▶"
+script = ExtResource("7_link")
+target_scene = "res://scenes/counter/counter.tscn"

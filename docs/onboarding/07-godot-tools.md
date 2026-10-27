@@ -6,6 +6,7 @@
 - **Python** — язык для вспомогательных программ (проверка стиля кода).
 - **Node.js** — среда, на которой работает [MCP](glossary.md)-сервер Godot.
 - **gdtoolkit** — проверка (`gdlint`) и форматирование (`gdformat`) кода GDScript.
+- **Pillow** — библиотека Python для картинок: ей скрипт `tools/cut_layers.py` режет мокапы на слои.
 - **MCP-сервер Godot** — подключение Godot к Claude. Сам сервер уже прописан в репозитории (`.mcp.json`), тебе нужно только указать, где лежит Godot.
 
 ## Шаг 1. Godot
@@ -76,7 +77,12 @@ py --version
    gdlint --version
    ```
 
-**Должно получиться:** `gdlint 4.5.0`.
+3. Поставь Pillow:
+   ```
+   pip install pillow==13.0.0
+   ```
+
+**Должно получиться:** `gdlint 4.5.0`; после пункта 3 — строка `Successfully installed pillow-13.0.0` (или `Requirement already satisfied`).
 
 Без флага `--user`: иначе программы лягут в папку, которой нет в Path.
 

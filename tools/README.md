@@ -5,6 +5,7 @@
 | Скрипт | Что делает | Кто добавил |
 |---|---|---|
 | `godot_screenshot.gd` | Открывает сцену проекта Godot и сохраняет кадр в PNG — чтобы агент посмотрел на сцену одной картинкой. Запуск: `"$GODOT_PATH" --path sandbox/backdrop --script "$(pwd -W)/tools/godot_screenshot.gd" -- res://scenes/counter/counter.tscn <файл.png>` (без `--headless`, окно мелькнёт) | snorexia (#12) |
+| `cut_layers.py` | Режет картинку (мокап) на слои по многоугольникам из JSON: каждый слой — PNG на весь холст, прозрачный вне многоугольника. Запуск: `python tools/cut_layers.py <слои.json> [--preview <контуры.png>]`, формат JSON — в начале скрипта. Нужен Pillow 13.0.0 | snorexia (#15) |
 
 Проверить проект Godot без окна: `"$GODOT_PATH" --headless --path <проект> --quit-after 5` — ошибки скриптов и сцен попадут в вывод. Стиль GDScript: `gdlint <папка>` (конфиг `gdlintrc` в корне).
 
