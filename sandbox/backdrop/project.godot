@@ -10,7 +10,7 @@ config_version=5
 
 [application]
 
-config/name="The Mender's Tale — песочница"
+config/name="The Mender's Tale — песочница: фон"
 config/description="Одноразовый макет: две сцены из мокапов для проверки инструментов (#12)."
 run/main_scene="res://scenes/counter/counter.tscn"
 config/features=PackedStringArray("4.7", "Forward Plus")

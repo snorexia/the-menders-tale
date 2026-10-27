@@ -10,6 +10,8 @@
 | `mockups/04-workbench-overview.png` | Верстак | Сумка с поломками, заказ из 3 пунктов с чекбоксами, нитки, кожа, клей, инструменты; панель с горячими клавишами |
 | `mockups/05-workbench-minigame-stitch.png` | Мини-игра «Зашить шов» | Пунктир, по которому ведём мышью, игла с нитью, звёзды точности, подсказка управления |
 | `mockups/06-workbench-minigame-box.png` | Мини-игра «Починить шкатулку» | Шаги 1→2→3 с картинками, клещи вытаскивают гвоздь, подсказка «тяни вверх» |
+| `mockups/07-forge-empty.webp` | Кузня, чистый фон | **Без интерфейса и без предмета в работе**: горн с огнём, наковальня на колоде, бочка с водой, ящик слитков, верстак, 2 подвесные лампы. Для песочниц `sandbox/` |
+| `mockups/08-counter-empty.webp` | Прилавок, чистый фон | **Без интерфейса и без клиента**: прилавок с ковриком, полки, 3 фонаря, свечи, кружка, монеты. Для песочниц `sandbox/` |
 
 ![](mockups/01-counter-customer.png)
 ![](mockups/02-forge-overview.png)
@@ -17,3 +19,5 @@
 ![](mockups/04-workbench-overview.png)
 ![](mockups/05-workbench-minigame-stitch.png)
 ![](mockups/06-workbench-minigame-box.png)
+![](mockups/07-forge-empty.webp)
+![](mockups/08-counter-empty.webp)
