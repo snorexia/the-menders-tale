@@ -5,6 +5,7 @@
 | Скрипт | Что делает | Кто добавил |
 |---|---|---|
 | `godot_screenshot.gd` | Открывает сцену проекта Godot и сохраняет кадр в PNG — чтобы агент посмотрел на сцену одной картинкой. Запуск: `"$GODOT_PATH" --path sandbox/backdrop --script "$(pwd -W)/tools/godot_screenshot.gd" -- res://scenes/counter/counter.tscn <файл.png>` (без `--headless`, окно мелькнёт) | snorexia (#12) |
+| `make_textures.py` | Рисует бесшовные пиксельные текстуры (камень, пол, дерево, металл, кирпич, коврик) для `sandbox/room-3d/`: палитра снимается с мокапов, узор процедурный. Запуск: `python tools/make_textures.py --out sandbox/room-3d/textures`. Нужен Pillow (`07-godot-tools.md`, шаг 5) | snorexia (#16) |
 
 Проверить проект Godot без окна: `"$GODOT_PATH" --headless --path <проект> --quit-after 5` — ошибки скриптов и сцен попадут в вывод. Стиль GDScript: `gdlint <папка>` (конфиг `gdlintrc` в корне).
 

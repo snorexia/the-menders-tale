@@ -6,6 +6,7 @@
 - **Python** — язык для вспомогательных программ (проверка стиля кода).
 - **Node.js** — среда, на которой работает [MCP](glossary.md)-сервер Godot.
 - **gdtoolkit** — проверка (`gdlint`) и форматирование (`gdformat`) кода GDScript.
+- **Pillow** — библиотека Python для картинок: нужна скрипту `tools/make_textures.py`, который рисует текстуры для песочницы.
 - **MCP-сервер Godot** — подключение Godot к Claude. Сам сервер уже прописан в репозитории (`.mcp.json`), тебе нужно только указать, где лежит Godot.
 
 ## Шаг 1. Godot
@@ -66,7 +67,7 @@ py --version
 
 **Должно получиться:** `v24.x` или новее.
 
-## Шаг 5. gdtoolkit
+## Шаг 5. gdtoolkit и Pillow
 1. В PowerShell:
    ```
    pip install gdtoolkit==4.5.0
@@ -76,7 +77,16 @@ py --version
    gdlint --version
    ```
 
-**Должно получиться:** `gdlint 4.5.0`.
+3. Поставь Pillow (для скрипта текстур):
+   ```
+   pip install pillow==13.0.0
+   ```
+4. Проверь:
+   ```
+   python -c "import PIL; print(PIL.__version__)"
+   ```
+
+**Должно получиться:** `gdlint 4.5.0` и `13.0.0`.
 
 Без флага `--user`: иначе программы лягут в папку, которой нет в Path.
 
