@@ -1,0 +1,632 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://common/camera_sway.gd" id="s_camera"]
+[ext_resource type="Script" path="res://common/flicker_light_3d.gd" id="s_flicker"]
+[ext_resource type="Script" path="res://common/scene_link_button.gd" id="s_link"]
+[ext_resource type="Material" path="res://materials/floor_tiles.tres" id="m_floor_tiles"]
+[ext_resource type="Material" path="res://materials/wood_beam.tres" id="m_wood_beam"]
+[ext_resource type="Material" path="res://materials/stone_wall.tres" id="m_stone_wall"]
+[ext_resource type="Material" path="res://materials/wood_planks.tres" id="m_wood_planks"]
+[ext_resource type="Material" path="res://materials/dark_metal.tres" id="m_dark_metal"]
+[ext_resource type="Material" path="res://materials/rug.tres" id="m_rug"]
+[ext_resource type="Material" path="res://materials/gold.tres" id="m_gold"]
+[ext_resource type="Material" path="res://materials/lamp_glass.tres" id="m_lamp_glass"]
+[ext_resource type="Material" path="res://materials/wax.tres" id="m_wax"]
+[ext_resource type="Material" path="res://materials/flame.tres" id="m_flame"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_unit"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_unit"]
+top_radius = 0.5
+bottom_radius = 0.5
+height = 1.0
+radial_segments = 16
+rings = 1
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_frustum"]
+top_radius = 0.25
+bottom_radius = 0.5
+height = 1.0
+radial_segments = 4
+rings = 1
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_cone"]
+top_radius = 0.0
+bottom_radius = 0.5
+height = 1.0
+radial_segments = 12
+rings = 1
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_unit"]
+size = Vector2(1, 1)
+
+[sub_resource type="QuadMesh" id="QuadMesh_flame"]
+size = Vector2(0.06, 0.11)
+
+[sub_resource type="Environment" id="Environment_room"]
+background_mode = 1
+background_color = Color(0.04, 0.03, 0.025, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.6, 0.45, 0.32, 1)
+ambient_light_energy = 0.35
+tonemap_mode = 4
+ssao_enabled = true
+glow_enabled = true
+glow_intensity = 0.6
+glow_bloom = 0.05
+
+[node name="Counter" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_room")
+
+[node name="Camera" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.7, 4.8)
+fov = 50.0
+script = ExtResource("s_camera")
+look_at_point = Vector3(0, 0.95, -3.6)
+max_angle_degrees = 2.0
+
+[node name="Room" type="Node3D" parent="."]
+
+[node name="Floor" type="MeshInstance3D" parent="Room"]
+transform = Transform3D(12.4, 0, 0, 0, 0.1, 0, 0, 0, 8.6, 0, -0.05, 0.7)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_floor_tiles")
+
+[node name="Ceiling" type="MeshInstance3D" parent="Room"]
+transform = Transform3D(12.4, 0, 0, 0, 0.1, 0, 0, 0, 8.6, 0, 4.55, 0.7)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_wood_beam")
+
+[node name="BackWall" type="MeshInstance3D" parent="Room"]
+transform = Transform3D(12.4, 0, 0, 0, 4.5, 0, 0, 0, 0.2, 0, 2.25, -3.7)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_stone_wall")
+
+[node name="LeftWall" type="MeshInstance3D" parent="Room"]
+transform = Transform3D(0.2, 0, 0, 0, 4.5, 0, 0, 0, 8.6, -6.1, 2.25, 0.7)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_stone_wall")
+
+[node name="RightWall" type="MeshInstance3D" parent="Room"]
+transform = Transform3D(0.2, 0, 0, 0, 4.5, 0, 0, 0, 8.6, 6.1, 2.25, 0.7)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_stone_wall")
+
+[node name="Beams" type="Node3D" parent="."]
+
+[node name="Post1" type="MeshInstance3D" parent="Beams"]
+transform = Transform3D(0.3, 0, 0, 0, 4.5, 0, 0, 0, 0.3, -3, 2.25, -3.45)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_wood_beam")
+
+[node name="Post2" type="MeshInstance3D" parent="Beams"]
+transform = Transform3D(0.3, 0, 0, 0, 4.5, 0, 0, 0, 0.3, 2, 2.25, -3.45)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_wood_beam")
+
+[node name="Post3" type="MeshInstance3D" parent="Beams"]
+transform = Transform3D(0.3, 0, 0, 0, 4.5, 0, 0, 0, 0.3, -3.6, 2.25, -1.2)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_wood_beam")
+
+[node name="Post4" type="MeshInstance3D" parent="Beams"]
+transform = Transform3D(0.3, 0, 0, 0, 4.5, 0, 0, 0, 0.3, 4.2, 2.25, -1)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_wood_beam")
+
+[node name="TopBeam" type="MeshInstance3D" parent="Beams"]
+transform = Transform3D(12, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 0, 4.1, -3.45)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_wood_beam")
+
+[node name="Joist1" type="MeshInstance3D" parent="Beams"]
+transform = Transform3D(0.25, 0, 0, 0, 0.25, 0, 0, 0, 8.6, -3, 4.35, 0.7)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_wood_beam")
+
+[node name="BraceL1" type="MeshInstance3D" parent="Beams"]
+transform = Transform3D(0.1379, 0.7713, 0, -0.1157, 0.9193, 0, 0, 0, 0.18, -3.45, 3.6, -3.45)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_wood_beam")
+
+[node name="BraceR1" type="MeshInstance3D" parent="Beams"]
+transform = Transform3D(0.1379, -0.7713, 0, 0.1157, 0.9193, 0, 0, 0, 0.18, -2.55, 3.6, -3.45)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_wood_beam")
+
+[node name="Joist2" type="MeshInstance3D" parent="Beams"]
+transform = Transform3D(0.25, 0, 0, 0, 0.25, 0, 0, 0, 8.6, 2, 4.35, 0.7)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_wood_beam")
+
+[node name="BraceL2" type="MeshInstance3D" parent="Beams"]
+transform = Transform3D(0.1379, 0.7713, 0, -0.1157, 0.9193, 0, 0, 0, 0.18, 1.55, 3.6, -3.45)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_wood_beam")
+
+[node name="BraceR2" type="MeshInstance3D" parent="Beams"]
+transform = Transform3D(0.1379, -0.7713, 0, 0.1157, 0.9193, 0, 0, 0, 0.18, 2.45, 3.6, -3.45)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_wood_beam")
+
+[node name="Props" type="Node3D" parent="."]
+
+[node name="Barrel" type="Node3D" parent="Props"]
+
+[node name="Body" type="MeshInstance3D" parent="Props/Barrel"]
+transform = Transform3D(0.8, 0, 0, 0, 0.9, 0, 0, 0, 0.8, 0.6, 0.45, -3.05)
+mesh = SubResource("CylinderMesh_unit")
+material_override = ExtResource("m_wood_planks")
+
+[node name="Hoop1" type="MeshInstance3D" parent="Props/Barrel"]
+transform = Transform3D(0.84, 0, 0, 0, 0.05, 0, 0, 0, 0.84, 0.6, 0.205, -3.05)
+mesh = SubResource("CylinderMesh_unit")
+material_override = ExtResource("m_dark_metal")
+
+[node name="Hoop2" type="MeshInstance3D" parent="Props/Barrel"]
+transform = Transform3D(0.84, 0, 0, 0, 0.05, 0, 0, 0, 0.84, 0.6, 0.7, -3.05)
+mesh = SubResource("CylinderMesh_unit")
+material_override = ExtResource("m_dark_metal")
+
+[node name="Crate" type="MeshInstance3D" parent="Props"]
+transform = Transform3D(0.7, 0, 0, 0, 0.6, 0, 0, 0, 0.5, -1.4, 0.3, -3.2)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_wood_planks")
+
+[node name="SmallCrate" type="MeshInstance3D" parent="Props"]
+transform = Transform3D(0.35, 0, 0, 0, 0.5, 0, 0, 0, 0.35, -0.85, 0.25, -3.25)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_wood_planks")
+
+[node name="Stool" type="Node3D" parent="Props"]
+
+[node name="Top" type="MeshInstance3D" parent="Props/Stool"]
+transform = Transform3D(0.4, 0, 0, 0, 0.06, 0, 0, 0, 0.4, -2.4, 0.67, -2.6)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_wood_planks")
+
+[node name="Leg1" type="MeshInstance3D" parent="Props/Stool"]
+transform = Transform3D(0.1, 0, 0, 0, 0.64, 0, 0, 0, 0.1, -2.52, 0.32, -2.72)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_wood_beam")
+
+[node name="Leg2" type="MeshInstance3D" parent="Props/Stool"]
+transform = Transform3D(0.1, 0, 0, 0, 0.64, 0, 0, 0, 0.1, -2.28, 0.32, -2.72)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_wood_beam")
+
+[node name="Leg3" type="MeshInstance3D" parent="Props/Stool"]
+transform = Transform3D(0.1, 0, 0, 0, 0.64, 0, 0, 0, 0.1, -2.52, 0.32, -2.48)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_wood_beam")
+
+[node name="Leg4" type="MeshInstance3D" parent="Props/Stool"]
+transform = Transform3D(0.1, 0, 0, 0, 0.64, 0, 0, 0, 0.1, -2.28, 0.32, -2.48)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_wood_beam")
+
+[node name="BackShelf" type="Node3D" parent="Props"]
+
+[node name="Board" type="MeshInstance3D" parent="Props/BackShelf"]
+transform = Transform3D(4, 0, 0, 0, 0.08, 0, 0, 0, 0.35, -0.4, 3, -3.42)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_wood_planks")
+
+[node name="Book1" type="MeshInstance3D" parent="Props/BackShelf"]
+transform = Transform3D(0.14, 0, 0, 0, 0.34, 0, 0, 0, 0.24, -1.2, 3.2, -3.42)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_wood_beam")
+
+[node name="Book2" type="MeshInstance3D" parent="Props/BackShelf"]
+transform = Transform3D(0.14, 0, 0, 0, 0.34, 0, 0, 0, 0.24, -1, 3.2, -3.42)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_wood_beam")
+
+[node name="Book3" type="MeshInstance3D" parent="Props/BackShelf"]
+transform = Transform3D(0.14, 0, 0, 0, 0.34, 0, 0, 0, 0.24, -0.82, 3.2, -3.42)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_wood_beam")
+
+[node name="Jug" type="MeshInstance3D" parent="Props/BackShelf"]
+transform = Transform3D(0.28, 0, 0, 0, 0.3, 0, 0, 0, 0.28, 0.1, 3.19, -3.42)
+mesh = SubResource("CylinderMesh_unit")
+material_override = ExtResource("m_wood_beam")
+
+[node name="Box" type="MeshInstance3D" parent="Props/BackShelf"]
+transform = Transform3D(0.5, 0, 0, 0, 0.2, 0, 0, 0, 0.25, 0.7, 3.14, -3.42)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_wood_planks")
+
+[node name="LeftTable" type="Node3D" parent="Props"]
+
+[node name="Top" type="MeshInstance3D" parent="Props/LeftTable"]
+transform = Transform3D(1.6, 0, 0, 0, 0.1, 0, 0, 0, 1, -4.3, 0.95, -1)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_wood_planks")
+
+[node name="Leg1" type="MeshInstance3D" parent="Props/LeftTable"]
+transform = Transform3D(0.1, 0, 0, 0, 0.9, 0, 0, 0, 0.1, -5.02, 0.45, -1.42)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_wood_beam")
+
+[node name="Leg2" type="MeshInstance3D" parent="Props/LeftTable"]
+transform = Transform3D(0.1, 0, 0, 0, 0.9, 0, 0, 0, 0.1, -3.58, 0.45, -1.42)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_wood_beam")
+
+[node name="Leg3" type="MeshInstance3D" parent="Props/LeftTable"]
+transform = Transform3D(0.1, 0, 0, 0, 0.9, 0, 0, 0, 0.1, -5.02, 0.45, -0.58)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_wood_beam")
+
+[node name="Leg4" type="MeshInstance3D" parent="Props/LeftTable"]
+transform = Transform3D(0.1, 0, 0, 0, 0.9, 0, 0, 0, 0.1, -3.58, 0.45, -0.58)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_wood_beam")
+
+[node name="LeftShelves" type="Node3D" parent="Props"]
+
+[node name="Shelf1" type="MeshInstance3D" parent="Props/LeftShelves"]
+transform = Transform3D(0.6, 0, 0, 0, 0.08, 0, 0, 0, 3, -5.7, 1.8, -0.5)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_wood_planks")
+
+[node name="Shelf2" type="MeshInstance3D" parent="Props/LeftShelves"]
+transform = Transform3D(0.6, 0, 0, 0, 0.08, 0, 0, 0, 3, -5.7, 2.6, -0.5)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_wood_planks")
+
+[node name="Helmet" type="MeshInstance3D" parent="Props/LeftShelves"]
+transform = Transform3D(0.32, 0, 0, 0, 0.3, 0, 0, 0, 0.32, -5.7, 1.99, -0.9)
+mesh = SubResource("CylinderMesh_unit")
+material_override = ExtResource("m_dark_metal")
+
+[node name="RightDesk" type="Node3D" parent="Props"]
+
+[node name="Top" type="MeshInstance3D" parent="Props/RightDesk"]
+transform = Transform3D(2.4, 0, 0, 0, 0.1, 0, 0, 0, 1, 3.2, 0.95, -1.3)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_wood_planks")
+
+[node name="Leg1" type="MeshInstance3D" parent="Props/RightDesk"]
+transform = Transform3D(0.1, 0, 0, 0, 0.9, 0, 0, 0, 0.1, 2.08, 0.45, -1.72)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_wood_beam")
+
+[node name="Leg2" type="MeshInstance3D" parent="Props/RightDesk"]
+transform = Transform3D(0.1, 0, 0, 0, 0.9, 0, 0, 0, 0.1, 4.32, 0.45, -1.72)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_wood_beam")
+
+[node name="Leg3" type="MeshInstance3D" parent="Props/RightDesk"]
+transform = Transform3D(0.1, 0, 0, 0, 0.9, 0, 0, 0, 0.1, 2.08, 0.45, -0.88)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_wood_beam")
+
+[node name="Leg4" type="MeshInstance3D" parent="Props/RightDesk"]
+transform = Transform3D(0.1, 0, 0, 0, 0.9, 0, 0, 0, 0.1, 4.32, 0.45, -0.88)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_wood_beam")
+
+[node name="DeskBody" type="MeshInstance3D" parent="Props/RightDesk"]
+transform = Transform3D(2.3, 0, 0, 0, 0.9, 0, 0, 0, 0.85, 3.2, 0.45, -1.35)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_wood_planks")
+
+[node name="RightShelves" type="Node3D" parent="Props"]
+
+[node name="Shelf1" type="MeshInstance3D" parent="Props/RightShelves"]
+transform = Transform3D(3.6, 0, 0, 0, 0.08, 0, 0, 0, 0.5, 4, 1.9, -3.3)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_wood_planks")
+
+[node name="Item1_1" type="MeshInstance3D" parent="Props/RightShelves"]
+transform = Transform3D(0.3, 0, 0, 0, 0.26, 0, 0, 0, 0.3, 2.6, 2.07, -3.3)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_wood_beam")
+
+[node name="Item1_2" type="MeshInstance3D" parent="Props/RightShelves"]
+transform = Transform3D(0.3, 0, 0, 0, 0.26, 0, 0, 0, 0.3, 3.25, 2.07, -3.3)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_wood_beam")
+
+[node name="Item1_3" type="MeshInstance3D" parent="Props/RightShelves"]
+transform = Transform3D(0.3, 0, 0, 0, 0.26, 0, 0, 0, 0.3, 3.9, 2.07, -3.3)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_wood_beam")
+
+[node name="Item1_4" type="MeshInstance3D" parent="Props/RightShelves"]
+transform = Transform3D(0.3, 0, 0, 0, 0.26, 0, 0, 0, 0.3, 4.55, 2.07, -3.3)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_wood_beam")
+
+[node name="Item1_5" type="MeshInstance3D" parent="Props/RightShelves"]
+transform = Transform3D(0.3, 0, 0, 0, 0.26, 0, 0, 0, 0.3, 5.2, 2.07, -3.3)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_wood_beam")
+
+[node name="Shelf2" type="MeshInstance3D" parent="Props/RightShelves"]
+transform = Transform3D(3.6, 0, 0, 0, 0.08, 0, 0, 0, 0.5, 4, 2.7, -3.3)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_wood_planks")
+
+[node name="Item2_1" type="MeshInstance3D" parent="Props/RightShelves"]
+transform = Transform3D(0.3, 0, 0, 0, 0.26, 0, 0, 0, 0.3, 2.6, 2.87, -3.3)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_wood_beam")
+
+[node name="Item2_2" type="MeshInstance3D" parent="Props/RightShelves"]
+transform = Transform3D(0.3, 0, 0, 0, 0.26, 0, 0, 0, 0.3, 3.25, 2.87, -3.3)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_wood_beam")
+
+[node name="Item2_3" type="MeshInstance3D" parent="Props/RightShelves"]
+transform = Transform3D(0.3, 0, 0, 0, 0.26, 0, 0, 0, 0.3, 3.9, 2.87, -3.3)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_wood_beam")
+
+[node name="Item2_4" type="MeshInstance3D" parent="Props/RightShelves"]
+transform = Transform3D(0.3, 0, 0, 0, 0.26, 0, 0, 0, 0.3, 4.55, 2.87, -3.3)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_wood_beam")
+
+[node name="Item2_5" type="MeshInstance3D" parent="Props/RightShelves"]
+transform = Transform3D(0.3, 0, 0, 0, 0.26, 0, 0, 0, 0.3, 5.2, 2.87, -3.3)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_wood_beam")
+
+[node name="Shelf3" type="MeshInstance3D" parent="Props/RightShelves"]
+transform = Transform3D(3.6, 0, 0, 0, 0.08, 0, 0, 0, 0.5, 4, 3.4, -3.3)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_wood_planks")
+
+[node name="Item3_1" type="MeshInstance3D" parent="Props/RightShelves"]
+transform = Transform3D(0.3, 0, 0, 0, 0.26, 0, 0, 0, 0.3, 2.6, 3.57, -3.3)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_wood_beam")
+
+[node name="Item3_2" type="MeshInstance3D" parent="Props/RightShelves"]
+transform = Transform3D(0.3, 0, 0, 0, 0.26, 0, 0, 0, 0.3, 3.25, 3.57, -3.3)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_wood_beam")
+
+[node name="Item3_3" type="MeshInstance3D" parent="Props/RightShelves"]
+transform = Transform3D(0.3, 0, 0, 0, 0.26, 0, 0, 0, 0.3, 3.9, 3.57, -3.3)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_wood_beam")
+
+[node name="Item3_4" type="MeshInstance3D" parent="Props/RightShelves"]
+transform = Transform3D(0.3, 0, 0, 0, 0.26, 0, 0, 0, 0.3, 4.55, 3.57, -3.3)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_wood_beam")
+
+[node name="Item3_5" type="MeshInstance3D" parent="Props/RightShelves"]
+transform = Transform3D(0.3, 0, 0, 0, 0.26, 0, 0, 0, 0.3, 5.2, 3.57, -3.3)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_wood_beam")
+
+[node name="CrateRight" type="MeshInstance3D" parent="Props"]
+transform = Transform3D(0.8, 0, 0, 0, 0.6, 0, 0, 0, 0.7, 5.1, 0.3, 0.6)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_wood_planks")
+
+[node name="CounterTop" type="Node3D" parent="."]
+
+[node name="Board" type="MeshInstance3D" parent="CounterTop"]
+transform = Transform3D(12, 0, 0, 0, 0.1, 0, 0, 0, 1.4, 0, 0.95, 3.6)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_wood_planks")
+
+[node name="Rug" type="MeshInstance3D" parent="CounterTop"]
+transform = Transform3D(1.6, 0, 0, 0, 1, 0, 0, 0, 0.8, 0, 1.003, 3.45)
+mesh = SubResource("PlaneMesh_unit")
+material_override = ExtResource("m_rug")
+
+[node name="Mug" type="MeshInstance3D" parent="CounterTop"]
+transform = Transform3D(0.22, 0, 0, 0, 0.26, 0, 0, 0, 0.22, -0.95, 1.13, 3.4)
+mesh = SubResource("CylinderMesh_unit")
+material_override = ExtResource("m_dark_metal")
+
+[node name="MugHandle" type="MeshInstance3D" parent="CounterTop"]
+transform = Transform3D(0.06, 0, 0, 0, 0.14, 0, 0, 0, 0.03, -1.09, 1.13, 3.4)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_dark_metal")
+
+[node name="Coin1" type="MeshInstance3D" parent="CounterTop"]
+transform = Transform3D(0.08, 0, 0, 0, 0.01, 0, 0, 0, 0.08, 0.45, 1.005, 3.55)
+mesh = SubResource("CylinderMesh_unit")
+material_override = ExtResource("m_gold")
+
+[node name="Coin2" type="MeshInstance3D" parent="CounterTop"]
+transform = Transform3D(0.08, 0, 0, 0, 0.01, 0, 0, 0, 0.08, 0.55, 1.005, 3.6)
+mesh = SubResource("CylinderMesh_unit")
+material_override = ExtResource("m_gold")
+
+[node name="Coin3" type="MeshInstance3D" parent="CounterTop"]
+transform = Transform3D(0.08, 0, 0, 0, 0.01, 0, 0, 0, 0.08, 0.62, 1.005, 3.52)
+mesh = SubResource("CylinderMesh_unit")
+material_override = ExtResource("m_gold")
+
+[node name="Lights" type="Node3D" parent="."]
+
+[node name="LanternLeft" type="Node3D" parent="Lights"]
+
+[node name="Chain" type="MeshInstance3D" parent="Lights/LanternLeft"]
+transform = Transform3D(0.03, 0, 0, 0, 0.85, 0, 0, 0, 0.03, -3.2, 4.075, -2)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_dark_metal")
+cast_shadow = 0
+
+[node name="Cap" type="MeshInstance3D" parent="Lights/LanternLeft"]
+transform = Transform3D(0.297, 0, 0.297, 0, 0.14, 0, -0.297, 0, 0.297, -3.2, 3.64, -2)
+mesh = SubResource("CylinderMesh_frustum")
+material_override = ExtResource("m_dark_metal")
+cast_shadow = 0
+
+[node name="Glass" type="MeshInstance3D" parent="Lights/LanternLeft"]
+transform = Transform3D(0.2, 0, 0, 0, 0.34, 0, 0, 0, 0.2, -3.2, 3.4, -2)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_lamp_glass")
+cast_shadow = 0
+
+[node name="Base" type="MeshInstance3D" parent="Lights/LanternLeft"]
+transform = Transform3D(0.26, 0, 0, 0, 0.05, 0, 0, 0, 0.26, -3.2, 3.21, -2)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_dark_metal")
+cast_shadow = 0
+
+[node name="Light" type="OmniLight3D" parent="Lights/LanternLeft"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.2, 3.4, -2)
+light_color = Color(1, 0.74, 0.45, 1)
+light_energy = 1.6
+omni_range = 6.0
+omni_attenuation = 1.4
+shadow_enabled = true
+shadow_blur = 1.5
+script = ExtResource("s_flicker")
+flicker_strength = 0.08
+flicker_speed = 3.0
+
+[node name="LanternWall" type="Node3D" parent="Lights"]
+
+[node name="Chain" type="MeshInstance3D" parent="Lights/LanternWall"]
+transform = Transform3D(0.03, 0, 0, 0, 0.15, 0, 0, 0, 0.03, -1.3, 2.925, -3.3)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_dark_metal")
+cast_shadow = 0
+
+[node name="Cap" type="MeshInstance3D" parent="Lights/LanternWall"]
+transform = Transform3D(0.297, 0, 0.297, 0, 0.14, 0, -0.297, 0, 0.297, -1.3, 2.84, -3.3)
+mesh = SubResource("CylinderMesh_frustum")
+material_override = ExtResource("m_dark_metal")
+cast_shadow = 0
+
+[node name="Glass" type="MeshInstance3D" parent="Lights/LanternWall"]
+transform = Transform3D(0.2, 0, 0, 0, 0.34, 0, 0, 0, 0.2, -1.3, 2.6, -3.3)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_lamp_glass")
+cast_shadow = 0
+
+[node name="Base" type="MeshInstance3D" parent="Lights/LanternWall"]
+transform = Transform3D(0.26, 0, 0, 0, 0.05, 0, 0, 0, 0.26, -1.3, 2.41, -3.3)
+mesh = SubResource("BoxMesh_unit")
+material_override = ExtResource("m_dark_metal")
+cast_shadow = 0
+
+[node name="Light" type="OmniLight3D" parent="Lights/LanternWall"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.3, 2.6, -3.3)
+light_color = Color(1, 0.74, 0.45, 1)
+light_energy = 1.6
+omni_range = 6.0
+omni_attenuation = 1.4
+script = ExtResource("s_flicker")
+flicker_strength = 0.08
+flicker_speed = 3.0
+
+[node name="CandleLeft" type="Node3D" parent="Lights"]
+
+[node name="Wax" type="MeshInstance3D" parent="Lights/CandleLeft"]
+transform = Transform3D(0.07, 0, 0, 0, 0.15, 0, 0, 0, 0.07, -3.9, 1.075, -0.9)
+mesh = SubResource("CylinderMesh_unit")
+material_override = ExtResource("m_wax")
+cast_shadow = 0
+
+[node name="Flame" type="MeshInstance3D" parent="Lights/CandleLeft"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.9, 1.2, -0.9)
+mesh = SubResource("QuadMesh_flame")
+material_override = ExtResource("m_flame")
+cast_shadow = 0
+
+[node name="Light" type="OmniLight3D" parent="Lights/CandleLeft"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.9, 1.25, -0.9)
+light_color = Color(1, 0.7, 0.4, 1)
+light_energy = 1.2
+omni_range = 3.0
+omni_attenuation = 1.4
+script = ExtResource("s_flicker")
+flicker_strength = 0.25
+flicker_speed = 10.0
+
+[node name="CandleDesk" type="Node3D" parent="Lights"]
+
+[node name="Wax" type="MeshInstance3D" parent="Lights/CandleDesk"]
+transform = Transform3D(0.07, 0, 0, 0, 0.15, 0, 0, 0, 0.07, 2.8, 1.075, -1.2)
+mesh = SubResource("CylinderMesh_unit")
+material_override = ExtResource("m_wax")
+cast_shadow = 0
+
+[node name="Flame" type="MeshInstance3D" parent="Lights/CandleDesk"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.8, 1.2, -1.2)
+mesh = SubResource("QuadMesh_flame")
+material_override = ExtResource("m_flame")
+cast_shadow = 0
+
+[node name="Light" type="OmniLight3D" parent="Lights/CandleDesk"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.8, 1.25, -1.2)
+light_color = Color(1, 0.7, 0.4, 1)
+light_energy = 1.2
+omni_range = 3.0
+omni_attenuation = 1.4
+script = ExtResource("s_flicker")
+flicker_strength = 0.25
+flicker_speed = 10.0
+
+[node name="CandleCounter" type="Node3D" parent="Lights"]
+
+[node name="Wax" type="MeshInstance3D" parent="Lights/CandleCounter"]
+transform = Transform3D(0.07, 0, 0, 0, 0.15, 0, 0, 0, 0.07, 1, 1.075, 3.3)
+mesh = SubResource("CylinderMesh_unit")
+material_override = ExtResource("m_wax")
+cast_shadow = 0
+
+[node name="Flame" type="MeshInstance3D" parent="Lights/CandleCounter"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1.2, 3.3)
+mesh = SubResource("QuadMesh_flame")
+material_override = ExtResource("m_flame")
+cast_shadow = 0
+
+[node name="Light" type="OmniLight3D" parent="Lights/CandleCounter"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1.25, 3.3)
+light_color = Color(1, 0.7, 0.4, 1)
+light_energy = 1.2
+omni_range = 3.0
+omni_attenuation = 1.4
+script = ExtResource("s_flicker")
+flicker_strength = 0.25
+flicker_speed = 10.0
+
+[node name="FillLight" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, 2.6, 4.6)
+light_color = Color(1, 0.74, 0.45, 1)
+light_energy = 0.35
+omni_range = 6.0
+omni_attenuation = 1.4
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="HUD" type="Control" parent="UI"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="ToForgeButton" type="Button" parent="UI/HUD"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 32.0
+offset_top = -40.0
+offset_right = 312.0
+offset_bottom = 40.0
+grow_vertical = 2
+theme_override_font_sizes/font_size = 32
+text = "◀ В кузню"
+script = ExtResource("s_link")
+target_scene = "res://scenes/forge/forge.tscn"
