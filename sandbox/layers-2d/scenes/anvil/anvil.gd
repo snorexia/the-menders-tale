@@ -30,7 +30,7 @@ const PERCENT := 100.0
 @export var ring_start_radius: float = 150.0
 @export var ring_end_radius: float = 30.0
 ## Сколько секунд круг сжимается.
-@export var ring_shrink_time: float = 1.2
+@export var ring_shrink_time: float = 0.9
 ## С какой доли сжатия клик засчитывается: 0.8 — последние 20 % времени.
 @export_range(0.0, 1.0) var ring_hit_from: float = 0.8
 ## Сколько секунд сжатый круг ждёт клика.
