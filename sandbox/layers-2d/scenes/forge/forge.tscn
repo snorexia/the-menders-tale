@@ -71,6 +71,18 @@ scale = Vector2(1.3, 1.3)
 texture = ExtResource("3_sides")
 centered = false
 
+[node name="Hearth" type="Polygon2D" parent="SidesLayer/Sprite"]
+texture = ExtResource("3_sides")
+polygon = PackedVector2Array(110, 190, 150, 0, 380, 0, 472, 262, 458, 285, 462, 438, 532, 446, 536, 690, 262, 700, 240, 600, 222, 470, 150, 455, 145, 265)
+
+[node name="HearthArea" type="Area2D" parent="SidesLayer/Sprite/Hearth" node_paths=PackedStringArray("highlight_target")]
+script = ExtResource("9_area")
+target_scene = "res://scenes/hearth/hearth.tscn"
+highlight_target = NodePath("..")
+
+[node name="Shape" type="CollisionPolygon2D" parent="SidesLayer/Sprite/Hearth/HearthArea"]
+polygon = PackedVector2Array(110, 190, 150, 0, 380, 0, 472, 262, 458, 285, 462, 438, 532, 446, 536, 690, 262, 700, 240, 600, 222, 470, 150, 455, 145, 265)
+
 [node name="ForgeLight" type="PointLight2D" parent="SidesLayer/Sprite"]
 position = Vector2(285, 370)
 color = Color(1, 0.55, 0.2, 1)
