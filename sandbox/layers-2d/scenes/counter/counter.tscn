@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=19 format=3]
 
 [ext_resource type="Script" path="res://common/mouse_look_camera.gd" id="1_camera"]
 [ext_resource type="Texture2D" path="res://scenes/counter/counter_back.png" id="2_back"]
@@ -9,6 +9,83 @@
 [ext_resource type="Script" path="res://common/scene_link_button.gd" id="7_link"]
 [ext_resource type="Script" path="res://common/walking_npc.gd" id="8_npc"]
 [ext_resource type="Texture2D" path="res://scenes/counter/npc_guard.png" id="9_guard"]
+[ext_resource type="Script" path="res://common/dialogue_box.gd" id="10_dialogue"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_parchment"]
+content_margin_left = 36.0
+content_margin_top = 26.0
+content_margin_right = 36.0
+content_margin_bottom = 26.0
+bg_color = Color(0.91, 0.84, 0.7, 0.97)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.36, 0.23, 0.13, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0, 0, 0, 0.45)
+shadow_size = 10
+shadow_offset = Vector2(4, 6)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_choice"]
+content_margin_left = 18.0
+content_margin_top = 10.0
+content_margin_right = 18.0
+content_margin_bottom = 10.0
+bg_color = Color(0.8, 0.7, 0.52, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.55, 0.4, 0.25, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_choice_hover"]
+content_margin_left = 18.0
+content_margin_top = 10.0
+content_margin_right = 18.0
+content_margin_bottom = 10.0
+bg_color = Color(0.62, 0.68, 0.45, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.36, 0.42, 0.22, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_focus"]
+
+[sub_resource type="StyleBoxLine" id="StyleBoxLine_divider"]
+color = Color(0.55, 0.4, 0.25, 0.6)
+thickness = 2
+
+[sub_resource type="Theme" id="Theme_dialogue"]
+Button/colors/font_color = Color(0.22, 0.14, 0.08, 1)
+Button/colors/font_hover_color = Color(0.12, 0.1, 0.04, 1)
+Button/colors/font_pressed_color = Color(0.12, 0.1, 0.04, 1)
+Button/colors/font_focus_color = Color(0.22, 0.14, 0.08, 1)
+Button/font_sizes/font_size = 24
+Button/styles/focus = SubResource("StyleBoxEmpty_focus")
+Button/styles/hover = SubResource("StyleBoxFlat_choice_hover")
+Button/styles/normal = SubResource("StyleBoxFlat_choice")
+Button/styles/pressed = SubResource("StyleBoxFlat_choice_hover")
+HSeparator/styles/separator = SubResource("StyleBoxLine_divider")
+RichTextLabel/colors/default_color = Color(0.22, 0.14, 0.08, 1)
+RichTextLabel/font_sizes/normal_font_size = 27
+RichTextLabel/font_sizes/italics_font_size = 25
+
+[sub_resource type="LabelSettings" id="LabelSettings_speaker"]
+font_size = 24
+font_color = Color(0.58, 0.18, 0.1, 1)
 
 [node name="Counter" type="Node2D"]
 
@@ -124,3 +201,59 @@ theme_override_font_sizes/font_size = 32
 text = "◀ В кузню"
 script = ExtResource("7_link")
 target_scene = "res://scenes/forge/forge.tscn"
+
+[node name="DialogueBox" type="Control" parent="UI" node_paths=PackedStringArray("anchor_node")]
+layout_mode = 3
+anchors_preset = 0
+mouse_filter = 2
+theme = SubResource("Theme_dialogue")
+script = ExtResource("10_dialogue")
+dialogue_path = "res://scenes/counter/guard_dialogue.json"
+anchor_node = NodePath("../../NpcLayer/Guard")
+
+[node name="Tail" type="Polygon2D" parent="UI/DialogueBox"]
+color = Color(0.91, 0.84, 0.7, 0.97)
+polygon = PackedVector2Array(4, 70, -120, 150, 4, 128)
+
+[node name="TailEdge" type="Line2D" parent="UI/DialogueBox/Tail"]
+points = PackedVector2Array(2, 70, -120, 150, 2, 128)
+width = 3.0
+default_color = Color(0.36, 0.23, 0.13, 1)
+joint_mode = 1
+
+[node name="Bubble" type="PanelContainer" parent="UI/DialogueBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(660, 0)
+layout_mode = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_parchment")
+
+[node name="Content" type="VBoxContainer" parent="UI/DialogueBox/Bubble"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 14
+
+[node name="SpeakerLabel" type="Label" parent="UI/DialogueBox/Bubble/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Старый стражник"
+label_settings = SubResource("LabelSettings_speaker")
+
+[node name="TextLabel" type="RichTextLabel" parent="UI/DialogueBox/Bubble/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+bbcode_enabled = true
+text = "Реплика"
+fit_content = true
+scroll_active = false
+visible_characters_behavior = 1
+
+[node name="Divider" type="HSeparator" parent="UI/DialogueBox/Bubble/Content"]
+layout_mode = 2
+
+[node name="Choices" type="VBoxContainer" parent="UI/DialogueBox/Bubble/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[connection signal="arrived" from="NpcLayer/Guard" to="UI/DialogueBox" method="start"]
