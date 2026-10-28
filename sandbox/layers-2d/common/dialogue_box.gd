@@ -18,6 +18,9 @@ const FADE_TIME := 0.25
 @export var characters_per_second: float = 50.0
 ## Знак перед каждым вариантом ответа.
 @export var choice_prefix: String = "▸  "
+## Имя, под которым песочница помнит, что разговор закончен: второй раз не начнётся.
+## Пусто — не помнить.
+@export var memory_key: String = ""
 
 var _nodes: Dictionary = {}
 var _start_id: String = ""
@@ -47,13 +50,17 @@ func _process(_delta: float) -> void:
 
 ## Начать разговор с первой реплики.
 func start() -> void:
-	if _start_id.is_empty():
+	if _start_id.is_empty() or _is_finished_before():
 		return
 
 	modulate.a = 0.0
 	show()
 	create_tween().tween_property(self, "modulate:a", 1.0, FADE_TIME)
 	_show_line(_start_id)
+
+
+func _is_finished_before() -> bool:
+	return not memory_key.is_empty() and SandboxState.finished_dialogues.get(memory_key, false)
 
 
 func _load_dialogue() -> void:
@@ -109,6 +116,9 @@ func _close() -> void:
 	var tween := create_tween()
 	tween.tween_property(self, "modulate:a", 0.0, FADE_TIME)
 	tween.tween_callback(hide)
+	if not memory_key.is_empty():
+		SandboxState.finished_dialogues[memory_key] = true
+
 	finished.emit()
 
 

@@ -16,9 +16,9 @@ const STOP_TIME := 0.35
 ## Через сколько секунд после открытия сцены начинает идти.
 @export var start_delay: float = 1.0
 ## Скорость ходьбы, px в секунду.
-@export var walk_speed: float = 260.0
+@export var walk_speed: float = 420.0
 ## Длина шага, px: на каждый шаг — одно покачивание.
-@export var step_length: float = 110.0
+@export var step_length: float = 140.0
 ## Насколько поднимается на шаге, px.
 @export var bob_height: float = 9.0
 ## Наклон корпуса на шаге, градусы.
@@ -27,6 +27,9 @@ const STOP_TIME := 0.35
 @export var breathe_amount: float = 0.008
 ## Скорость «дыхания»: вдохов в секунду.
 @export var breathe_speed: float = 0.35
+## Имя, под которым песочница помнит, что персонаж уже подошёл: вернёшься в сцену —
+## он уже стоит на месте. Пусто — не помнить.
+@export var memory_key: String = ""
 
 var _state: State = State.WAITING
 var _target_position: Vector2
@@ -40,9 +43,21 @@ var _body_scale: Vector2
 func _ready() -> void:
 	_body_scale = _body.scale
 	_target_position = position
+	if _has_arrived_before():
+		_state = State.STANDING
+		arrived.emit.call_deferred()
+	else:
+		_walk_in()
+
+
+func _walk_in() -> void:
 	position = _target_position + start_offset
 	await get_tree().create_timer(start_delay).timeout
 	_state = State.WALKING
+
+
+func _has_arrived_before() -> bool:
+	return not memory_key.is_empty() and SandboxState.arrived_npcs.get(memory_key, false)
 
 
 func _process(delta: float) -> void:
@@ -78,4 +93,7 @@ func _breathe(delta: float) -> void:
 
 func _on_stopped() -> void:
 	_state = State.STANDING
+	if not memory_key.is_empty():
+		SandboxState.arrived_npcs[memory_key] = true
+
 	arrived.emit()
