@@ -8,6 +8,8 @@ extends ClickableArea
 @export var required_item: String = ""
 ## Надпись, если нужного предмета нет.
 @export var missing_item_text: String = ""
+## Надпись, пока сцены ещё нет (#40): например «Скоро». Пусто — только предупреждение.
+@export var placeholder_text: String = ""
 
 
 func _ready() -> void:
@@ -16,6 +18,9 @@ func _ready() -> void:
 
 
 func _on_clicked() -> void:
+	if target_scene.is_empty() and not placeholder_text.is_empty():
+		SandboxHud.show_message(placeholder_text)
+		return
 	if target_scene.is_empty():
 		push_warning("SceneLinkArea: не задана target_scene у %s" % name)
 		return

@@ -44,7 +44,7 @@ texture = ExtResource("2_back")
 centered = false
 
 [node name="LampLeft" type="PointLight2D" parent="BackLayer/Sprite"]
-position = Vector2(520, 135)
+position = Vector2(522, 132)
 color = Color(1, 0.72, 0.4, 1)
 energy = 0.7
 texture = ExtResource("6_glow")
@@ -54,7 +54,7 @@ strength = 0.15
 speed = 4.0
 
 [node name="LampRight" type="PointLight2D" parent="BackLayer/Sprite"]
-position = Vector2(1295, 125)
+position = Vector2(1292, 122)
 color = Color(1, 0.72, 0.4, 1)
 energy = 0.7
 texture = ExtResource("6_glow")
@@ -73,7 +73,7 @@ centered = false
 
 [node name="Hearth" type="Polygon2D" parent="SidesLayer/Sprite"]
 texture = ExtResource("3_sides")
-polygon = PackedVector2Array(110, 190, 150, 0, 380, 0, 472, 262, 458, 285, 462, 438, 532, 446, 536, 690, 262, 700, 240, 600, 222, 470, 150, 455, 145, 265)
+polygon = PackedVector2Array(95, 250, 100, 190, 140, 0, 378, 0, 475, 250, 475, 285, 452, 292, 452, 445, 482, 450, 482, 615, 470, 640, 400, 658, 270, 700, 255, 650, 250, 520, 205, 520, 205, 460, 150, 450, 145, 252)
 
 [node name="HearthArea" type="Area2D" parent="SidesLayer/Sprite/Hearth" node_paths=PackedStringArray("highlight_target")]
 script = ExtResource("9_area")
@@ -83,7 +83,7 @@ missing_item_text = "Нет заготовки — нечего греть"
 highlight_target = NodePath("..")
 
 [node name="Shape" type="CollisionPolygon2D" parent="SidesLayer/Sprite/Hearth/HearthArea"]
-polygon = PackedVector2Array(110, 190, 150, 0, 380, 0, 472, 262, 458, 285, 462, 438, 532, 446, 536, 690, 262, 700, 240, 600, 222, 470, 150, 455, 145, 265)
+polygon = PackedVector2Array(95, 250, 100, 190, 140, 0, 378, 0, 475, 250, 475, 285, 452, 292, 452, 445, 482, 450, 482, 615, 470, 640, 400, 658, 270, 700, 255, 650, 250, 520, 205, 520, 205, 460, 150, 450, 145, 252)
 
 [node name="ForgeLight" type="PointLight2D" parent="SidesLayer/Sprite"]
 position = Vector2(285, 370)
@@ -97,7 +97,7 @@ speed = 10.0
 
 [node name="Flames" type="CPUParticles2D" parent="SidesLayer/Sprite"]
 material = SubResource("CanvasItemMaterial_fire")
-position = Vector2(278, 418)
+position = Vector2(285, 422)
 amount = 60
 lifetime = 0.9
 preprocess = 1.0
@@ -117,7 +117,7 @@ color_ramp = SubResource("Gradient_flame")
 
 [node name="Sparks" type="CPUParticles2D" parent="SidesLayer/Sprite"]
 material = SubResource("CanvasItemMaterial_fire")
-position = Vector2(278, 405)
+position = Vector2(285, 410)
 amount = 14
 lifetime = 1.0
 preprocess = 1.0
@@ -134,6 +134,61 @@ scale_amount_min = 0.03
 scale_amount_max = 0.05
 color_ramp = SubResource("Gradient_spark")
 
+[node name="Smelter" type="Polygon2D" parent="SidesLayer/Sprite"]
+texture = ExtResource("3_sides")
+polygon = PackedVector2Array(572, 410, 572, 330, 600, 250, 624, 200, 624, 146, 734, 146, 734, 200, 762, 250, 792, 330, 799, 468, 820, 476, 820, 506, 806, 564, 548, 564, 548, 490, 572, 470)
+
+[node name="SmelterArea" type="Area2D" parent="SidesLayer/Sprite/Smelter" node_paths=PackedStringArray("highlight_target")]
+script = ExtResource("9_area")
+placeholder_text = "Плавильня — скоро"
+highlight_target = NodePath("..")
+
+[node name="Shape" type="CollisionPolygon2D" parent="SidesLayer/Sprite/Smelter/SmelterArea"]
+polygon = PackedVector2Array(572, 410, 572, 330, 600, 250, 624, 200, 624, 146, 734, 146, 734, 200, 762, 250, 792, 330, 799, 468, 820, 476, 820, 506, 806, 564, 548, 564, 548, 490, 572, 470)
+
+[node name="SmelterLight" type="PointLight2D" parent="SidesLayer/Sprite"]
+position = Vector2(670, 432)
+color = Color(1, 0.55, 0.2, 1)
+energy = 0.8
+texture = ExtResource("6_glow")
+texture_scale = 1.8
+script = ExtResource("5_flicker")
+strength = 0.3
+scale_strength = 0.06
+speed = 8.0
+
+[node name="SmelterFlames" type="CPUParticles2D" parent="SidesLayer/Sprite"]
+material = SubResource("CanvasItemMaterial_fire")
+position = Vector2(670, 462)
+amount = 24
+lifetime = 0.7
+preprocess = 1.0
+local_coords = true
+texture = ExtResource("6_glow")
+emission_shape = 3
+emission_rect_extents = Vector2(34, 4)
+direction = Vector2(0, -1)
+spread = 10.0
+gravity = Vector2(0, -40)
+initial_velocity_min = 20.0
+initial_velocity_max = 45.0
+scale_amount_min = 0.06
+scale_amount_max = 0.14
+scale_amount_curve = SubResource("Curve_shrink")
+color_ramp = SubResource("Gradient_flame")
+
+[node name="Grinder" type="Polygon2D" parent="SidesLayer/Sprite"]
+texture = ExtResource("3_sides")
+polygon = PackedVector2Array(1306, 552, 1338, 548, 1338, 450, 1420, 444, 1440, 382, 1508, 348, 1582, 362, 1612, 418, 1642, 448, 1648, 688, 1664, 700, 1664, 718, 1306, 714)
+
+[node name="GrinderArea" type="Area2D" parent="SidesLayer/Sprite/Grinder" node_paths=PackedStringArray("highlight_target")]
+script = ExtResource("9_area")
+placeholder_text = "Точильное колесо — скоро"
+highlight_target = NodePath("..")
+
+[node name="Shape" type="CollisionPolygon2D" parent="SidesLayer/Sprite/Grinder/GrinderArea"]
+polygon = PackedVector2Array(1306, 552, 1338, 548, 1338, 450, 1420, 444, 1440, 382, 1508, 348, 1582, 362, 1612, 418, 1642, 448, 1648, 688, 1664, 700, 1664, 718, 1306, 714)
+
 [node name="AnvilLayer" type="Node2D" parent="."]
 
 [node name="Sprite" type="Sprite2D" parent="AnvilLayer"]
@@ -148,7 +203,7 @@ target_scene = "res://scenes/anvil/anvil.tscn"
 highlight_target = NodePath("..")
 
 [node name="Shape" type="CollisionPolygon2D" parent="AnvilLayer/Sprite/AnvilArea"]
-polygon = PackedVector2Array(628, 515, 800, 510, 1052, 518, 950, 560, 940, 640, 985, 662, 992, 700, 990, 860, 900, 892, 800, 898, 690, 882, 640, 862, 640, 690, 690, 660, 700, 600, 625, 556)
+polygon = PackedVector2Array(634, 512, 942, 510, 1060, 518, 988, 546, 952, 562, 916, 602, 952, 658, 988, 664, 1003, 690, 1003, 872, 940, 898, 820, 907, 700, 897, 643, 872, 643, 690, 698, 664, 728, 642, 734, 560)
 
 [node name="FrontLayer" type="Node2D" parent="."]
 
@@ -162,17 +217,17 @@ centered = false
 
 [node name="ToCounterButton" type="Button" parent="UI"]
 unique_name_in_owner = true
-anchors_preset = 6
+anchors_preset = 3
 anchor_left = 1.0
-anchor_top = 0.5
+anchor_top = 1.0
 anchor_right = 1.0
-anchor_bottom = 0.5
+anchor_bottom = 1.0
 offset_left = -312.0
-offset_top = -40.0
+offset_top = -112.0
 offset_right = -32.0
-offset_bottom = 40.0
+offset_bottom = -32.0
 grow_horizontal = 0
-grow_vertical = 2
+grow_vertical = 0
 theme_override_font_sizes/font_size = 32
 text = "К прилавку ▶"
 script = ExtResource("7_link")
