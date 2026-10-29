@@ -23,14 +23,19 @@
       "icon": "res://common/icons/sword_blank_hot.png",
       "description": "Раскалена. Куй её на наковальне."
     },
+    "sword_blunt": {
+      "name": "Незаточенный меч",
+      "icon": "res://common/icons/sword_blunt.png",
+      "description": "Выкован, но тупой. Заточи его на точильном колесе."
+    },
     "sword": {
       "name": "Обычный меч",
       "icon": "res://common/icons/sword.png",
-      "description": "Простой одноручный меч."
+      "description": "Простой одноручный меч, заточен."
     }
   },
   "recipes": [
     {"name": "Заготовка меча", "needs": "ingot", "gives": "blank"},
-    {"name": "Обычный меч", "needs": "heated_blank", "gives": "sword"}
+    {"name": "Обычный меч", "needs": "heated_blank", "gives": "sword_blunt"}
   ]
 }

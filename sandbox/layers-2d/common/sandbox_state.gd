@@ -47,6 +47,12 @@ func has_item(item_id: String) -> bool:
 	return items.any(func(item: Dictionary) -> bool: return item["id"] == item_id)
 
 
+## Качество первого такого предмета. Нет его или без качества — пусто.
+func get_item_quality(item_id: String) -> String:
+	var index := items.find_custom(func(item: Dictionary) -> bool: return item["id"] == item_id)
+	return items[index]["quality"] if index != -1 else ""
+
+
 ## Положить предмет в свободный слот. Слотов нет — false.
 func add_item(item_id: String, quality: String = "") -> bool:
 	if items.size() >= SLOT_COUNT:
