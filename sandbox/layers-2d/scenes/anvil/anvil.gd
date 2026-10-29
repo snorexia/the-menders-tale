@@ -2,6 +2,7 @@ extends Node2D
 ## Крупный план наковальни с мини-игрой ковки (песочница, #25).
 ## Стадии сменяют картинку заготовки; на каждой по очереди сжимаются круги,
 ## клик в такт — удар засчитан. В конце качество меча — по доле попаданий.
+## Сначала выбираешь, что сковать (#37): рецепт тратит нагретую заготовку и даёт меч.
 
 const STAGE_FADE_TIME := 0.6
 const FEEDBACK_RISE := 50.0
@@ -11,6 +12,8 @@ const FLASH_ENERGY := 1.6
 const FLASH_TIME := 0.25
 const RING_PLACE_TRIES := 12
 const PERCENT := 100.0
+const RECIPE_BUTTON_SIZE := Vector2(480, 0)
+const RECIPE_FONT_SIZE := 30
 
 ## Картинки стадий по порядку: заготовка → полоса → клинок.
 @export var stage_textures: Array[Texture2D] = []
@@ -61,11 +64,15 @@ const PERCENT := 100.0
 @export var late_text: String = "Не успел"
 @export var hit_color: Color = Color(1.0, 0.9, 0.5)
 @export var fail_color: Color = Color(0.8, 0.7, 0.65)
+## Подпись к серому рецепту: чего не хватает.
+@export var missing_item_prefix: String = "Нужна: "
+@export var item_added_prefix: String = "В инвентаре: "
 
 var _hit_count: int = 0
 var _strike_count: int = 0
 var _active_ring: StrikeRing
 var _last_ring_position: Vector2 = Vector2.ZERO
+var _recipe: Dictionary = {}
 
 @onready var _background: Sprite2D = $Background
 @onready var _next_background: Sprite2D = $NextBackground
@@ -74,15 +81,19 @@ var _last_ring_position: Vector2 = Vector2.ZERO
 @onready var _hit_sparks: CPUParticles2D = $HitSparks
 @onready var _hit_flash: PointLight2D = $HitFlash
 @onready var _title: Label = %Title
+@onready var _hint: Label = $UI/Hint
+@onready var _recipe_panel: Control = %RecipePanel
+@onready var _recipes: VBoxContainer = %Recipes
 @onready var _result_panel: Control = %ResultPanel
 @onready var _quality_label: Label = %QualityLabel
 @onready var _score_label: Label = %ScoreLabel
-@onready var _retry_button: Button = %RetryButton
 
 
 func _ready() -> void:
-	_retry_button.pressed.connect(_on_retry_button_pressed)
-	_start_forging()
+	_result_panel.hide()
+	_hint.hide()
+	_title.text = ""
+	_show_recipes()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -96,10 +107,28 @@ func _unhandled_input(event: InputEvent) -> void:
 	_active_ring.strike(get_global_mouse_position())
 
 
+func _show_recipes() -> void:
+	for recipe: Dictionary in SandboxState.recipes:
+		var button := Button.new()
+		button.custom_minimum_size = RECIPE_BUTTON_SIZE
+		button.add_theme_font_size_override("font_size", RECIPE_FONT_SIZE)
+		button.text = recipe.get("name", "")
+		var needed_item: String = recipe.get("needs", "")
+		if not SandboxState.has_item(needed_item):
+			var needed_info := SandboxState.get_item_info(needed_item)
+			var needed_name: String = needed_info.get("name", needed_item)
+			button.text += "\n" + missing_item_prefix + needed_name.to_lower()
+			button.disabled = true
+
+		button.pressed.connect(_on_recipe_button_pressed.bind(recipe))
+		_recipes.add_child(button)
+
+
 func _start_forging() -> void:
 	_hit_count = 0
 	_strike_count = 0
-	_result_panel.hide()
+	_recipe_panel.hide()
+	_hint.show()
 	_run_stages()
 
 
@@ -229,6 +258,8 @@ func _show_result() -> void:
 	_quality_label.label_settings.font_color = quality_colors[quality_index]
 	_score_label.text = "Попаданий: %d из %d (%d %%)" % [_hit_count, _strike_count, percent]
 	_result_panel.show()
+	_hint.hide()
+	_craft(quality_names[quality_index])
 
 
 func _get_quality_index(hit_ratio: float) -> int:
@@ -241,5 +272,17 @@ func _get_quality_index(hit_ratio: float) -> int:
 	return quality_index
 
 
-func _on_retry_button_pressed() -> void:
+## Заготовка тратится только в конце: ушёл посреди ковки — она осталась.
+func _craft(quality: String) -> void:
+	if not SandboxState.try_take_item(_recipe.get("needs", "")):
+		return
+
+	var crafted_item: String = _recipe.get("gives", "")
+	SandboxState.add_item(crafted_item, quality)
+	var crafted_name: String = SandboxState.get_item_info(crafted_item).get("name", crafted_item)
+	SandboxHud.show_message(item_added_prefix + crafted_name.to_lower())
+
+
+func _on_recipe_button_pressed(recipe: Dictionary) -> void:
+	_recipe = recipe
 	_start_forging()

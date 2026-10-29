@@ -78,6 +78,8 @@ polygon = PackedVector2Array(110, 190, 150, 0, 380, 0, 472, 262, 458, 285, 462, 
 [node name="HearthArea" type="Area2D" parent="SidesLayer/Sprite/Hearth" node_paths=PackedStringArray("highlight_target")]
 script = ExtResource("9_area")
 target_scene = "res://scenes/hearth/hearth.tscn"
+required_item = "blank"
+missing_item_text = "Нет заготовки — нечего греть"
 highlight_target = NodePath("..")
 
 [node name="Shape" type="CollisionPolygon2D" parent="SidesLayer/Sprite/Hearth/HearthArea"]

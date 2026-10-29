@@ -166,6 +166,37 @@ text = "Кликай по кругу, когда он сожмётся и пос
 label_settings = SubResource("LabelSettings_hint")
 horizontal_alignment = 1
 
+[node name="RecipePanel" type="PanelContainer" parent="UI"]
+unique_name_in_owner = true
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -150.0
+offset_right = 300.0
+offset_bottom = 150.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_result")
+
+[node name="Content" type="VBoxContainer" parent="UI/RecipePanel"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 20
+
+[node name="RecipeTitle" type="Label" parent="UI/RecipePanel/Content"]
+layout_mode = 2
+text = "Что сковать?"
+label_settings = SubResource("LabelSettings_title")
+horizontal_alignment = 1
+
+[node name="Recipes" type="VBoxContainer" parent="UI/RecipePanel/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 12
+
 [node name="ResultPanel" type="PanelContainer" parent="UI"]
 unique_name_in_owner = true
 visible = false
@@ -205,13 +236,6 @@ horizontal_alignment = 1
 layout_mode = 2
 alignment = 1
 theme_override_constants/separation = 24
-
-[node name="RetryButton" type="Button" parent="UI/ResultPanel/Content/Buttons"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(240, 72)
-layout_mode = 2
-theme_override_font_sizes/font_size = 30
-text = "Ещё раз"
 
 [node name="ForgeButton" type="Button" parent="UI/ResultPanel/Content/Buttons"]
 custom_minimum_size = Vector2(240, 72)

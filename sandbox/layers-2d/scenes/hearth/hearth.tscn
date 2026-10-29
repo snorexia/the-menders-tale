@@ -295,13 +295,6 @@ layout_mode = 2
 alignment = 1
 theme_override_constants/separation = 24
 
-[node name="RetryButton" type="Button" parent="UI/ResultPanel/Content/Buttons"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(240, 72)
-layout_mode = 2
-theme_override_font_sizes/font_size = 30
-text = "Ещё раз"
-
 [node name="ForgeButton" type="Button" parent="UI/ResultPanel/Content/Buttons"]
 custom_minimum_size = Vector2(240, 72)
 layout_mode = 2

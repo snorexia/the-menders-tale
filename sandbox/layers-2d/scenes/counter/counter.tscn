@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3]
+[gd_scene load_steps=23 format=3]
 
 [ext_resource type="Script" path="res://common/mouse_look_camera.gd" id="1_camera"]
 [ext_resource type="Texture2D" path="res://scenes/counter/counter_back.png" id="2_back"]
@@ -10,6 +10,8 @@
 [ext_resource type="Script" path="res://common/walking_npc.gd" id="8_npc"]
 [ext_resource type="Texture2D" path="res://scenes/counter/npc_guard.png" id="9_guard"]
 [ext_resource type="Script" path="res://common/dialogue_box.gd" id="10_dialogue"]
+[ext_resource type="Script" path="res://scenes/counter/counter.gd" id="11_counter"]
+[ext_resource type="Script" path="res://common/clickable_area.gd" id="12_click"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_parchment"]
 content_margin_left = 36.0
@@ -62,6 +64,22 @@ corner_radius_top_right = 5
 corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_choice_disabled"]
+content_margin_left = 18.0
+content_margin_top = 10.0
+content_margin_right = 18.0
+content_margin_bottom = 10.0
+bg_color = Color(0.8, 0.74, 0.62, 0.6)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.55, 0.4, 0.25, 0.4)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_focus"]
 
 [sub_resource type="StyleBoxLine" id="StyleBoxLine_divider"]
@@ -70,10 +88,12 @@ thickness = 2
 
 [sub_resource type="Theme" id="Theme_dialogue"]
 Button/colors/font_color = Color(0.22, 0.14, 0.08, 1)
+Button/colors/font_disabled_color = Color(0.22, 0.14, 0.08, 0.45)
 Button/colors/font_hover_color = Color(0.12, 0.1, 0.04, 1)
 Button/colors/font_pressed_color = Color(0.12, 0.1, 0.04, 1)
 Button/colors/font_focus_color = Color(0.22, 0.14, 0.08, 1)
 Button/font_sizes/font_size = 24
+Button/styles/disabled = SubResource("StyleBoxFlat_choice_disabled")
 Button/styles/focus = SubResource("StyleBoxEmpty_focus")
 Button/styles/hover = SubResource("StyleBoxFlat_choice_hover")
 Button/styles/normal = SubResource("StyleBoxFlat_choice")
@@ -83,11 +103,16 @@ RichTextLabel/colors/default_color = Color(0.22, 0.14, 0.08, 1)
 RichTextLabel/font_sizes/normal_font_size = 27
 RichTextLabel/font_sizes/italics_font_size = 25
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_guard"]
+size = Vector2(760, 900)
+
 [sub_resource type="LabelSettings" id="LabelSettings_speaker"]
 font_size = 24
 font_color = Color(0.58, 0.18, 0.1, 1)
 
 [node name="Counter" type="Node2D"]
+script = ExtResource("11_counter")
+order_dialogue_path = "res://scenes/counter/guard_order_dialogue.json"
 
 [node name="Camera" type="Camera2D" parent="."]
 position = Vector2(960, 540)
@@ -167,6 +192,15 @@ scale = Vector2(0.44, 0.44)
 texture = ExtResource("9_guard")
 centered = false
 offset = Vector2(-513, -1150)
+
+[node name="ClickArea" type="Area2D" parent="NpcLayer/Guard/Body" node_paths=PackedStringArray("highlight_target")]
+script = ExtResource("12_click")
+highlight_target = NodePath("..")
+highlight_color = Color(1.15, 1.12, 1.05, 1)
+
+[node name="Shape" type="CollisionShape2D" parent="NpcLayer/Guard/Body/ClickArea"]
+position = Vector2(0, -700)
+shape = SubResource("RectangleShape2D_guard")
 
 [node name="FrontLayer" type="Node2D" parent="."]
 

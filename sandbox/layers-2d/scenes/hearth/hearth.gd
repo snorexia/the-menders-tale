@@ -2,9 +2,14 @@ extends Node2D
 ## Крупный план горна с мини-игрой нагрева (песочница, #28).
 ## Держишь кнопку — заготовка греется, отпустил — остывает, и нагрев проверяется:
 ## в зоне — хорошо, в середине зоны — идеально, выше зоны или до предела — мусор.
+## Итог меняет инвентарь (#37): хорошо — заготовка становится нагретой, мусор — пропадает.
 
 const PERCENT := 100.0
 const HINT_FADE_TIME := 1.5
+
+## Что греем и что получаем — id из `common/items.json`.
+@export var input_item: String = "blank"
+@export var output_item: String = "heated_blank"
 
 ## Скорость нагрева: доля шкалы в секунду (0.33 — полная шкала за 3 с).
 @export var heat_speed: float = 0.33
@@ -35,6 +40,9 @@ const HINT_FADE_TIME := 1.5
 @export var perfect_color: Color = Color(1.0, 0.8, 0.3)
 @export var good_color: Color = Color(0.55, 0.85, 1.0)
 @export var trash_color: Color = Color(0.6, 0.55, 0.5)
+## Надписи об инвентаре: получили нагретую заготовку и испортили заготовку.
+@export var output_added_text: String = "В инвентаре: нагретая заготовка"
+@export var input_lost_text: String = "Заготовка испорчена"
 
 var _heat: float = 0.0
 var _is_mouse_held: bool = false
@@ -53,11 +61,9 @@ var _hint_tween: Tween
 @onready var _result_panel: Control = %ResultPanel
 @onready var _quality_label: Label = %QualityLabel
 @onready var _score_label: Label = %ScoreLabel
-@onready var _retry_button: Button = %RetryButton
 
 
 func _ready() -> void:
-	_retry_button.pressed.connect(_on_retry_button_pressed)
 	_place_zone(_good_zone, good_from, good_to)
 	_place_zone(_perfect_zone, perfect_from, perfect_to)
 	# Заливку шкалы перекрашиваем по нагреву — у каждой сцены своя копия стиля.
@@ -77,7 +83,7 @@ func _process(delta: float) -> void:
 		_heat = maxf(_heat - cool_speed * delta, 0.0)
 
 	if _heat >= 1.0:
-		_finish(trash_text, trash_color)
+		_finish(trash_text, trash_color, false)
 	elif _was_heating and not is_heating:
 		_judge_release()
 
@@ -108,15 +114,16 @@ func _judge_release() -> void:
 	if _heat < good_from:
 		_show_status(cold_text)
 	elif _heat >= perfect_from and _heat <= perfect_to:
-		_finish(perfect_text, perfect_color)
+		_finish(perfect_text, perfect_color, true)
 	elif _heat <= good_to:
-		_finish(good_text, good_color)
+		_finish(good_text, good_color, true)
 	else:
-		_finish(trash_text, trash_color)
+		_finish(trash_text, trash_color, false)
 
 
-func _finish(quality_text: String, quality_color: Color) -> void:
+func _finish(quality_text: String, quality_color: Color, is_heated: bool) -> void:
 	_is_finished = true
+	_use_input_item(is_heated)
 	var percent := roundi(_heat * PERCENT)
 	_quality_label.text = quality_text
 	_quality_label.label_settings.font_color = quality_color
@@ -154,5 +161,13 @@ func _place_zone(zone: Control, from: float, to: float) -> void:
 	zone.offset_right = 0.0
 
 
-func _on_retry_button_pressed() -> void:
-	_start_heating()
+## Заготовка тратится при любом итоге; нагрел — взамен нагретая.
+func _use_input_item(is_heated: bool) -> void:
+	if not SandboxState.try_take_item(input_item):
+		return
+
+	if is_heated:
+		SandboxState.add_item(output_item)
+		SandboxHud.show_message(output_added_text)
+	else:
+		SandboxHud.show_message(input_lost_text)

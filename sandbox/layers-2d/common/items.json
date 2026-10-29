@@ -1,0 +1,26 @@
+{
+  "_note": "Предметы и рецепты песочницы (#37). Не данные игры. items — по id: name, icon, description, tint (необязательно — цвет, которым перекрасить иконку). start_items — что лежит в инвентаре на старте, start_coins — монеты на старте. recipes — что можно сковать: name, needs (id предмета, который тратится), gives (id предмета, который получаешь).",
+  "start_items": ["blank"],
+  "start_coins": 0,
+  "items": {
+    "blank": {
+      "name": "Заготовка меча",
+      "icon": "res://common/icons/metal_bar.png",
+      "description": "Холодная. Нагрей её в горне."
+    },
+    "heated_blank": {
+      "name": "Нагретая заготовка",
+      "icon": "res://common/icons/metal_bar.png",
+      "tint": "#ff9a50",
+      "description": "Раскалена. Куй её на наковальне."
+    },
+    "sword": {
+      "name": "Обычный меч",
+      "icon": "res://common/icons/sword.png",
+      "description": "Простой одноручный меч."
+    }
+  },
+  "recipes": [
+    {"name": "Обычный меч", "needs": "heated_blank", "gives": "sword"}
+  ]
+}

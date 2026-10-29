@@ -3,8 +3,11 @@ extends Control
 ## Окно реплики персонажа с вариантами ответа (песочница, #34).
 ## Разговор — в JSON (формат описан в поле `_note` файла). Окно держится рядом
 ## с узлом-якорем, даже когда камера осматривает комнату.
+## Ответ может требовать предмет, забрать его, дать монеты и сообщить о событии (#37).
 
 signal finished
+## Выбран ответ с полем `event`: что должно случиться в сцене, например «стражник уходит».
+signal event_triggered(event_name: String)
 
 const FADE_TIME := 0.25
 
@@ -35,7 +38,7 @@ var _typing_tween: Tween
 
 func _ready() -> void:
 	hide()
-	_load_dialogue()
+	_load_dialogue(dialogue_path)
 	_bubble.gui_input.connect(_on_bubble_gui_input)
 
 
@@ -53,6 +56,19 @@ func start() -> void:
 	if _start_id.is_empty() or _is_finished_before():
 		return
 
+	_open()
+
+
+## Начать другой разговор из файла, даже если основной уже закончен.
+func start_other(path: String) -> void:
+	_load_dialogue(path)
+	if _start_id.is_empty():
+		return
+
+	_open()
+
+
+func _open() -> void:
 	modulate.a = 0.0
 	show()
 	create_tween().tween_property(self, "modulate:a", 1.0, FADE_TIME)
@@ -63,10 +79,10 @@ func _is_finished_before() -> bool:
 	return not memory_key.is_empty() and SandboxState.finished_dialogues.get(memory_key, false)
 
 
-func _load_dialogue() -> void:
-	var data: Variant = JSON.parse_string(FileAccess.get_file_as_string(dialogue_path))
+func _load_dialogue(path: String) -> void:
+	var data: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
 	if not data is Dictionary:
-		push_warning("DialogueBox: не удалось прочитать %s" % dialogue_path)
+		push_warning("DialogueBox: не удалось прочитать %s" % path)
 		return
 
 	_nodes = data.get("nodes", {})
@@ -102,6 +118,11 @@ func _show_choices() -> void:
 		button.text = choice_prefix + str(choice.get("text", ""))
 		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		var needed_item: String = choice.get("needs_item", "")
+		if not needed_item.is_empty() and not SandboxState.has_item(needed_item):
+			button.text += str(choice.get("missing_text", ""))
+			button.disabled = true
+
 		button.pressed.connect(_on_choice_pressed.bind(choice))
 		_choices.add_child(button)
 
@@ -130,7 +151,17 @@ func _on_bubble_gui_input(event: InputEvent) -> void:
 	_finish_typing()
 
 
+func _apply_choice_effects(choice: Dictionary) -> void:
+	if choice.has("take_item"):
+		SandboxState.try_take_item(choice["take_item"])
+	if choice.has("add_coins"):
+		SandboxState.add_coins(int(choice["add_coins"]))
+	if choice.has("event"):
+		event_triggered.emit(choice["event"])
+
+
 func _on_choice_pressed(choice: Dictionary) -> void:
+	_apply_choice_effects(choice)
 	if choice.has("next"):
 		_show_line(choice["next"])
 	elif choice.has("scene"):
