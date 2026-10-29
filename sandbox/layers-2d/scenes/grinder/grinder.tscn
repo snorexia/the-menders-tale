@@ -1,8 +1,9 @@
-[gd_scene load_steps=16 format=3]
+[gd_scene load_steps=20 format=3]
 
 [ext_resource type="Script" path="res://scenes/grinder/grinder.gd" id="1_grinder"]
-[ext_resource type="Script" path="res://scenes/grinder/grinder_wheel.gd" id="2_wheel"]
-[ext_resource type="Texture2D" path="res://scenes/anvil/longsword_top.png" id="3_sword"]
+[ext_resource type="Script" path="res://scenes/grinder/wheel_spin.gd" id="2_spin"]
+[ext_resource type="Texture2D" path="res://scenes/grinder/grinder_background.webp" id="3_background"]
+[ext_resource type="Script" path="res://common/flicker_light.gd" id="6_flicker"]
 [ext_resource type="Texture2D" path="res://common/light_glow.tres" id="4_glow"]
 [ext_resource type="Script" path="res://common/scene_link_button.gd" id="5_link"]
 
@@ -12,6 +13,16 @@ blend_mode = 1
 [sub_resource type="Gradient" id="Gradient_sparks"]
 offsets = PackedFloat32Array(0, 0.6, 1)
 colors = PackedColorArray(1, 0.95, 0.7, 1, 1, 0.6, 0.2, 1, 1, 0.3, 0.05, 0)
+
+[sub_resource type="Gradient" id="Gradient_vignette"]
+offsets = PackedFloat32Array(0.5, 1)
+colors = PackedColorArray(0, 0, 0, 0, 0, 0, 0, 0.6)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_vignette"]
+gradient = SubResource("Gradient_vignette")
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
 
 [sub_resource type="LabelSettings" id="LabelSettings_hint"]
 font_size = 24
@@ -85,31 +96,57 @@ corner_radius_bottom_left = 12
 [node name="Grinder" type="Node2D"]
 script = ExtResource("1_grinder")
 
-[node name="Wheel" type="Node2D" parent="."]
-script = ExtResource("2_wheel")
+[node name="Background" type="Sprite2D" parent="."]
+scale = Vector2(1.1483, 1.1483)
+texture = ExtResource("3_background")
+centered = false
 
-[node name="Sword" type="Sprite2D" parent="."]
-position = Vector2(1460, 500)
-rotation = -0.06
-scale = Vector2(0.5, 0.5)
-texture = ExtResource("3_sword")
-flip_h = true
-
-[node name="Sparks" type="CPUParticles2D" parent="."]
-material = SubResource("CanvasItemMaterial_add")
-position = Vector2(1148, 500)
-emitting = false
-amount = 50
-lifetime = 0.6
+[node name="FireLight" type="PointLight2D" parent="Background"]
+position = Vector2(60, 250)
+color = Color(1, 0.6, 0.25, 1)
+energy = 0.45
 texture = ExtResource("4_glow")
-direction = Vector2(1, -0.6)
-spread = 30.0
-gravity = Vector2(0, 600)
-initial_velocity_min = 250.0
-initial_velocity_max = 520.0
-scale_amount_min = 0.02
-scale_amount_max = 0.04
+texture_scale = 5.0
+script = ExtResource("6_flicker")
+strength = 0.35
+scale_strength = 0.06
+speed = 9.0
+
+[node name="BladeGlow" type="Polygon2D" parent="Background"]
+material = SubResource("CanvasItemMaterial_add")
+color = Color(1, 0.35, 0.1, 0)
+polygon = PackedVector2Array(862, 246, 960, 232, 1180, 226, 1400, 222, 1402, 268, 1180, 266, 960, 262)
+
+[node name="WheelSpin" type="Node2D" parent="Background"]
+script = ExtResource("2_spin")
+
+[node name="Sparks" type="CPUParticles2D" parent="Background"]
+material = SubResource("CanvasItemMaterial_add")
+position = Vector2(866, 252)
+emitting = false
+amount = 80
+lifetime = 0.7
+texture = ExtResource("4_glow")
+direction = Vector2(-0.3, 1)
+spread = 35.0
+gravity = Vector2(0, 500)
+initial_velocity_min = 200.0
+initial_velocity_max = 420.0
+scale_amount_min = 0.05
+scale_amount_max = 0.1
 color_ramp = SubResource("Gradient_sparks")
+
+[node name="VignetteLayer" type="CanvasLayer" parent="."]
+
+[node name="Vignette" type="TextureRect" parent="VignetteLayer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = SubResource("GradientTexture2D_vignette")
+expand_mode = 1
 
 [node name="UI" type="CanvasLayer" parent="."]
 layer = 2

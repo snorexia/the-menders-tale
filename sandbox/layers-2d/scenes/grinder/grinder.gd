@@ -28,8 +28,8 @@ const HINT_FADE_TIME := 1.0
 @export var max_turns_per_second: float = 2.5
 
 @export_group("Вид")
-## Цвет клинка при полном перегреве.
-@export var overheat_color: Color = Color(1.0, 0.45, 0.3)
+## Свечение клинка при полном перегреве: накладывается сверху, прозрачность — сила.
+@export var overheat_glow: Color = Color(1.0, 0.35, 0.1, 0.75)
 @export var speed_fill_color: Color = Color(0.55, 0.8, 1.0)
 @export var too_fast_fill_color: Color = Color(1.0, 0.4, 0.25)
 
@@ -46,9 +46,9 @@ var _sharpness: float = 0.0
 var _overheat: float = 0.0
 var _is_finished: bool = false
 
-@onready var _wheel: GrinderWheel = $Wheel
-@onready var _sword: Sprite2D = $Sword
-@onready var _sparks: CPUParticles2D = $Sparks
+@onready var _wheel_spin: WheelSpin = $Background/WheelSpin
+@onready var _blade_glow: Polygon2D = $Background/BladeGlow
+@onready var _sparks: CPUParticles2D = $Background/Sparks
 @onready var _speed_bar: ProgressBar = %SpeedBar
 @onready var _good_zone: Control = %GoodZone
 @onready var _sharpness_bar: ProgressBar = %SharpnessBar
@@ -146,9 +146,10 @@ func _sharpen_item() -> void:
 
 
 func _update_visuals() -> void:
-	_wheel.spin_speed = _speed * max_turns_per_second
+	_wheel_spin.spin_speed = _speed * max_turns_per_second
 	_sparks.emitting = _speed >= good_from and not _is_finished
-	_sword.modulate = Color.WHITE.lerp(overheat_color, _overheat / overheat_limit)
+	var heat_ratio := _overheat / overheat_limit
+	_blade_glow.color = Color(overheat_glow, overheat_glow.a * heat_ratio)
 	_speed_bar.value = _speed * PERCENT
 	_sharpness_bar.value = _sharpness * PERCENT
 	var fill_style := _speed_bar.get_theme_stylebox("fill") as StyleBoxFlat
