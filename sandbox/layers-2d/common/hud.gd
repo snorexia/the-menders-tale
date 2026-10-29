@@ -96,7 +96,6 @@ func _update_slots() -> void:
 func _fill_slot(slot: Control, icon: TextureRect, item: Dictionary) -> void:
 	var info := SandboxState.get_item_info(item.get("id", ""))
 	icon.texture = load(info["icon"]) if info.has("icon") else null
-	icon.modulate = Color.from_string(info.get("tint", ""), Color.WHITE)
 	slot.tooltip_text = _get_tooltip(info, item.get("quality", ""))
 
 

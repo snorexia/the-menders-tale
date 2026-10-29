@@ -38,7 +38,7 @@ func _ready() -> void:
 		add_item(item_id)
 
 
-## Описание предмета из `items.json`: name, icon, description, tint.
+## Описание предмета из `items.json`: name, icon, description.
 func get_item_info(item_id: String) -> Dictionary:
 	return _item_infos.get(item_id, {})
 

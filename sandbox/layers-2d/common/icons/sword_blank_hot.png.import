@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://2esp3xwhpwwu"
-path="res://.godot/imported/metal_bar.png-8234668716b1207eea94978b4eddb63f.ctex"
+uid="uid://cbg4iq8cb624p"
+path="res://.godot/imported/sword_blank_hot.png-ee19a777fd2e0c29a03fe7038c6fdc31.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://common/icons/metal_bar.png"
-dest_files=["res://.godot/imported/metal_bar.png-8234668716b1207eea94978b4eddb63f.ctex"]
+source_file="res://common/icons/sword_blank_hot.png"
+dest_files=["res://.godot/imported/sword_blank_hot.png-ee19a777fd2e0c29a03fe7038c6fdc31.ctex"]
 
 [params]
 
