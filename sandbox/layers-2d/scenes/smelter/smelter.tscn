@@ -1,9 +1,10 @@
-[gd_scene load_steps=14 format=3]
+[gd_scene load_steps=15 format=3]
 
 [ext_resource type="Script" path="res://scenes/smelter/smelter.gd" id="1_smelter"]
 [ext_resource type="Script" path="res://scenes/smelter/molten_pool.gd" id="2_pool"]
 [ext_resource type="Texture2D" path="res://common/light_glow.tres" id="3_glow"]
 [ext_resource type="Script" path="res://common/scene_link_button.gd" id="4_link"]
+[ext_resource type="Script" path="res://common/recipe_menu.gd" id="5_recipes"]
 
 [sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_puff"]
 blend_mode = 1
@@ -128,6 +129,38 @@ grow_vertical = 0
 text = "Кликай по тёмным кускам шлака, пока они не утонули · Esc или правый клик — в кузню"
 label_settings = SubResource("LabelSettings_hint")
 horizontal_alignment = 1
+
+[node name="RecipePanel" type="PanelContainer" parent="UI"]
+unique_name_in_owner = true
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -150.0
+offset_right = 300.0
+offset_bottom = 150.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_result")
+
+[node name="Content" type="VBoxContainer" parent="UI/RecipePanel"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 20
+
+[node name="RecipeTitle" type="Label" parent="UI/RecipePanel/Content"]
+layout_mode = 2
+text = "Что отлить?"
+label_settings = SubResource("LabelSettings_title")
+horizontal_alignment = 1
+
+[node name="Recipes" type="VBoxContainer" parent="UI/RecipePanel/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 12
+script = ExtResource("5_recipes")
 
 [node name="ResultPanel" type="PanelContainer" parent="UI"]
 unique_name_in_owner = true

@@ -1,5 +1,5 @@
 {
-  "_note": "Предметы и рецепты песочницы (#37). Не данные игры. items — по id: name, icon, description. start_items — что лежит в инвентаре на старте, start_coins — монеты на старте. recipes — что можно сковать: name, needs (id предмета, который тратится), gives (id предмета, который получаешь).",
+  "_note": "Предметы и рецепты песочницы (#37). Не данные игры. items — по id: name, icon, description. start_items — что лежит в инвентаре на старте, start_coins — монеты на старте. recipes — что где можно сделать: station (anvil — наковальня, smelter — плавильня), name, needs (id предмета, который тратится), gives (id предмета, который получаешь).",
   "start_items": ["ore"],
   "start_coins": 0,
   "items": {
@@ -11,7 +11,7 @@
     "ingot": {
       "name": "Железный слиток",
       "icon": "res://common/icons/iron_ingot.png",
-      "description": "Скуй из него заготовку на наковальне."
+      "description": "Пригодится для будущих заказов."
     },
     "blank": {
       "name": "Заготовка меча",
@@ -35,7 +35,8 @@
     }
   },
   "recipes": [
-    {"name": "Заготовка меча", "needs": "ingot", "gives": "blank"},
-    {"name": "Обычный меч", "needs": "heated_blank", "gives": "sword_blunt"}
+    {"station": "smelter", "name": "Слиток", "needs": "ore", "gives": "ingot"},
+    {"station": "smelter", "name": "Заготовка меча", "needs": "ore", "gives": "blank"},
+    {"station": "anvil", "name": "Обычный меч", "needs": "heated_blank", "gives": "sword_blunt"}
   ]
 }
