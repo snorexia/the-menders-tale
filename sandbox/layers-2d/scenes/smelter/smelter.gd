@@ -1,9 +1,12 @@
 extends Node2D
 ## Крупный план плавильни с мини-игрой «сними шлак» (песочница, #41).
 ## По расплаву по очереди всплывают куски шлака — кликни, пока не утонули.
-## Доля снятых — качество слитка. Руда тратится в конце: ушёл посреди — она осталась.
+## Доля снятых — качество отливки. Сначала выбираешь, что отлить: слиток или заготовку
+## меча. Руда тратится в конце: ушёл посреди — она осталась.
 
 const PERCENT := 100.0
+## Рецепты какого места показывать — `station` в `common/items.json`.
+const STATION := "smelter"
 const FEEDBACK_RISE := 40.0
 const FEEDBACK_TIME := 0.6
 const FEEDBACK_SIZE := Vector2(200, 44)
@@ -11,9 +14,6 @@ const SPAWN_TRIES := 12
 ## Надпись «Снял!» — выше куска на столько его радиусов.
 const FEEDBACK_ABOVE_SLAG := 1.5
 
-## Что плавим и что получаем — id из `common/items.json`.
-@export var input_item: String = "ore"
-@export var output_item: String = "ingot"
 ## Сколько кусков шлака всплывёт за плавку.
 @export var slag_count: int = 12
 ## Пауза между кусками, с: случайно от и до.
@@ -51,10 +51,12 @@ const FEEDBACK_ABOVE_SLAG := 1.5
 @export var skim_text: String = "Снял!"
 @export var skim_color: Color = Color(1.0, 0.9, 0.5)
 @export var item_added_prefix: String = "В инвентаре: "
+@export var result_title_prefix: String = "Отлито: "
 
 var _skimmed_count: int = 0
 var _resolved_count: int = 0
 var _last_slag_position: Vector2 = Vector2.ZERO
+var _recipe: Dictionary = {}
 
 @onready var _pool: MoltenPool = $Pool
 @onready var _slag: Node2D = $Slag
@@ -62,6 +64,8 @@ var _last_slag_position: Vector2 = Vector2.ZERO
 @onready var _skim_puff: CPUParticles2D = $SkimPuff
 @onready var _title: Label = %Title
 @onready var _hint: Label = %Hint
+@onready var _recipe_panel: Control = %RecipePanel
+@onready var _recipes: RecipeMenu = %Recipes
 @onready var _result_panel: Control = %ResultPanel
 @onready var _quality_label: Label = %QualityLabel
 @onready var _score_label: Label = %ScoreLabel
@@ -69,15 +73,17 @@ var _last_slag_position: Vector2 = Vector2.ZERO
 
 func _ready() -> void:
 	_result_panel.hide()
+	_hint.hide()
 	_last_slag_position = _pool.center
-	_spawn_slag()
+	_recipes.recipe_chosen.connect(_on_recipe_chosen)
+	_recipes.fill(STATION)
 
 
 func _unhandled_input(event: InputEvent) -> void:
 	var mouse_event := event as InputEventMouseButton
 	if mouse_event == null or not mouse_event.pressed:
 		return
-	if mouse_event.button_index != MOUSE_BUTTON_LEFT:
+	if mouse_event.button_index != MOUSE_BUTTON_LEFT or _recipe.is_empty():
 		return
 
 	get_viewport().set_input_as_handled()
@@ -142,7 +148,8 @@ func _show_result() -> void:
 	var skim_ratio := float(_skimmed_count) / maxf(slag_count, 1.0)
 	var quality_index := _get_quality_index(skim_ratio)
 	var percent := roundi(skim_ratio * PERCENT)
-	_title.text = "Слиток готов!"
+	var recipe_name: String = _recipe.get("name", "")
+	_title.text = result_title_prefix + recipe_name.to_lower()
 	_hint.hide()
 	_quality_label.text = quality_names[quality_index]
 	_quality_label.label_settings.font_color = quality_colors[quality_index]
@@ -162,12 +169,20 @@ func _get_quality_index(skim_ratio: float) -> int:
 
 
 func _smelt(quality: String) -> void:
-	if not SandboxState.try_take_item(input_item):
+	if not SandboxState.try_take_item(_recipe.get("needs", "")):
 		return
 
+	var output_item: String = _recipe.get("gives", "")
 	SandboxState.add_item(output_item, quality)
 	var output_name: String = SandboxState.get_item_info(output_item).get("name", output_item)
 	SandboxHud.show_message(item_added_prefix + output_name.to_lower())
+
+
+func _on_recipe_chosen(recipe: Dictionary) -> void:
+	_recipe = recipe
+	_recipe_panel.hide()
+	_hint.show()
+	_spawn_slag()
 
 
 func _on_slag_piece_resolved(is_skimmed: bool) -> void:

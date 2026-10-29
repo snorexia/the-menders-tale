@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3]
+[gd_scene load_steps=19 format=3]
 
 [ext_resource type="Script" path="res://scenes/anvil/anvil.gd" id="1_anvil"]
 [ext_resource type="Texture2D" path="res://scenes/anvil/anvil_stage_1.webp" id="2_stage1"]
@@ -6,6 +6,7 @@
 [ext_resource type="Texture2D" path="res://scenes/anvil/anvil_stage_3.webp" id="4_stage3"]
 [ext_resource type="Texture2D" path="res://common/light_glow.tres" id="6_glow"]
 [ext_resource type="Script" path="res://common/scene_link_button.gd" id="7_link"]
+[ext_resource type="Script" path="res://common/recipe_menu.gd" id="8_recipes"]
 
 [sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_sparks"]
 blend_mode = 1
@@ -196,6 +197,7 @@ horizontal_alignment = 1
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 12
+script = ExtResource("8_recipes")
 
 [node name="ResultPanel" type="PanelContainer" parent="UI"]
 unique_name_in_owner = true

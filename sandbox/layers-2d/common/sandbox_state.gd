@@ -19,7 +19,7 @@ var finished_dialogues: Dictionary[String, bool] = {}
 ## Предметы в инвентаре по слотам: {"id": ..., "quality": ...}.
 var items: Array[Dictionary] = []
 var coins: int = 0
-## Что можно сковать — из `items.json`.
+## Что где можно сделать — из `items.json`, у каждого рецепта своё место (`station`).
 var recipes: Array = []
 
 var _item_infos: Dictionary = {}
@@ -36,6 +36,11 @@ func _ready() -> void:
 	coins = int(data.get("start_coins", 0))
 	for item_id: String in data.get("start_items", []):
 		add_item(item_id)
+
+
+## Рецепты одного места: `anvil` — наковальня, `smelter` — плавильня.
+func get_recipes(station: String) -> Array:
+	return recipes.filter(func(recipe: Dictionary) -> bool: return recipe.get("station") == station)
 
 
 ## Описание предмета из `items.json`: name, icon, description.
