@@ -65,7 +65,9 @@ const RECIPE_FONT_SIZE := 30
 @export var hit_color: Color = Color(1.0, 0.9, 0.5)
 @export var fail_color: Color = Color(0.8, 0.7, 0.65)
 ## Подпись к серому рецепту: чего не хватает.
-@export var missing_item_prefix: String = "Нужна: "
+@export var missing_item_prefix: String = "Требуется: "
+## Заголовок итога: перед названием рецепта.
+@export var result_title_prefix: String = "Выковано: "
 @export var item_added_prefix: String = "В инвентаре: "
 
 var _hit_count: int = 0
@@ -253,7 +255,8 @@ func _show_result() -> void:
 	var hit_ratio := float(_hit_count) / maxf(_strike_count, 1.0)
 	var quality_index := _get_quality_index(hit_ratio)
 	var percent := roundi(hit_ratio * PERCENT)
-	_title.text = "Меч выкован!"
+	var recipe_name: String = _recipe.get("name", "")
+	_title.text = result_title_prefix + recipe_name.to_lower()
 	_quality_label.text = quality_names[quality_index]
 	_quality_label.label_settings.font_color = quality_colors[quality_index]
 	_score_label.text = "Попаданий: %d из %d (%d %%)" % [_hit_count, _strike_count, percent]

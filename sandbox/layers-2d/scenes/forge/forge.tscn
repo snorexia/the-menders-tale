@@ -140,7 +140,9 @@ polygon = PackedVector2Array(572, 410, 572, 330, 600, 250, 624, 200, 624, 146, 7
 
 [node name="SmelterArea" type="Area2D" parent="SidesLayer/Sprite/Smelter" node_paths=PackedStringArray("highlight_target")]
 script = ExtResource("9_area")
-placeholder_text = "Плавильня — скоро"
+target_scene = "res://scenes/smelter/smelter.tscn"
+required_item = "ore"
+missing_item_text = "Нет руды — нечего плавить"
 highlight_target = NodePath("..")
 
 [node name="Shape" type="CollisionPolygon2D" parent="SidesLayer/Sprite/Smelter/SmelterArea"]
