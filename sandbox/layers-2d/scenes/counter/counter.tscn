@@ -208,7 +208,7 @@ position = Vector2(0, -700)
 shape = SubResource("RectangleShape2D_guard")
 
 [node name="Guard" type="Node2D" parent="NpcLayer"]
-position = Vector2(482, 760)
+position = Vector2(810, 760)
 script = ExtResource("8_npc")
 start_offset = Vector2(1150, 0)
 memory_key = "guard"

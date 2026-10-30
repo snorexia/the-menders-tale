@@ -13,6 +13,10 @@ const LEAVE_EVENT_SUFFIX := "_leave"
 ## Разговоры с путником: первый и о заказе.
 @export_file("*.json") var traveller_intro_path: String
 @export_file("*.json") var traveller_order_path: String
+## Где окно реплик относительно посетителя, px. Отрицательный X — окно слева от него.
+## Стражник — слева, чтобы не закрыть путника; у путника окно ниже лица стражника.
+@export var guard_box_offset: Vector2 = Vector2(-200, -600)
+@export var traveller_box_offset: Vector2 = Vector2(-130, -447)
 @export var talk_hint_text: String = "Кликни по посетителю, чтобы поговорить"
 
 var _visitors: Array[Dictionary] = []
@@ -22,14 +26,19 @@ var _is_hint_shown: bool = false
 
 
 func _ready() -> void:
-	# Путник стоит справа, поэтому окно его реплик — слева от него.
-	_add_visitor("guard", $NpcLayer/Guard, guard_intro_path, guard_order_path, false)
-	_add_visitor("traveller", $NpcLayer/Traveller, traveller_intro_path, traveller_order_path, true)
+	_add_visitor("guard", $NpcLayer/Guard, guard_intro_path, guard_order_path, guard_box_offset)
+	_add_visitor(
+		"traveller",
+		$NpcLayer/Traveller,
+		traveller_intro_path,
+		traveller_order_path,
+		traveller_box_offset
+	)
 	_dialogue_box.event_triggered.connect(_on_dialogue_box_event_triggered)
 
 
 func _add_visitor(
-	key: String, npc: WalkingNpc, intro_path: String, order_path: String, is_box_on_left: bool
+	key: String, npc: WalkingNpc, intro_path: String, order_path: String, box_offset: Vector2
 ) -> void:
 	var area: ClickableArea = npc.get_node("Body/ClickArea")
 	area.is_enabled = false
@@ -39,7 +48,7 @@ func _add_visitor(
 		"area": area,
 		"intro_path": intro_path,
 		"order_path": order_path,
-		"is_box_on_left": is_box_on_left,
+		"box_offset": box_offset,
 	}
 	_visitors.append(visitor)
 	area.clicked.connect(_on_visitor_clicked.bind(visitor))
@@ -60,7 +69,7 @@ func _on_visitor_clicked(visitor: Dictionary) -> void:
 
 	var is_order_known: bool = SandboxState.finished_dialogues.get(visitor["key"], false)
 	var path: String = visitor["order_path"] if is_order_known else visitor["intro_path"]
-	_dialogue_box.start(path, npc, visitor["is_box_on_left"])
+	_dialogue_box.start(path, npc, visitor["box_offset"])
 
 
 func _on_dialogue_box_event_triggered(event_name: String) -> void:

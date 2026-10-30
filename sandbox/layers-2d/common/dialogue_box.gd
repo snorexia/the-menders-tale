@@ -13,16 +13,16 @@ signal finished
 signal event_triggered(event_name: String)
 
 const FADE_TIME := 0.25
+## Отступ окна от края экрана: камера не должна увести его за край, px.
+const SCREEN_MARGIN := 16.0
 
-## Сдвиг окна от персонажа на экране, px: вправо (или влево, если окно слева) и по высоте.
-@export var anchor_offset: Vector2 = Vector2(240, -600)
 ## Скорость печати текста, букв в секунду.
 @export var characters_per_second: float = 50.0
 ## Знак перед каждым вариантом ответа.
 @export var choice_prefix: String = "▸  "
 
 var _anchor_node: Node2D
-var _is_on_left: bool = false
+var _anchor_offset: Vector2 = Vector2.ZERO
 var _nodes: Dictionary = {}
 var _start_id: String = ""
 var _pending_choices: Array = []
@@ -47,19 +47,23 @@ func _process(_delta: float) -> void:
 
 	# Окно по размеру текста: само по себе оно только растёт и не сжимается обратно.
 	_bubble.size = _bubble.get_combined_minimum_size()
-	var offset := anchor_offset
-	if _is_on_left:
-		offset.x = -anchor_offset.x - _bubble.size.x
+	var is_on_left := _anchor_offset.x < 0.0
+	var offset := _anchor_offset
+	if is_on_left:
+		offset.x -= _bubble.size.x
 
 	position = _anchor_node.get_global_transform_with_canvas().origin + offset
-	_tail.scale.x = -1.0 if _is_on_left else 1.0
-	_tail.position.x = _bubble.size.x if _is_on_left else 0.0
+	var max_x := get_viewport_rect().size.x - _bubble.size.x - SCREEN_MARGIN
+	position.x = clampf(position.x, SCREEN_MARGIN, max_x)
+	_tail.scale.x = -1.0 if is_on_left else 1.0
+	_tail.position.x = _bubble.size.x if is_on_left else 0.0
 
 
-## Начать разговор из файла рядом с персонажем: окно справа от него или слева.
-func start(path: String, anchor: Node2D, is_on_left: bool = false) -> void:
+## Начать разговор из файла рядом с персонажем. Сдвиг окна — от него на экране, px;
+## отрицательный X — окно слева от него.
+func start(path: String, anchor: Node2D, anchor_offset: Vector2) -> void:
 	_anchor_node = anchor
-	_is_on_left = is_on_left
+	_anchor_offset = anchor_offset
 	_load_dialogue(path)
 	if _start_id.is_empty():
 		return
