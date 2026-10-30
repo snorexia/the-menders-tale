@@ -3,13 +3,12 @@ extends Node2D
 ## Держишь кнопку — заготовка греется, отпустил — остывает, и нагрев проверяется:
 ## в зоне — хорошо, в середине зоны — идеально, выше зоны или до предела — мусор.
 ## Итог меняет инвентарь (#37): хорошо — заготовка становится нагретой, мусор — пропадает.
+## Сначала выбираешь рецепт: что греем и что получаем — в `common/items.json`.
 
 const PERCENT := 100.0
 const HINT_FADE_TIME := 1.5
-
-## Что греем и что получаем — id из `common/items.json`.
-@export var input_item: String = "blank"
-@export var output_item: String = "heated_blank"
+## Рецепты какого места показывать — `station` в `common/items.json`.
+const STATION := "hearth"
 
 ## Скорость нагрева: доля шкалы в секунду (0.33 — полная шкала за 3 с).
 @export var heat_speed: float = 0.33
@@ -49,6 +48,7 @@ var _is_mouse_held: bool = false
 var _was_heating: bool = false
 var _is_finished: bool = false
 var _hint_tween: Tween
+var _recipe: Dictionary = {}
 
 @onready var _metal_tint: Polygon2D = $Background/MetalTint
 @onready var _metal_glow: Polygon2D = $Background/MetalGlow
@@ -58,6 +58,9 @@ var _hint_tween: Tween
 @onready var _good_zone: Control = %GoodZone
 @onready var _perfect_zone: Control = %PerfectZone
 @onready var _status_label: Label = %StatusLabel
+@onready var _hint: Label = $UI/Hint
+@onready var _recipe_panel: Control = %RecipePanel
+@onready var _recipes: RecipeMenu = %Recipes
 @onready var _result_panel: Control = %ResultPanel
 @onready var _quality_label: Label = %QualityLabel
 @onready var _score_label: Label = %ScoreLabel
@@ -70,10 +73,13 @@ func _ready() -> void:
 	var fill_style: StyleBox = _heat_bar.get_theme_stylebox("fill").duplicate()
 	_heat_bar.add_theme_stylebox_override("fill", fill_style)
 	_start_heating()
+	_hint.hide()
+	_recipes.recipe_chosen.connect(_on_recipe_chosen)
+	_recipes.fill(STATION)
 
 
 func _process(delta: float) -> void:
-	if _is_finished:
+	if _is_finished or _recipe.is_empty():
 		return
 
 	var is_heating := _is_mouse_held or Input.is_key_pressed(KEY_SPACE)
@@ -94,6 +100,8 @@ func _process(delta: float) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	var mouse_event := event as InputEventMouseButton
 	if mouse_event == null or mouse_event.button_index != MOUSE_BUTTON_LEFT:
+		return
+	if _recipe.is_empty():
 		return
 
 	_is_mouse_held = mouse_event.pressed
@@ -163,11 +171,17 @@ func _place_zone(zone: Control, from: float, to: float) -> void:
 
 ## Заготовка тратится при любом итоге; нагрел — взамен нагретая.
 func _use_input_item(is_heated: bool) -> void:
-	if not SandboxState.try_take_item(input_item):
+	if not SandboxState.try_take_item(_recipe.get("needs", "")):
 		return
 
 	if is_heated:
-		SandboxState.add_item(output_item)
+		SandboxState.add_item(_recipe.get("gives", ""))
 		SandboxHud.show_message(output_added_text)
 	else:
 		SandboxHud.show_message(input_lost_text)
+
+
+func _on_recipe_chosen(recipe: Dictionary) -> void:
+	_recipe = recipe
+	_recipe_panel.hide()
+	_hint.show()

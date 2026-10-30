@@ -78,8 +78,6 @@ polygon = PackedVector2Array(95, 250, 100, 190, 140, 0, 378, 0, 475, 250, 475, 2
 [node name="HearthArea" type="Area2D" parent="SidesLayer/Sprite/Hearth" node_paths=PackedStringArray("highlight_target")]
 script = ExtResource("9_area")
 target_scene = "res://scenes/hearth/hearth.tscn"
-required_item = "blank"
-missing_item_text = "Нет заготовки — нечего греть"
 highlight_target = NodePath("..")
 
 [node name="Shape" type="CollisionPolygon2D" parent="SidesLayer/Sprite/Hearth/HearthArea"]
@@ -141,8 +139,6 @@ polygon = PackedVector2Array(572, 410, 572, 330, 600, 250, 624, 200, 624, 146, 7
 [node name="SmelterArea" type="Area2D" parent="SidesLayer/Sprite/Smelter" node_paths=PackedStringArray("highlight_target")]
 script = ExtResource("9_area")
 target_scene = "res://scenes/smelter/smelter.tscn"
-required_item = "ore"
-missing_item_text = "Нет руды — нечего плавить"
 highlight_target = NodePath("..")
 
 [node name="Shape" type="CollisionPolygon2D" parent="SidesLayer/Sprite/Smelter/SmelterArea"]
@@ -186,8 +182,6 @@ polygon = PackedVector2Array(1306, 552, 1338, 548, 1338, 450, 1420, 444, 1440, 3
 [node name="GrinderArea" type="Area2D" parent="SidesLayer/Sprite/Grinder" node_paths=PackedStringArray("highlight_target")]
 script = ExtResource("9_area")
 target_scene = "res://scenes/grinder/grinder.tscn"
-required_item = "sword_blunt"
-missing_item_text = "Нечего точить — нужен незаточенный меч"
 highlight_target = NodePath("..")
 
 [node name="Shape" type="CollisionPolygon2D" parent="SidesLayer/Sprite/Grinder/GrinderArea"]

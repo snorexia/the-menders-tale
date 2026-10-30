@@ -3,14 +3,14 @@ extends Node2D
 ## Клик или пробел жмёт педаль — колесо разгоняется, без кликов замедляется.
 ## Скорость в зелёной зоне — меч точится; выше зоны клинок греется. Перегрел —
 ## меч остался незаточенным, можно ещё раз. Заточил — незаточенный меч становится
-## обычным с тем же качеством ковки.
+## обычным с тем же качеством ковки. Сначала выбираешь рецепт: что точим и что получаем —
+## в `common/items.json`.
 
 const PERCENT := 100.0
 const HINT_FADE_TIME := 1.0
+## Рецепты какого места показывать — `station` в `common/items.json`.
+const STATION := "grinder"
 
-## Что точим и что получаем — id из `common/items.json`.
-@export var input_item: String = "sword_blunt"
-@export var output_item: String = "sword"
 ## Насколько разгоняет одно нажатие педали: доля полной скорости.
 @export var pedal_impulse: float = 0.12
 ## Насколько колесо замедляется само: доля полной скорости в секунду.
@@ -45,6 +45,7 @@ var _speed: float = 0.0
 var _sharpness: float = 0.0
 var _overheat: float = 0.0
 var _is_finished: bool = false
+var _recipe: Dictionary = {}
 
 @onready var _wheel_spin: WheelSpin = $Background/WheelSpin
 @onready var _blade_glow: Polygon2D = $Background/BladeGlow
@@ -53,6 +54,9 @@ var _is_finished: bool = false
 @onready var _good_zone: Control = %GoodZone
 @onready var _sharpness_bar: ProgressBar = %SharpnessBar
 @onready var _status_label: Label = %StatusLabel
+@onready var _hint: Label = $UI/Hint
+@onready var _recipe_panel: Control = %RecipePanel
+@onready var _recipes: RecipeMenu = %Recipes
 @onready var _result_panel: Control = %ResultPanel
 @onready var _quality_label: Label = %QualityLabel
 @onready var _score_label: Label = %ScoreLabel
@@ -67,11 +71,14 @@ func _ready() -> void:
 	var fill_style: StyleBox = _speed_bar.get_theme_stylebox("fill").duplicate()
 	_speed_bar.add_theme_stylebox_override("fill", fill_style)
 	_start_sharpening()
+	_hint.hide()
+	_recipes.recipe_chosen.connect(_on_recipe_chosen)
+	_recipes.fill(STATION)
 
 
 func _process(delta: float) -> void:
 	_speed = maxf(_speed - friction * delta, 0.0)
-	if not _is_finished:
+	if not _is_finished and not _recipe.is_empty():
 		_grind(delta)
 
 	_update_visuals()
@@ -86,7 +93,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	var is_space := (
 		key_event != null and key_event.pressed and not key_event.echo and key_event.keycode == KEY_SPACE
 	)
-	if not is_click and not is_space:
+	if _recipe.is_empty() or (not is_click and not is_space):
 		return
 
 	get_viewport().set_input_as_handled()
@@ -136,10 +143,12 @@ func _finish(is_sharpened: bool) -> void:
 
 ## Меч остаётся того же качества, что выковали.
 func _sharpen_item() -> void:
+	var input_item: String = _recipe.get("needs", "")
 	var quality := SandboxState.get_item_quality(input_item)
 	if not SandboxState.try_take_item(input_item):
 		return
 
+	var output_item: String = _recipe.get("gives", "")
 	SandboxState.add_item(output_item, quality)
 	var output_name: String = SandboxState.get_item_info(output_item).get("name", output_item)
 	SandboxHud.show_message(item_added_prefix + output_name.to_lower())
@@ -155,3 +164,9 @@ func _update_visuals() -> void:
 	var fill_style := _speed_bar.get_theme_stylebox("fill") as StyleBoxFlat
 	if fill_style != null:
 		fill_style.bg_color = too_fast_fill_color if _speed > good_to else speed_fill_color
+
+
+func _on_recipe_chosen(recipe: Dictionary) -> void:
+	_recipe = recipe
+	_recipe_panel.hide()
+	_hint.show()

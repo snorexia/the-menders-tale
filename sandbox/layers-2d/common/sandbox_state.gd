@@ -38,7 +38,7 @@ func _ready() -> void:
 		add_item(item_id)
 
 
-## Рецепты одного места: `anvil` — наковальня, `smelter` — плавильня.
+## Рецепты одного места: `anvil`, `smelter`, `hearth`, `grinder` — см. `items.json`.
 func get_recipes(station: String) -> Array:
 	return recipes.filter(func(recipe: Dictionary) -> bool: return recipe.get("station") == station)
 
@@ -50,6 +50,11 @@ func get_item_info(item_id: String) -> Dictionary:
 
 func has_item(item_id: String) -> bool:
 	return items.any(func(item: Dictionary) -> bool: return item["id"] == item_id)
+
+
+## Сколько таких предметов в инвентаре.
+func count_item(item_id: String) -> int:
+	return items.filter(func(item: Dictionary) -> bool: return item["id"] == item_id).size()
 
 
 ## Качество первого такого предмета. Нет его или без качества — пусто.
