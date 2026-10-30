@@ -4,6 +4,7 @@ extends Control
 ## Разговор — в JSON (формат описан в поле `_note` файла). Окно держится рядом
 ## с узлом-якорем, даже когда камера осматривает комнату.
 ## Ответ может требовать предмет, забрать его, дать монеты и сообщить о событии (#37).
+## За предмет с меткой `bonus_tag` — ещё `bonus_coins` монет и реплика `bonus_next` (#51).
 
 signal finished
 ## Выбран ответ с полем `event`: что должно случиться в сцене, например «стражник уходит».
@@ -151,9 +152,16 @@ func _on_bubble_gui_input(event: InputEvent) -> void:
 	_finish_typing()
 
 
-func _apply_choice_effects(choice: Dictionary) -> void:
+func _has_bonus(choice: Dictionary) -> bool:
+	if not choice.has("bonus_tag") or not choice.has("bonus_next"):
+		return false
+
+	return SandboxState.has_tagged_item(choice.get("needs_item", ""), choice["bonus_tag"])
+
+
+func _apply_choice_effects(choice: Dictionary, take_tag: String) -> void:
 	if choice.has("take_item"):
-		SandboxState.try_take_item(choice["take_item"])
+		SandboxState.try_take_item(choice["take_item"], take_tag)
 	if choice.has("add_coins"):
 		SandboxState.add_coins(int(choice["add_coins"]))
 	if choice.has("event"):
@@ -161,8 +169,13 @@ func _apply_choice_effects(choice: Dictionary) -> void:
 
 
 func _on_choice_pressed(choice: Dictionary) -> void:
-	_apply_choice_effects(choice)
-	if choice.has("next"):
+	# Метку проверяем до эффектов: они могут забрать предмет.
+	var has_bonus := _has_bonus(choice)
+	_apply_choice_effects(choice, choice.get("bonus_tag", "") if has_bonus else "")
+	if has_bonus:
+		SandboxState.add_coins(int(choice.get("bonus_coins", 0)))
+		_show_line(choice["bonus_next"])
+	elif choice.has("next"):
 		_show_line(choice["next"])
 	elif choice.has("scene"):
 		get_tree().change_scene_to_file(choice["scene"])

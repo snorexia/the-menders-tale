@@ -1,15 +1,13 @@
 extends Node2D
-## Крупный план точильного колеса с мини-игрой «педаль и скорость» (песочница, #42).
+## Точильное колесо в сцене создания, мини-игра «педаль и скорость» (песочница, #42, #51).
 ## Клик или пробел жмёт педаль — колесо разгоняется, без кликов замедляется.
-## Скорость в зелёной зоне — меч точится; выше зоны клинок греется. Перегрел —
-## меч остался незаточенным, можно ещё раз. Заточил — незаточенный меч становится
-## обычным с тем же качеством ковки. Сначала выбираешь рецепт: что точим и что получаем —
-## в `common/items.json`.
+## Скорость в зелёной зоне — меч точится; выше зоны клинок греется. Заточил — оценка:
+## почти не грел — отлично, иначе хорошо. Перегрел — «Ещё раз» или оставить среднюю.
+
+signal sharpened(rating: String)
 
 const PERCENT := 100.0
 const HINT_FADE_TIME := 1.0
-## Рецепты какого места показывать — `station` в `common/items.json`.
-const STATION := "grinder"
 
 ## Насколько разгоняет одно нажатие педали: доля полной скорости.
 @export var pedal_impulse: float = 0.12
@@ -24,6 +22,8 @@ const STATION := "grinder"
 @export var overheat_limit: float = 1.5
 ## Как быстро клинок остывает, когда скорость не выше зоны: доля от нагрева.
 @export var cool_rate: float = 0.5
+## «Отлично», если нагрев не поднимался выше этой доли от предела.
+@export_range(0.0, 1.0) var excellent_heat_ratio: float = 0.35
 ## Оборотов колеса в секунду на полной скорости — только для вида.
 @export var max_turns_per_second: float = 2.5
 
@@ -35,18 +35,23 @@ const STATION := "grinder"
 
 @export_group("Тексты")
 @export var too_fast_text: String = "Слишком быстро — клинок греется!"
-@export var sharpened_text: String = "Меч заточен"
 @export var overheated_text: String = "Перегрел — меч не заточен"
-@export var sharpened_color: Color = Color(0.55, 0.85, 1.0)
-@export var overheated_color: Color = Color(1.0, 0.5, 0.35)
-@export var item_added_prefix: String = "В инвентаре: "
+@export var excellent_text: String = "отлично"
+@export var good_text: String = "хорошо"
+## Оценка без мини-игры и после отказа от новой попытки.
+@export var medium_text: String = "средне"
+
+## Заточка вышла отличной — читает сцена создания после `sharpened`.
+var is_excellent: bool = false
 
 var _speed: float = 0.0
 var _sharpness: float = 0.0
 var _overheat: float = 0.0
-var _is_finished: bool = false
-var _recipe: Dictionary = {}
+var _peak_overheat: float = 0.0
+var _is_running: bool = false
 
+@onready var _vignette_layer: CanvasLayer = $VignetteLayer
+@onready var _ui: CanvasLayer = $UI
 @onready var _wheel_spin: WheelSpin = $Background/WheelSpin
 @onready var _blade_glow: Polygon2D = $Background/BladeGlow
 @onready var _sparks: CPUParticles2D = $Background/Sparks
@@ -54,37 +59,36 @@ var _recipe: Dictionary = {}
 @onready var _good_zone: Control = %GoodZone
 @onready var _sharpness_bar: ProgressBar = %SharpnessBar
 @onready var _status_label: Label = %StatusLabel
-@onready var _hint: Label = $UI/Hint
-@onready var _recipe_panel: Control = %RecipePanel
-@onready var _recipes: RecipeMenu = %Recipes
 @onready var _result_panel: Control = %ResultPanel
 @onready var _quality_label: Label = %QualityLabel
 @onready var _score_label: Label = %ScoreLabel
 @onready var _retry_button: Button = %RetryButton
+@onready var _medium_button: Button = %MediumButton
 
 
 func _ready() -> void:
-	_retry_button.pressed.connect(_start_sharpening)
+	_retry_button.pressed.connect(_reset)
+	_medium_button.pressed.connect(_on_medium_button_pressed)
 	_good_zone.anchor_left = good_from
 	_good_zone.anchor_right = good_to
 	# Заливку шкалы перекрашиваем по скорости — у сцены своя копия стиля.
 	var fill_style: StyleBox = _speed_bar.get_theme_stylebox("fill").duplicate()
 	_speed_bar.add_theme_stylebox_override("fill", fill_style)
-	_start_sharpening()
-	_hint.hide()
-	_recipes.recipe_chosen.connect(_on_recipe_chosen)
-	_recipes.fill(STATION)
+	set_ui_visible(false)
 
 
 func _process(delta: float) -> void:
 	_speed = maxf(_speed - friction * delta, 0.0)
-	if not _is_finished and not _recipe.is_empty():
+	if _is_running:
 		_grind(delta)
 
 	_update_visuals()
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if not _is_running:
+		return
+
 	var mouse_event := event as InputEventMouseButton
 	var key_event := event as InputEventKey
 	var is_click := (
@@ -93,19 +97,31 @@ func _unhandled_input(event: InputEvent) -> void:
 	var is_space := (
 		key_event != null and key_event.pressed and not key_event.echo and key_event.keycode == KEY_SPACE
 	)
-	if _recipe.is_empty() or (not is_click and not is_space):
+	if not is_click and not is_space:
 		return
 
 	get_viewport().set_input_as_handled()
-	if not _is_finished:
-		_speed = minf(_speed + pedal_impulse, 1.0)
+	_speed = minf(_speed + pedal_impulse, 1.0)
 
 
-func _start_sharpening() -> void:
+## Начать мини-игру; по окончании — сигнал `sharpened`.
+func start() -> void:
+	set_ui_visible(true)
+	_reset()
+
+
+## Показать или скрыть интерфейс колеса: слои экрана не подчиняются видимости узла.
+func set_ui_visible(value: bool) -> void:
+	_vignette_layer.visible = value
+	_ui.visible = value
+
+
+func _reset() -> void:
 	_speed = 0.0
 	_sharpness = 0.0
 	_overheat = 0.0
-	_is_finished = false
+	_peak_overheat = 0.0
+	_is_running = true
 	_result_panel.hide()
 	_status_label.modulate.a = 0.0
 
@@ -113,6 +129,7 @@ func _start_sharpening() -> void:
 func _grind(delta: float) -> void:
 	if _speed > good_to:
 		_overheat += delta
+		_peak_overheat = maxf(_peak_overheat, _overheat)
 		_status_label.text = too_fast_text
 		_status_label.modulate.a = 1.0
 	else:
@@ -123,40 +140,29 @@ func _grind(delta: float) -> void:
 		_sharpness = minf(_sharpness + delta / sharpen_time, 1.0)
 
 	if _overheat >= overheat_limit:
-		_finish(false)
+		_fail()
 	elif _sharpness >= 1.0:
-		_finish(true)
+		_succeed()
 
 
-func _finish(is_sharpened: bool) -> void:
-	_is_finished = true
+func _succeed() -> void:
+	_is_running = false
+	is_excellent = _peak_overheat <= overheat_limit * excellent_heat_ratio
+	sharpened.emit(excellent_text if is_excellent else good_text)
+
+
+func _fail() -> void:
+	_is_running = false
 	_status_label.modulate.a = 0.0
 	var percent := roundi(_sharpness * PERCENT)
-	_quality_label.text = sharpened_text if is_sharpened else overheated_text
-	_quality_label.label_settings.font_color = sharpened_color if is_sharpened else overheated_color
+	_quality_label.text = overheated_text
 	_score_label.text = "Заточка: %d %%" % percent
-	_retry_button.visible = not is_sharpened
 	_result_panel.show()
-	if is_sharpened:
-		_sharpen_item()
-
-
-## Меч остаётся того же качества, что выковали.
-func _sharpen_item() -> void:
-	var input_item: String = _recipe.get("needs", "")
-	var quality := SandboxState.get_item_quality(input_item)
-	if not SandboxState.try_take_item(input_item):
-		return
-
-	var output_item: String = _recipe.get("gives", "")
-	SandboxState.add_item(output_item, quality)
-	var output_name: String = SandboxState.get_item_info(output_item).get("name", output_item)
-	SandboxHud.show_message(item_added_prefix + output_name.to_lower())
 
 
 func _update_visuals() -> void:
 	_wheel_spin.spin_speed = _speed * max_turns_per_second
-	_sparks.emitting = _speed >= good_from and not _is_finished
+	_sparks.emitting = _speed >= good_from and _is_running
 	var heat_ratio := _overheat / overheat_limit
 	_blade_glow.color = Color(overheat_glow, overheat_glow.a * heat_ratio)
 	_speed_bar.value = _speed * PERCENT
@@ -166,7 +172,7 @@ func _update_visuals() -> void:
 		fill_style.bg_color = too_fast_fill_color if _speed > good_to else speed_fill_color
 
 
-func _on_recipe_chosen(recipe: Dictionary) -> void:
-	_recipe = recipe
-	_recipe_panel.hide()
-	_hint.show()
+func _on_medium_button_pressed() -> void:
+	_result_panel.hide()
+	is_excellent = false
+	sharpened.emit(medium_text)

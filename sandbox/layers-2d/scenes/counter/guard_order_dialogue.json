@@ -1,13 +1,12 @@
 {
-  "_note": "Песочница (#37, #42): стражник ждёт заказ, открывается по клику на него после первого разговора. Не канон сценария. Формат — как в guard_dialogue.json, плюс у ответа: needs_item — без этого предмета ответ серый (к тексту добавляется missing_text), take_item — забрать предмет, add_coins — дать монеты, event — событие для сцены (guard_leave — стражник уходит). Заточенный меч — 10 монет, незаточенный — 5.",
+  "_note": "Песочница (#37, #51): стражник ждёт заказ, открывается по клику на него после первого разговора. Не канон сценария. Формат — как в guard_dialogue.json, плюс у ответа: needs_item — без этого предмета ответ серый (к тексту добавляется missing_text), take_item — забрать предмет, add_coins — дать монеты, bonus_tag — если у предмета такая метка, ещё bonus_coins монет и реплика bonus_next, event — событие для сцены (guard_leave — стражник уходит).",
   "start": "ask",
   "nodes": {
     "ask": {
       "speaker": "Старый стражник",
       "text": "Ну что, мастер, готов мой меч?",
       "choices": [
-        {"text": "Вот твой меч, заточен.", "needs_item": "sword", "missing_text": "  (нет заточенного)", "take_item": "sword", "add_coins": 10, "next": "thanks"},
-        {"text": "Вот меч, но не заточен.", "needs_item": "sword_blunt", "missing_text": "  (нет незаточенного)", "take_item": "sword_blunt", "add_coins": 5, "next": "thanks_blunt"},
+        {"text": "Вот твой меч.", "needs_item": "sword", "missing_text": "  (меча ещё нет)", "take_item": "sword", "add_coins": 10, "next": "thanks", "bonus_tag": "excellent_edge", "bonus_coins": 5, "bonus_next": "thanks_sharp"},
         {"text": "Сейчас вернусь."}
       ]
     },
@@ -18,9 +17,9 @@
         {"text": "Заходи ещё.", "event": "guard_leave"}
       ]
     },
-    "thanks_blunt": {
+    "thanks_sharp": {
       "speaker": "Старый стражник",
-      "text": "[color=#86603c][i](проводит пальцем по кромке)[/i][/color]\nТупой, как сапог. Ладно, лезвие сам наведу. Держи пять монет.",
+      "text": "[color=#86603c][i](проводит пальцем по кромке и присвистывает)[/i][/color]\nВот это заточка! Сверх уговора накину: держи пятнадцать монет.",
       "choices": [
         {"text": "Заходи ещё.", "event": "guard_leave"}
       ]

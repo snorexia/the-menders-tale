@@ -77,7 +77,7 @@ polygon = PackedVector2Array(95, 250, 100, 190, 140, 0, 378, 0, 475, 250, 475, 2
 
 [node name="HearthArea" type="Area2D" parent="SidesLayer/Sprite/Hearth" node_paths=PackedStringArray("highlight_target")]
 script = ExtResource("9_area")
-target_scene = "res://scenes/hearth/hearth.tscn"
+placeholder_text = "Горн сам разогреет слиток, когда начнёшь ковать"
 highlight_target = NodePath("..")
 
 [node name="Shape" type="CollisionPolygon2D" parent="SidesLayer/Sprite/Hearth/HearthArea"]
@@ -181,7 +181,7 @@ polygon = PackedVector2Array(1306, 552, 1338, 548, 1338, 450, 1420, 444, 1440, 3
 
 [node name="GrinderArea" type="Area2D" parent="SidesLayer/Sprite/Grinder" node_paths=PackedStringArray("highlight_target")]
 script = ExtResource("9_area")
-target_scene = "res://scenes/grinder/grinder.tscn"
+placeholder_text = "Меч точат сразу после ковки — начни с наковальни"
 highlight_target = NodePath("..")
 
 [node name="Shape" type="CollisionPolygon2D" parent="SidesLayer/Sprite/Grinder/GrinderArea"]
@@ -197,7 +197,7 @@ centered = false
 
 [node name="AnvilArea" type="Area2D" parent="AnvilLayer/Sprite" node_paths=PackedStringArray("highlight_target")]
 script = ExtResource("9_area")
-target_scene = "res://scenes/anvil/anvil.tscn"
+target_scene = "res://scenes/craft/craft.tscn"
 highlight_target = NodePath("..")
 
 [node name="Shape" type="CollisionPolygon2D" parent="AnvilLayer/Sprite/AnvilArea"]

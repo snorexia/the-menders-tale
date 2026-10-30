@@ -16,7 +16,7 @@ var arrived_npcs: Dictionary[String, bool] = {}
 var left_npcs: Dictionary[String, bool] = {}
 ## Разговоры, которые уже закончены, — по имени.
 var finished_dialogues: Dictionary[String, bool] = {}
-## Предметы в инвентаре по слотам: {"id": ..., "quality": ...}.
+## Предметы в инвентаре по слотам: {"id": ..., "quality": ..., "tag": ...}.
 var items: Array[Dictionary] = []
 var coins: int = 0
 ## Что где можно сделать — из `items.json`, у каждого рецепта своё место (`station`).
@@ -38,7 +38,7 @@ func _ready() -> void:
 		add_item(item_id)
 
 
-## Рецепты одного места: `anvil`, `smelter`, `hearth`, `grinder` — см. `items.json`.
+## Рецепты одного места: `anvil`, `smelter` — см. `items.json`.
 func get_recipes(station: String) -> Array:
 	return recipes.filter(func(recipe: Dictionary) -> bool: return recipe.get("station") == station)
 
@@ -57,25 +57,29 @@ func count_item(item_id: String) -> int:
 	return items.filter(func(item: Dictionary) -> bool: return item["id"] == item_id).size()
 
 
-## Качество первого такого предмета. Нет его или без качества — пусто.
-func get_item_quality(item_id: String) -> String:
-	var index := items.find_custom(func(item: Dictionary) -> bool: return item["id"] == item_id)
-	return items[index]["quality"] if index != -1 else ""
+## Есть ли такой предмет с такой меткой, например меч с отличной заточкой.
+func has_tagged_item(item_id: String, tag: String) -> bool:
+	return items.any(
+		func(item: Dictionary) -> bool: return item["id"] == item_id and item["tag"] == tag
+	)
 
 
 ## Положить предмет в свободный слот. Слотов нет — false.
-func add_item(item_id: String, quality: String = "") -> bool:
+func add_item(item_id: String, quality: String = "", tag: String = "") -> bool:
 	if items.size() >= SLOT_COUNT:
 		return false
 
-	items.append({"id": item_id, "quality": quality})
+	items.append({"id": item_id, "quality": quality, "tag": tag})
 	items_changed.emit()
 	return true
 
 
-## Забрать первый такой предмет. Нет его — false.
-func try_take_item(item_id: String) -> bool:
-	var index := items.find_custom(func(item: Dictionary) -> bool: return item["id"] == item_id)
+## Забрать первый такой предмет; с меткой — именно с этой меткой. Нет его — false.
+func try_take_item(item_id: String, tag: String = "") -> bool:
+	var index := items.find_custom(
+		func(item: Dictionary) -> bool:
+			return item["id"] == item_id and (tag.is_empty() or item["tag"] == tag)
+	)
 	if index == -1:
 		return false
 
