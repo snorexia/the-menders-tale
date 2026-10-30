@@ -1,0 +1,295 @@
+[gd_scene load_steps=23 format=3]
+
+[ext_resource type="Script" path="res://common/mouse_look_camera.gd" id="1_camera"]
+[ext_resource type="Texture2D" path="res://scenes/counter/counter_back.png" id="2_back"]
+[ext_resource type="Texture2D" path="res://scenes/counter/counter_sides.png" id="3_sides"]
+[ext_resource type="Texture2D" path="res://scenes/counter/counter_front.png" id="4_front"]
+[ext_resource type="Script" path="res://common/flicker_light.gd" id="5_flicker"]
+[ext_resource type="Texture2D" path="res://common/light_glow.tres" id="6_glow"]
+[ext_resource type="Script" path="res://common/scene_link_button.gd" id="7_link"]
+[ext_resource type="Script" path="res://common/walking_npc.gd" id="8_npc"]
+[ext_resource type="Texture2D" path="res://scenes/counter/npc_guard.png" id="9_guard"]
+[ext_resource type="Script" path="res://common/dialogue_box.gd" id="10_dialogue"]
+[ext_resource type="Script" path="res://scenes/counter/counter.gd" id="11_counter"]
+[ext_resource type="Script" path="res://common/clickable_area.gd" id="12_click"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_parchment"]
+content_margin_left = 36.0
+content_margin_top = 26.0
+content_margin_right = 36.0
+content_margin_bottom = 26.0
+bg_color = Color(0.91, 0.84, 0.7, 0.97)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.36, 0.23, 0.13, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0, 0, 0, 0.45)
+shadow_size = 10
+shadow_offset = Vector2(4, 6)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_choice"]
+content_margin_left = 18.0
+content_margin_top = 10.0
+content_margin_right = 18.0
+content_margin_bottom = 10.0
+bg_color = Color(0.8, 0.7, 0.52, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.55, 0.4, 0.25, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_choice_hover"]
+content_margin_left = 18.0
+content_margin_top = 10.0
+content_margin_right = 18.0
+content_margin_bottom = 10.0
+bg_color = Color(0.62, 0.68, 0.45, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.36, 0.42, 0.22, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_choice_disabled"]
+content_margin_left = 18.0
+content_margin_top = 10.0
+content_margin_right = 18.0
+content_margin_bottom = 10.0
+bg_color = Color(0.8, 0.74, 0.62, 0.6)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.55, 0.4, 0.25, 0.4)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_focus"]
+
+[sub_resource type="StyleBoxLine" id="StyleBoxLine_divider"]
+color = Color(0.55, 0.4, 0.25, 0.6)
+thickness = 2
+
+[sub_resource type="Theme" id="Theme_dialogue"]
+Button/colors/font_color = Color(0.22, 0.14, 0.08, 1)
+Button/colors/font_disabled_color = Color(0.22, 0.14, 0.08, 0.45)
+Button/colors/font_hover_color = Color(0.12, 0.1, 0.04, 1)
+Button/colors/font_pressed_color = Color(0.12, 0.1, 0.04, 1)
+Button/colors/font_focus_color = Color(0.22, 0.14, 0.08, 1)
+Button/font_sizes/font_size = 24
+Button/styles/disabled = SubResource("StyleBoxFlat_choice_disabled")
+Button/styles/focus = SubResource("StyleBoxEmpty_focus")
+Button/styles/hover = SubResource("StyleBoxFlat_choice_hover")
+Button/styles/normal = SubResource("StyleBoxFlat_choice")
+Button/styles/pressed = SubResource("StyleBoxFlat_choice_hover")
+HSeparator/styles/separator = SubResource("StyleBoxLine_divider")
+RichTextLabel/colors/default_color = Color(0.22, 0.14, 0.08, 1)
+RichTextLabel/font_sizes/normal_font_size = 27
+RichTextLabel/font_sizes/italics_font_size = 25
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_guard"]
+size = Vector2(760, 900)
+
+[sub_resource type="LabelSettings" id="LabelSettings_speaker"]
+font_size = 24
+font_color = Color(0.58, 0.18, 0.1, 1)
+
+[node name="Counter" type="Node2D"]
+script = ExtResource("11_counter")
+order_dialogue_path = "res://scenes/counter/guard_order_dialogue.json"
+
+[node name="Camera" type="Camera2D" parent="."]
+position = Vector2(960, 540)
+script = ExtResource("1_camera")
+
+[node name="Darkness" type="CanvasModulate" parent="."]
+color = Color(0.72, 0.66, 0.6, 1)
+
+[node name="BackLayer" type="Node2D" parent="."]
+
+[node name="Sprite" type="Sprite2D" parent="BackLayer"]
+position = Vector2(-126.8, -71.65)
+scale = Vector2(1.3, 1.3)
+texture = ExtResource("2_back")
+centered = false
+
+[node name="LanternLeft" type="PointLight2D" parent="BackLayer/Sprite"]
+position = Vector2(360, 75)
+color = Color(1, 0.72, 0.4, 1)
+energy = 0.7
+texture = ExtResource("6_glow")
+texture_scale = 2.4
+script = ExtResource("5_flicker")
+strength = 0.15
+speed = 4.0
+
+[node name="LanternCenter" type="PointLight2D" parent="BackLayer/Sprite"]
+position = Vector2(668, 245)
+color = Color(1, 0.72, 0.4, 1)
+energy = 0.7
+texture = ExtResource("6_glow")
+texture_scale = 2.4
+script = ExtResource("5_flicker")
+strength = 0.15
+speed = 4.0
+
+[node name="SidesLayer" type="Node2D" parent="."]
+
+[node name="Sprite" type="Sprite2D" parent="SidesLayer"]
+position = Vector2(-126.8, -71.65)
+scale = Vector2(1.3, 1.3)
+texture = ExtResource("3_sides")
+centered = false
+
+[node name="CandleLeft" type="PointLight2D" parent="SidesLayer/Sprite"]
+position = Vector2(160, 430)
+color = Color(1, 0.75, 0.45, 1)
+energy = 0.6
+texture = ExtResource("6_glow")
+texture_scale = 1.3
+script = ExtResource("5_flicker")
+strength = 0.3
+speed = 8.0
+
+[node name="CandleRight" type="PointLight2D" parent="SidesLayer/Sprite"]
+position = Vector2(1300, 385)
+color = Color(1, 0.75, 0.45, 1)
+energy = 0.6
+texture = ExtResource("6_glow")
+texture_scale = 1.3
+script = ExtResource("5_flicker")
+strength = 0.3
+speed = 8.0
+
+[node name="NpcLayer" type="Node2D" parent="."]
+position = Vector2(-126.8, -71.65)
+scale = Vector2(1.3, 1.3)
+
+[node name="Guard" type="Node2D" parent="NpcLayer"]
+position = Vector2(810, 760)
+script = ExtResource("8_npc")
+start_offset = Vector2(1150, 0)
+memory_key = "guard"
+
+[node name="Body" type="Sprite2D" parent="NpcLayer/Guard"]
+scale = Vector2(0.44, 0.44)
+texture = ExtResource("9_guard")
+centered = false
+offset = Vector2(-513, -1150)
+
+[node name="ClickArea" type="Area2D" parent="NpcLayer/Guard/Body" node_paths=PackedStringArray("highlight_target")]
+script = ExtResource("12_click")
+highlight_target = NodePath("..")
+highlight_color = Color(1.15, 1.12, 1.05, 1)
+
+[node name="Shape" type="CollisionShape2D" parent="NpcLayer/Guard/Body/ClickArea"]
+position = Vector2(0, -700)
+shape = SubResource("RectangleShape2D_guard")
+
+[node name="FrontLayer" type="Node2D" parent="."]
+
+[node name="Sprite" type="Sprite2D" parent="FrontLayer"]
+position = Vector2(-126.8, -71.65)
+scale = Vector2(1.3, 1.3)
+texture = ExtResource("4_front")
+centered = false
+
+[node name="CandleCrate" type="PointLight2D" parent="FrontLayer/Sprite"]
+position = Vector2(1660, 695)
+color = Color(1, 0.75, 0.45, 1)
+energy = 0.6
+texture = ExtResource("6_glow")
+texture_scale = 1.3
+script = ExtResource("5_flicker")
+strength = 0.3
+speed = 8.0
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="ToForgeButton" type="Button" parent="UI"]
+unique_name_in_owner = true
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 32.0
+offset_top = -40.0
+offset_right = 312.0
+offset_bottom = 40.0
+grow_vertical = 2
+theme_override_font_sizes/font_size = 32
+text = "◀ В кузню"
+script = ExtResource("7_link")
+target_scene = "res://scenes/forge/forge.tscn"
+
+[node name="DialogueBox" type="Control" parent="UI" node_paths=PackedStringArray("anchor_node")]
+layout_mode = 3
+anchors_preset = 0
+mouse_filter = 2
+theme = SubResource("Theme_dialogue")
+script = ExtResource("10_dialogue")
+dialogue_path = "res://scenes/counter/guard_dialogue.json"
+memory_key = "guard"
+anchor_node = NodePath("../../NpcLayer/Guard")
+
+[node name="Tail" type="Polygon2D" parent="UI/DialogueBox"]
+color = Color(0.91, 0.84, 0.7, 0.97)
+polygon = PackedVector2Array(4, 70, -120, 150, 4, 128)
+
+[node name="TailEdge" type="Line2D" parent="UI/DialogueBox/Tail"]
+points = PackedVector2Array(2, 70, -120, 150, 2, 128)
+width = 3.0
+default_color = Color(0.36, 0.23, 0.13, 1)
+joint_mode = 1
+
+[node name="Bubble" type="PanelContainer" parent="UI/DialogueBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(660, 0)
+layout_mode = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_parchment")
+
+[node name="Content" type="VBoxContainer" parent="UI/DialogueBox/Bubble"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 14
+
+[node name="SpeakerLabel" type="Label" parent="UI/DialogueBox/Bubble/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Старый стражник"
+label_settings = SubResource("LabelSettings_speaker")
+
+[node name="TextLabel" type="RichTextLabel" parent="UI/DialogueBox/Bubble/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+bbcode_enabled = true
+text = "Реплика"
+fit_content = true
+scroll_active = false
+visible_characters_behavior = 1
+
+[node name="Divider" type="HSeparator" parent="UI/DialogueBox/Bubble/Content"]
+layout_mode = 2
+
+[node name="Choices" type="VBoxContainer" parent="UI/DialogueBox/Bubble/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[connection signal="arrived" from="NpcLayer/Guard" to="UI/DialogueBox" method="start"]

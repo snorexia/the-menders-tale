@@ -1,0 +1,19 @@
+{
+  "source": "docs/reference/mockups/07-forge-empty.webp",
+  "feather": 0,
+  "layers": [
+    {"name": "anvil_metal", "crop": true, "polygons": [[[745, 570], [885, 570], [885, 650], [745, 650]]]},
+    {
+      "name": "anvil_wood",
+      "crop": true,
+      "source": "docs/reference/mockups/08-counter-empty.webp",
+      "polygons": [[[20, 885], [1290, 885], [1290, 935], [20, 935]]]
+    },
+    {
+      "name": "anvil_floor",
+      "crop": true,
+      "source": "docs/reference/mockups/08-counter-empty.webp",
+      "polygons": [[[330, 600], [1150, 600], [1150, 738], [330, 738]]]
+    }
+  ]
+}

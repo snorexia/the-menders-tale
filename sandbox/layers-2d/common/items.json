@@ -1,0 +1,44 @@
+{
+  "_note": "Предметы и рецепты песочницы (#37). Не данные игры. items — по id: name, icon, description. start_items — что лежит в инвентаре на старте, start_coins — монеты на старте. recipes — что где можно сделать: station (anvil — наковальня, smelter — плавильня, hearth — горн, grinder — точильное колесо), name, needs (id предмета, который тратится), gives (id предмета, который получаешь).",
+  "start_items": ["ore"],
+  "start_coins": 0,
+  "items": {
+    "ore": {
+      "name": "Железная руда",
+      "icon": "res://common/icons/iron_ore.png",
+      "description": "Переплавь её в слиток в плавильне."
+    },
+    "ingot": {
+      "name": "Железный слиток",
+      "icon": "res://common/icons/iron_ingot.png",
+      "description": "Отлей из него заготовку меча в плавильне."
+    },
+    "blank": {
+      "name": "Заготовка меча",
+      "icon": "res://common/icons/sword_blank.png",
+      "description": "Холодная. Нагрей её в горне."
+    },
+    "heated_blank": {
+      "name": "Нагретая заготовка",
+      "icon": "res://common/icons/sword_blank_hot.png",
+      "description": "Раскалена. Куй её на наковальне."
+    },
+    "sword_blunt": {
+      "name": "Незаточенный меч",
+      "icon": "res://common/icons/sword_blunt.png",
+      "description": "Выкован, но тупой. Заточи его на точильном колесе."
+    },
+    "sword": {
+      "name": "Обычный меч",
+      "icon": "res://common/icons/sword.png",
+      "description": "Простой одноручный меч, заточен."
+    }
+  },
+  "recipes": [
+    {"station": "smelter", "name": "Слиток", "needs": "ore", "gives": "ingot"},
+    {"station": "smelter", "name": "Заготовка меча", "needs": "ingot", "gives": "blank"},
+    {"station": "hearth", "name": "Нагреть заготовку", "needs": "blank", "gives": "heated_blank"},
+    {"station": "anvil", "name": "Обычный меч", "needs": "heated_blank", "gives": "sword_blunt"},
+    {"station": "grinder", "name": "Заточить меч", "needs": "sword_blunt", "gives": "sword"}
+  ]
+}

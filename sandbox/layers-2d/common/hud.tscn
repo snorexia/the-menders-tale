@@ -1,0 +1,182 @@
+[gd_scene load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://common/hud.gd" id="1_hud"]
+[ext_resource type="Texture2D" path="res://common/icons/gold_coin.png" id="2_coin"]
+[ext_resource type="Texture2D" path="res://common/icons/chest.png" id="3_chest"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slot"]
+bg_color = Color(0.16, 0.11, 0.08, 0.92)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.55, 0.38, 0.24, 0.9)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
+content_margin_left = 24.0
+content_margin_top = 18.0
+content_margin_right = 24.0
+content_margin_bottom = 24.0
+bg_color = Color(0.08, 0.05, 0.04, 0.9)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.75, 0.5, 0.3, 0.8)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tooltip"]
+content_margin_left = 16.0
+content_margin_top = 10.0
+content_margin_right = 16.0
+content_margin_bottom = 10.0
+bg_color = Color(0.08, 0.05, 0.04, 0.95)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.75, 0.5, 0.3, 0.8)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="Theme" id="Theme_hud"]
+TooltipLabel/colors/font_color = Color(1, 0.92, 0.8, 1)
+TooltipLabel/font_sizes/font_size = 24
+TooltipPanel/styles/panel = SubResource("StyleBoxFlat_tooltip")
+
+[sub_resource type="LabelSettings" id="LabelSettings_coins"]
+font_size = 44
+font_color = Color(1, 0.88, 0.5, 1)
+outline_size = 10
+outline_color = Color(0, 0, 0, 0.75)
+
+[sub_resource type="LabelSettings" id="LabelSettings_title"]
+font_size = 28
+font_color = Color(1, 0.92, 0.8, 0.9)
+
+[sub_resource type="LabelSettings" id="LabelSettings_message"]
+font_size = 36
+font_color = Color(1, 0.92, 0.8, 1)
+outline_size = 10
+outline_color = Color(0, 0, 0, 0.8)
+
+[node name="SandboxHud" type="CanvasLayer"]
+layer = 10
+script = ExtResource("1_hud")
+slot_style = SubResource("StyleBoxFlat_slot")
+
+[node name="Root" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme = SubResource("Theme_hud")
+
+[node name="CoinBox" type="HBoxContainer" parent="Root"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -320.0
+offset_top = 28.0
+offset_right = -36.0
+offset_bottom = 108.0
+grow_horizontal = 0
+mouse_filter = 2
+theme_override_constants/separation = 14
+alignment = 2
+
+[node name="CoinIcon" type="TextureRect" parent="Root/CoinBox"]
+texture_filter = 1
+custom_minimum_size = Vector2(68, 68)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+texture = ExtResource("2_coin")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="CoinLabel" type="Label" parent="Root/CoinBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "0"
+label_settings = SubResource("LabelSettings_coins")
+
+[node name="InventoryButton" type="TextureButton" parent="Root"]
+unique_name_in_owner = true
+texture_filter = 1
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 32.0
+offset_top = -144.0
+offset_right = 144.0
+offset_bottom = -32.0
+grow_vertical = 0
+focus_mode = 0
+tooltip_text = "Инвентарь (TAB)"
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("3_chest")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="InventoryPanel" type="PanelContainer" parent="Root"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_top = -32.0
+offset_bottom = -32.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="Content" type="VBoxContainer" parent="Root/InventoryPanel"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 14
+
+[node name="Title" type="Label" parent="Root/InventoryPanel/Content"]
+layout_mode = 2
+text = "Инвентарь"
+label_settings = SubResource("LabelSettings_title")
+
+[node name="Slots" type="GridContainer" parent="Root/InventoryPanel/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
+columns = 4
+
+[node name="MessageLabel" type="Label" parent="Root"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -600.0
+offset_top = 140.0
+offset_right = 600.0
+offset_bottom = 196.0
+grow_horizontal = 2
+mouse_filter = 2
+text = "Сообщение"
+label_settings = SubResource("LabelSettings_message")
+horizontal_alignment = 1

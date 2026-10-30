@@ -6,6 +6,7 @@
 - **Python** — язык для вспомогательных программ (проверка стиля кода).
 - **Node.js** — среда, на которой работает [MCP](glossary.md)-сервер Godot.
 - **gdtoolkit** — проверка (`gdlint`) и форматирование (`gdformat`) кода GDScript.
+- **Pillow** — библиотека Python для картинок: ей скрипт `tools/cut_layers.py` режет мокапы на слои.
 - **MCP-сервер Godot** — подключение Godot к Claude. Сам сервер уже прописан в репозитории (`.mcp.json`), тебе нужно только указать, где лежит Godot.
 
 ## Шаг 1. Godot
@@ -76,7 +77,12 @@ py --version
    gdlint --version
    ```
 
-**Должно получиться:** `gdlint 4.5.0`.
+3. Поставь Pillow:
+   ```
+   pip install pillow==13.0.0
+   ```
+
+**Должно получиться:** `gdlint 4.5.0`; после пункта 3 — строка `Successfully installed pillow-13.0.0` (или `Requirement already satisfied`).
 
 Без флага `--user`: иначе программы лягут в папку, которой нет в Path.
 
@@ -102,5 +108,6 @@ py --version
 - **Сервер godot в `/mcp` — failed** → не задан `GODOT_PATH` или путь с опечаткой (шаг 2); приложение Claude не перезапущено после шага 2.
 - **«Could not find a valid Godot executable»** → `GODOT_PATH` указывает не на `.exe` или на версию без `_console`. Проверь путь.
 - **Окно Godot мелькает, когда Claude делает скриншот** → так и должно быть: для снимка Godot отрисовывает кадр на пару секунд.
+- **В игре по F5 не работают Esc или правый клик, а левый клик работает** → игра запущена во встроенном окне редактора, оно перехватывает эти клавиши. Вкладка **Game** → **⋮** → сними **Embed Game on Next Play** (или **Editor → Editor Settings → Run → Window Placement → Game Embed Mode** → **Disabled**) и запусти снова.
 
 Дальше: [05-daily-workflow.md](05-daily-workflow.md).
