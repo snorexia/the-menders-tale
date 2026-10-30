@@ -31,10 +31,10 @@ const PULSE_SPEED := 5.0
 
 @export_group("Точность")
 ## До этого отклонения стежок ровный, до следующего — неплохой, px.
-@export var perfect_deviation: float = 14.0
-@export var good_deviation: float = 30.0
+@export var perfect_deviation: float = 9.0
+@export var good_deviation: float = 20.0
 ## Дальше этого отклонения нитка рвётся, px.
-@export var max_deviation: float = 62.0
+@export var max_deviation: float = 45.0
 ## Очки стежка: ровный, неплохой, кривой.
 @export var perfect_score: float = 1.0
 @export var good_score: float = 0.6
@@ -47,9 +47,9 @@ const PULSE_SPEED := 5.0
 
 @export_group("Натяжение")
 ## Быстрее этого нитка натягивается, px в секунду.
-@export var max_speed: float = 430.0
+@export var max_speed: float = 320.0
 ## Как быстро растёт и спадает натяжение: доля шкалы в секунду.
-@export var tension_rise: float = 1.8
+@export var tension_rise: float = 2.2
 @export var tension_fall: float = 0.9
 
 @export_group("Вид")

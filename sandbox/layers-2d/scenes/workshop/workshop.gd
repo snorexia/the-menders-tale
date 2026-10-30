@@ -103,7 +103,8 @@ func _on_seam_finished(stars: int) -> void:
 	var price: int = _recipe.get("price_by_stars", {}).get(str(stars), 0)
 	var repaired_item: String = _recipe.get("gives", "")
 	if SandboxState.try_take_item(_recipe.get("needs", "")):
-		SandboxState.add_item(repaired_item, _make_stars_text(stars), "", price)
+		var grade := SandboxState.get_grade(_recipe, price)
+		SandboxState.add_item(repaired_item, _make_stars_text(stars), grade, price)
 
 	var repaired_name: String = SandboxState.get_item_info(repaired_item).get("name", repaired_item)
 	_card_title.text = result_title_format % repaired_name.to_lower()

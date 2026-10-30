@@ -5,6 +5,7 @@ extends Node2D
 ## start_offset. Ноги не нужны — низ картинки прячется за слоем спереди.
 ## Шаги — покачивание вверх-вниз и наклон корпуса; стоя — лёгкое «дыхание».
 ## `walk_away()` — уходит туда, откуда пришёл, и пропадает (#37).
+## `come_back()` — снова выходит (#56).
 
 signal arrived
 signal left
@@ -71,6 +72,18 @@ func walk_away() -> void:
 	_destination = _target_position + start_offset
 	_is_leaving = true
 	_state = State.WALKING
+	# Помним сразу: игрок мог уйти из комнаты, пока персонаж ещё идёт.
+	if not memory_key.is_empty():
+		SandboxState.left_npcs[memory_key] = true
+
+
+## Снова выйти к месту после ухода.
+func come_back() -> void:
+	show()
+	_is_leaving = false
+	_destination = _target_position
+	_state = State.WAITING
+	_walk_in()
 
 
 func _walk_in() -> void:
@@ -120,9 +133,6 @@ func _stop() -> void:
 func _disappear() -> void:
 	_state = State.WAITING
 	hide()
-	if not memory_key.is_empty():
-		SandboxState.left_npcs[memory_key] = true
-
 	left.emit()
 
 

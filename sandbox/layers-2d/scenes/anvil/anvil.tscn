@@ -1,7 +1,8 @@
-[gd_scene load_steps=13 format=3]
+[gd_scene load_steps=14 format=3]
 
 [ext_resource type="Script" path="res://scenes/anvil/anvil.gd" id="1_anvil"]
 [ext_resource type="Texture2D" path="res://scenes/anvil/anvil_stage_1.webp" id="2_stage1"]
+[ext_resource type="Texture2D" path="res://scenes/anvil/anvil_empty.webp" id="5_empty"]
 [ext_resource type="Texture2D" path="res://scenes/anvil/anvil_stage_2.webp" id="3_stage2"]
 [ext_resource type="Texture2D" path="res://scenes/anvil/anvil_stage_3.webp" id="4_stage3"]
 [ext_resource type="Texture2D" path="res://common/light_glow.tres" id="6_glow"]
@@ -47,7 +48,7 @@ feedback_settings = SubResource("LabelSettings_feedback")
 [node name="Background" type="Sprite2D" parent="."]
 position = Vector2(960, 540)
 scale = Vector2(1.1483, 1.1483)
-texture = ExtResource("2_stage1")
+texture = ExtResource("5_empty")
 
 [node name="NextBackground" type="Sprite2D" parent="."]
 visible = false

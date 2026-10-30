@@ -1,32 +1,46 @@
 {
-  "_note": "Предметы и рецепты песочницы (#37, #51). Не данные игры. items — по id: name, icon, description. start_items — что лежит в инвентаре на старте, start_coins — монеты на старте. recipes — что где можно сделать: station (smelter — плавильня, anvil — наковальня, workshop — стол в мастерской), name, needs (id предмета, который тратится), gives (id предмета, который получаешь), gives_count (сколько штук, по умолчанию 1), price_by_forge и price_by_edge (необязательно: цена предмета — монеты за оценку ковки плюс прибавка за оценку заточки), price_by_stars (необязательно: цена по звёздам подшива).",
+  "_note": "Предметы, рецепты и лавка песочницы (#37, #51, #56). Не данные игры. items — по id: name, icon, description, not_for_sale (необязательно: в лавке не продать). start_items, start_coins — что есть на старте. grade_names — как называть итог вещи. material_bonus — сколько монет прибавляет к цене качество материала. recipes — что где можно сделать: station (smelter, anvil, workshop), name, needs, gives, gives_count (сколько штук, по умолчанию 1), blueprint (необязательно: рецепт виден, только если чертёж куплен), price_by_forge и price_by_edge (цена: монеты за ковку плюс прибавка за заточку), price_by_stars (цена по звёздам подшива), grade_from_price (с какой цены вещь обычная и хорошая, ниже — плохая). blueprints — чертежи лавки: name, price. shop — goods: что продаёт лавка, sell_ratio: какую долю цены вещи она платит.",
   "start_items": ["ore"],
   "start_coins": 0,
+  "grade_names": {"bad": "плохая вещь", "normal": "обычная вещь", "good": "хорошая вещь"},
+  "material_bonus": {"Чистейший металл": 3, "Хороший металл": 1, "С примесями": 0, "Грязный металл": -2},
   "items": {
     "ore": {
       "name": "Железная руда",
       "icon": "res://common/icons/iron_ore.png",
-      "description": "Переплавь её в слитки в плавильне."
+      "description": "Переплавь её в слитки в плавильне. Продаётся в лавке."
     },
     "ingot": {
       "name": "Железный слиток",
       "icon": "res://common/icons/iron_ingot.png",
-      "description": "Скуй из него меч на наковальне."
+      "description": "Материал для ковки. Чем чище металл, тем дороже вещь."
     },
     "sword": {
       "name": "Обычный меч",
       "icon": "res://common/icons/sword.png",
       "description": "Простой одноручный меч."
     },
+    "dagger": {
+      "name": "Кинжал",
+      "icon": "res://common/icons/dagger.png",
+      "description": "Короткий клинок, удобный в дороге."
+    },
+    "axe": {
+      "name": "Топор",
+      "icon": "res://common/icons/axe.png",
+      "description": "Тяжёлый и дорогой."
+    },
     "bag_torn": {
       "name": "Порванная сумка",
       "icon": "res://common/icons/bag_torn_icon.png",
-      "description": "Подшей её на столе в мастерской."
+      "description": "Подшей её на столе в мастерской.",
+      "not_for_sale": true
     },
     "bag_repaired": {
       "name": "Подшитая сумка",
       "icon": "res://common/icons/bag_repaired_icon.png",
-      "description": "Как новая. Верни её хозяину."
+      "description": "Как новая. Верни её хозяину.",
+      "not_for_sale": true
     }
   },
   "recipes": [
@@ -37,14 +51,44 @@
       "needs": "ingot",
       "gives": "sword",
       "price_by_forge": {"Высокая рарность": 15, "Хорошее качество": 10, "Плохое качество": 7, "Мусор": 4},
-      "price_by_edge": {"средне": -2, "хорошо": 1, "отлично": 3}
+      "price_by_edge": {"средне": -2, "хорошо": 1, "отлично": 3},
+      "grade_from_price": {"normal": 8, "good": 14}
+    },
+    {
+      "station": "anvil",
+      "name": "Кинжал",
+      "blueprint": "dagger_plan",
+      "needs": "ingot",
+      "gives": "dagger",
+      "price_by_forge": {"Высокая рарность": 18, "Хорошее качество": 13, "Плохое качество": 9, "Мусор": 5},
+      "price_by_edge": {"средне": -2, "хорошо": 1, "отлично": 3},
+      "grade_from_price": {"normal": 10, "good": 17}
+    },
+    {
+      "station": "anvil",
+      "name": "Топор",
+      "blueprint": "axe_plan",
+      "needs": "ingot",
+      "gives": "axe",
+      "price_by_forge": {"Высокая рарность": 26, "Хорошее качество": 18, "Плохое качество": 12, "Мусор": 6},
+      "price_by_edge": {"средне": -2, "хорошо": 1, "отлично": 3},
+      "grade_from_price": {"normal": 13, "good": 24}
     },
     {
       "station": "workshop",
       "name": "Кожаная сумка",
       "needs": "bag_torn",
       "gives": "bag_repaired",
-      "price_by_stars": {"1": 8, "2": 14, "3": 20}
+      "price_by_stars": {"1": 8, "2": 14, "3": 20},
+      "grade_from_price": {"normal": 14, "good": 20}
     }
-  ]
+  ],
+  "blueprints": {
+    "dagger_plan": {"name": "Чертёж кинжала", "price": 25},
+    "axe_plan": {"name": "Чертёж топора", "price": 40}
+  },
+  "shop": {
+    "goods": [{"item": "ore", "price": 6}],
+    "sell_ratio": 0.5
+  }
 }

@@ -1,0 +1,127 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://common/shop_panel.gd" id="1_shop"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
+content_margin_left = 40.0
+content_margin_top = 28.0
+content_margin_right = 40.0
+content_margin_bottom = 28.0
+bg_color = Color(0.08, 0.05, 0.04, 0.95)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.75, 0.5, 0.3, 0.8)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="LabelSettings" id="LabelSettings_title"]
+font_size = 36
+font_color = Color(1, 0.92, 0.8, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_text"]
+font_size = 28
+font_color = Color(1, 0.88, 0.5, 1)
+
+[node name="ShopPanel" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_shop")
+
+[node name="Dim" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.55)
+
+[node name="Panel" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -620.0
+offset_top = -430.0
+offset_right = 620.0
+offset_bottom = 330.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="Content" type="VBoxContainer" parent="Panel"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="Title" type="Label" parent="Panel/Content"]
+layout_mode = 2
+text = "Лавка"
+label_settings = SubResource("LabelSettings_title")
+horizontal_alignment = 1
+
+[node name="Columns" type="HBoxContainer" parent="Panel/Content"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 40
+alignment = 1
+
+[node name="BuyColumn" type="VBoxContainer" parent="Panel/Content/Columns"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="BuyTitle" type="Label" parent="Panel/Content/Columns/BuyColumn"]
+layout_mode = 2
+text = "Купить"
+label_settings = SubResource("LabelSettings_text")
+horizontal_alignment = 1
+
+[node name="Goods" type="VBoxContainer" parent="Panel/Content/Columns/BuyColumn"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="SellColumn" type="VBoxContainer" parent="Panel/Content/Columns"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="SellTitle" type="Label" parent="Panel/Content/Columns/SellColumn"]
+layout_mode = 2
+text = "Продать"
+label_settings = SubResource("LabelSettings_text")
+horizontal_alignment = 1
+
+[node name="NothingLabel" type="Label" parent="Panel/Content/Columns/SellColumn"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(540, 0)
+layout_mode = 2
+text = "Нечего продать"
+horizontal_alignment = 1
+
+[node name="ScrollSell" type="ScrollContainer" parent="Panel/Content/Columns/SellColumn"]
+custom_minimum_size = Vector2(560, 480)
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="SellRows" type="VBoxContainer" parent="Panel/Content/Columns/SellColumn/ScrollSell"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="CloseButton" type="Button" parent="Panel/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(280, 64)
+layout_mode = 2
+size_flags_horizontal = 4
+focus_mode = 0
+theme_override_font_sizes/font_size = 28
+text = "Закрыть"

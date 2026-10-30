@@ -123,10 +123,8 @@ func _run_stages() -> void:
 func _show_stage(stage_index: int) -> void:
 	var stage_number := stage_index + 1
 	_title.text = "Ковка — стадия %d из %d" % [stage_number, stage_textures.size()]
-	if stage_index == 0:
-		_background.texture = stage_textures[stage_index]
-	else:
-		_fade_to_stage(stage_index)
+	# Первая стадия тоже проявляется: до ковки наковальня пуста.
+	_fade_to_stage(stage_index)
 
 
 func _fade_to_stage(stage_index: int) -> void:

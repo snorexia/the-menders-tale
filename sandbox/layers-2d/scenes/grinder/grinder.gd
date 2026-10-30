@@ -1,8 +1,9 @@
 extends Node2D
 ## Точильное колесо в сцене создания, мини-игра «педаль и скорость» (песочница, #42, #51).
 ## Клик или пробел жмёт педаль — колесо разгоняется, без кликов замедляется.
-## Скорость в зелёной зоне — меч точится; выше зоны клинок греется. Заточил — оценка:
-## почти не грел — отлично, иначе хорошо. Перегрел — «Ещё раз» или оставить среднюю.
+## Скорость в зелёной зоне — меч точится; выше зоны клинок греется. Камень время от времени
+## заедает: скорость вдруг скачет. Заточил — оценка: почти не выходил из зоны — отлично,
+## иначе хорошо. Перегрел — «Ещё раз» или оставить среднюю.
 ## Сначала выбор на самом колесе: «Сам» — мини-игра, «Быстро» — сразу средняя заточка.
 
 signal sharpened(rating: String)
@@ -11,20 +12,24 @@ const PERCENT := 100.0
 const HINT_FADE_TIME := 1.0
 
 ## Насколько разгоняет одно нажатие педали: доля полной скорости.
-@export var pedal_impulse: float = 0.12
+@export var pedal_impulse: float = 0.13
 ## Насколько колесо замедляется само: доля полной скорости в секунду.
-@export var friction: float = 0.28
+@export var friction: float = 0.3
 ## Зелёная зона скорости: от и до, доли шкалы.
-@export_range(0.0, 1.0) var good_from: float = 0.45
-@export_range(0.0, 1.0) var good_to: float = 0.75
+@export_range(0.0, 1.0) var good_from: float = 0.5
+@export_range(0.0, 1.0) var good_to: float = 0.72
 ## Сколько секунд в зелёной зоне нужно, чтобы заточить.
-@export var sharpen_time: float = 5.0
+@export var sharpen_time: float = 4.5
 ## Сколько секунд выше зоны выдерживает клинок.
 @export var overheat_limit: float = 1.5
 ## Как быстро клинок остывает, когда скорость не выше зоны: доля от нагрева.
 @export var cool_rate: float = 0.5
-## «Отлично», если нагрев не поднимался выше этой доли от предела.
-@export_range(0.0, 1.0) var excellent_heat_ratio: float = 0.35
+## Как часто камень заедает, с: случайно от и до. И на сколько скачет скорость, доля шкалы.
+@export var snag_interval_min: float = 0.9
+@export var snag_interval_max: float = 1.7
+@export var snag_strength: float = 0.22
+## «Отлично», если вне зелёной зоны провёл не больше стольких секунд.
+@export var excellent_off_zone_time: float = 0.6
 ## Оборотов колеса в секунду на полной скорости — только для вида.
 @export var max_turns_per_second: float = 2.5
 
@@ -48,7 +53,9 @@ var is_excellent: bool = false
 var _speed: float = 0.0
 var _sharpness: float = 0.0
 var _overheat: float = 0.0
-var _peak_overheat: float = 0.0
+var _off_zone_time: float = 0.0
+var _snag_left: float = 0.0
+var _has_reached_zone: bool = false
 var _is_running: bool = false
 
 @onready var _vignette_layer: CanvasLayer = $VignetteLayer
@@ -128,7 +135,9 @@ func _reset() -> void:
 	_speed = 0.0
 	_sharpness = 0.0
 	_overheat = 0.0
-	_peak_overheat = 0.0
+	_off_zone_time = 0.0
+	_snag_left = snag_interval_max
+	_has_reached_zone = false
 	_is_running = true
 	_choice_panel.hide()
 	_result_panel.hide()
@@ -136,16 +145,21 @@ func _reset() -> void:
 
 
 func _grind(delta: float) -> void:
+	var is_in_zone := _speed >= good_from and _speed <= good_to
+	_has_reached_zone = _has_reached_zone or is_in_zone
+	if _has_reached_zone:
+		_update_snag(delta)
+		_off_zone_time += 0.0 if is_in_zone else delta
+
 	if _speed > good_to:
 		_overheat += delta
-		_peak_overheat = maxf(_peak_overheat, _overheat)
 		_status_label.text = too_fast_text
 		_status_label.modulate.a = 1.0
 	else:
 		_overheat = maxf(_overheat - cool_rate * delta, 0.0)
 		_status_label.modulate.a = maxf(_status_label.modulate.a - delta / HINT_FADE_TIME, 0.0)
 
-	if _speed >= good_from and _speed <= good_to:
+	if is_in_zone:
 		_sharpness = minf(_sharpness + delta / sharpen_time, 1.0)
 
 	if _overheat >= overheat_limit:
@@ -154,9 +168,18 @@ func _grind(delta: float) -> void:
 		_succeed()
 
 
+func _update_snag(delta: float) -> void:
+	_snag_left -= delta
+	if _snag_left > 0.0:
+		return
+
+	_snag_left = randf_range(snag_interval_min, snag_interval_max)
+	_speed = clampf(_speed + randf_range(-snag_strength, snag_strength), 0.0, 1.0)
+
+
 func _succeed() -> void:
 	_is_running = false
-	is_excellent = _peak_overheat <= overheat_limit * excellent_heat_ratio
+	is_excellent = _off_zone_time <= excellent_off_zone_time
 	sharpened.emit(excellent_text if is_excellent else good_text)
 
 

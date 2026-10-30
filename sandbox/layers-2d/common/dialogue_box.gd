@@ -4,8 +4,8 @@ extends Control
 ## Разговор — в JSON (формат описан в поле `_note` файла). Окно держится рядом
 ## с узлом-якорем, даже когда камера осматривает комнату.
 ## Ответ может требовать предмет, забрать его, дать монеты и сообщить о событии (#37).
-## `pay_item_price` — платит цену забранного предмета, в реплике это `{coins}`; у предмета
-## с меткой `bonus_tag` забирается именно он и звучит реплика `bonus_next` (#51).
+## `pay_item_price` — платит цену забранного предмета, в реплике это `{coins}` (#51).
+## `needs_grade` — предмет не хуже этого итога, `next_by_grade` — реплика по итогу вещи (#56).
 ## `start_quest` и `complete_quest` — выдать и закончить задание, `give_item` — дать предмет.
 
 signal finished
@@ -114,7 +114,8 @@ func _show_choices() -> void:
 		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		var needed_item: String = choice.get("needs_item", "")
-		if not needed_item.is_empty() and not SandboxState.has_item(needed_item):
+		var needed_grade: String = choice.get("needs_grade", "")
+		if not needed_item.is_empty() and not SandboxState.has_item(needed_item, needed_grade):
 			button.text += str(choice.get("missing_text", ""))
 			button.disabled = true
 
@@ -143,20 +144,14 @@ func _on_bubble_gui_input(event: InputEvent) -> void:
 	_finish_typing()
 
 
-func _has_bonus(choice: Dictionary) -> bool:
-	if not choice.has("bonus_tag") or not choice.has("bonus_next"):
-		return false
-
-	return SandboxState.has_tagged_item(choice.get("needs_item", ""), choice["bonus_tag"])
-
-
-func _apply_choice_effects(choice: Dictionary, take_tag: String) -> void:
+func _apply_choice_effects(choice: Dictionary) -> void:
 	if choice.has("take_item"):
+		var min_grade: String = choice.get("needs_grade", "")
 		if choice.get("pay_item_price", false):
-			_paid_coins = SandboxState.get_item_price(choice["take_item"], take_tag)
+			_paid_coins = SandboxState.get_item_price(choice["take_item"], min_grade)
 			SandboxState.add_coins(_paid_coins)
 
-		SandboxState.try_take_item(choice["take_item"], take_tag)
+		SandboxState.try_take_item(choice["take_item"], min_grade)
 	if choice.has("add_coins"):
 		SandboxState.add_coins(int(choice["add_coins"]))
 	if choice.has("give_item"):
@@ -170,13 +165,13 @@ func _apply_choice_effects(choice: Dictionary, take_tag: String) -> void:
 
 
 func _on_choice_pressed(choice: Dictionary) -> void:
-	# Метку проверяем до эффектов: они могут забрать предмет.
-	var has_bonus := _has_bonus(choice)
-	_apply_choice_effects(choice, choice.get("bonus_tag", "") if has_bonus else "")
-	if has_bonus:
-		_show_line(choice["bonus_next"])
-	elif choice.has("next"):
-		_show_line(choice["next"])
+	# Итог смотрим до эффектов: они забирают предмет.
+	var taken_item: String = choice.get("take_item", "")
+	var grade := SandboxState.get_item_grade(taken_item, choice.get("needs_grade", ""))
+	_apply_choice_effects(choice)
+	var next_line: String = choice.get("next_by_grade", {}).get(grade, choice.get("next", ""))
+	if not next_line.is_empty():
+		_show_line(next_line)
 	elif choice.has("scene"):
 		get_tree().change_scene_to_file(choice["scene"])
 	else:

@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3]
+[gd_scene load_steps=24 format=3]
 
 [ext_resource type="Script" path="res://common/mouse_look_camera.gd" id="1_camera"]
 [ext_resource type="Texture2D" path="res://scenes/counter/counter_back.png" id="2_back"]
@@ -11,6 +11,7 @@
 [ext_resource type="Texture2D" path="res://scenes/counter/npc_guard.png" id="9_guard"]
 [ext_resource type="Script" path="res://common/dialogue_box.gd" id="10_dialogue"]
 [ext_resource type="Script" path="res://scenes/counter/counter.gd" id="11_counter"]
+[ext_resource type="PackedScene" path="res://common/shop_panel.tscn" id="14_shop"]
 [ext_resource type="Texture2D" path="res://scenes/counter/npc_traveller.png" id="13_traveller"]
 [ext_resource type="Script" path="res://common/clickable_area.gd" id="12_click"]
 
@@ -113,10 +114,6 @@ font_color = Color(0.58, 0.18, 0.1, 1)
 
 [node name="Counter" type="Node2D"]
 script = ExtResource("11_counter")
-guard_intro_path = "res://scenes/counter/guard_dialogue.json"
-guard_order_path = "res://scenes/counter/guard_order_dialogue.json"
-traveller_intro_path = "res://scenes/counter/traveller_intro_dialogue.json"
-traveller_order_path = "res://scenes/counter/traveller_order_dialogue.json"
 
 [node name="Camera" type="Camera2D" parent="."]
 position = Vector2(960, 540)
@@ -331,3 +328,14 @@ layout_mode = 2
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 8
+
+[node name="ShopButton" type="Button" parent="UI"]
+offset_left = 32.0
+offset_top = 32.0
+offset_right = 312.0
+offset_bottom = 112.0
+focus_mode = 0
+theme_override_font_sizes/font_size = 32
+text = "Лавка"
+
+[node name="ShopPanel" parent="UI" instance=ExtResource("14_shop")]

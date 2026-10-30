@@ -1,0 +1,21 @@
+{
+  "_note": "Песочница (#56): стражник принимает только хороший меч. Не канон сценария. Формат — как в guard_order_dialogue.json.",
+  "start": "ask",
+  "nodes": {
+    "ask": {
+      "speaker": "Старый стражник",
+      "text": "Ну что, есть хороший меч для напарника?",
+      "choices": [
+        {"text": "Вот, лучший из лучших.", "needs_item": "sword", "needs_grade": "good", "missing_text": "  (нужен хороший меч)", "take_item": "sword", "pay_item_price": true, "complete_quest": "guard_good_sword", "next": "thanks"},
+        {"text": "Сейчас вернусь."}
+      ]
+    },
+    "thanks": {
+      "speaker": "Старый стражник",
+      "text": "[color=#86603c][i](делает пару взмахов и довольно хмыкает)[/i][/color]\nОн за такой ещё и пиво мне поставит. Держи. [i]Получено монет: {coins}[/i]",
+      "choices": [
+        {"text": "Заходи ещё.", "event": "guard_leave"}
+      ]
+    }
+  }
+}

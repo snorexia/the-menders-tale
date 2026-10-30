@@ -1,13 +1,20 @@
 {
-  "_note": "Песочница (#37, #51): стражник ждёт заказ, открывается по клику на него после первого разговора. Не канон сценария. Формат — как в guard_dialogue.json, плюс у ответа: needs_item — без этого предмета ответ серый (к тексту добавляется missing_text), take_item — забрать предмет, add_coins — дать монеты, pay_item_price — заплатить цену забранного предмета (в реплике {coins}), bonus_tag — если есть предмет с такой меткой, забрать именно его и перейти к реплике bonus_next, complete_quest — закончить задание, event — событие для сцены (guard_leave — стражник уходит).",
+  "_note": "Песочница (#37, #51, #56): стражник ждёт заказ, открывается по клику на него после первого разговора. Не канон сценария. Формат — как в guard_dialogue.json, плюс у ответа: needs_item — без этого предмета ответ серый (к тексту добавляется missing_text), needs_grade — предмет не хуже этого итога (bad, normal, good), take_item — забрать предмет (лучший из подходящих), add_coins — дать монеты, pay_item_price — заплатить цену забранного предмета (в реплике {coins}), next_by_grade — следующая реплика по итогу забранного предмета, complete_quest — закончить задание, event — событие для сцены (guard_leave — стражник уходит).",
   "start": "ask",
   "nodes": {
     "ask": {
       "speaker": "Старый стражник",
       "text": "Ну что, мастер, готов мой меч?",
       "choices": [
-        {"text": "Вот твой меч.", "needs_item": "sword", "missing_text": "  (меча ещё нет)", "take_item": "sword", "pay_item_price": true, "complete_quest": "guard_sword", "next": "thanks", "bonus_tag": "excellent_edge", "bonus_next": "thanks_sharp"},
+        {"text": "Вот твой меч.", "needs_item": "sword", "missing_text": "  (меча ещё нет)", "take_item": "sword", "pay_item_price": true, "complete_quest": "guard_sword", "next_by_grade": {"good": "thanks_good", "normal": "thanks", "bad": "thanks_bad"}},
         {"text": "Сейчас вернусь."}
+      ]
+    },
+    "thanks_good": {
+      "speaker": "Старый стражник",
+      "text": "[color=#86603c][i](проводит пальцем по кромке и присвистывает)[/i][/color]\nВот это работа! Такой клинок и у капитана не всякий день увидишь. [i]Получено монет: {coins}[/i]",
+      "choices": [
+        {"text": "Заходи ещё.", "event": "guard_leave"}
       ]
     },
     "thanks": {
@@ -17,11 +24,11 @@
         {"text": "Заходи ещё.", "event": "guard_leave"}
       ]
     },
-    "thanks_sharp": {
+    "thanks_bad": {
       "speaker": "Старый стражник",
-      "text": "[color=#86603c][i](проводит пальцем по кромке и присвистывает)[/i][/color]\nВот это заточка! За такую работу не жалко. [i]Получено монет: {coins}[/i]",
+      "text": "[color=#86603c][i](стучит ногтем по клинку и морщится)[/i][/color]\nНу и работа… Гнётся, поди, от взгляда. Ладно, лучше такой, чем пустые ножны. [i]Получено монет: {coins}[/i]",
       "choices": [
-        {"text": "Заходи ещё.", "event": "guard_leave"}
+        {"text": "В другой раз выйдет лучше.", "event": "guard_leave"}
       ]
     }
   }

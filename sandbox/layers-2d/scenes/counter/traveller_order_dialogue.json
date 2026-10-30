@@ -1,18 +1,32 @@
 {
-  "_note": "Песочница (#54): путник ждёт сумку, открывается по клику на него. Не канон сценария. Формат — как в guard_order_dialogue.json.",
+  "_note": "Песочница (#54, #56): путник ждёт сумку, открывается по клику на него. Не канон сценария. Формат — как в guard_order_dialogue.json.",
   "start": "ask",
   "nodes": {
     "ask": {
       "speaker": "Путник",
       "text": "Ну как, готова моя сумка?",
       "choices": [
-        {"text": "Вот, подшита.", "needs_item": "bag_repaired", "missing_text": "  (сумка ещё не готова)", "take_item": "bag_repaired", "pay_item_price": true, "complete_quest": "traveller_bag", "next": "thanks"},
+        {"text": "Вот, подшита.", "needs_item": "bag_repaired", "missing_text": "  (сумка ещё не готова)", "take_item": "bag_repaired", "pay_item_price": true, "complete_quest": "traveller_bag", "next_by_grade": {"good": "thanks_good", "normal": "thanks", "bad": "thanks_bad"}},
         {"text": "Сейчас вернусь."}
+      ]
+    },
+    "thanks_good": {
+      "speaker": "Путник",
+      "text": "[color=#86603c][i](ищет шов и не сразу находит)[/i][/color]\nДа её будто и не рвали! Держи, заслужил. [i]Получено монет: {coins}[/i]",
+      "choices": [
+        {"text": "Доброй дороги.", "event": "traveller_leave"}
       ]
     },
     "thanks": {
       "speaker": "Путник",
       "text": "[color=#86603c][i](проводит пальцем по шву)[/i][/color]\nКрепко держит. Вот плата за работу. [i]Получено монет: {coins}[/i]",
+      "choices": [
+        {"text": "Доброй дороги.", "event": "traveller_leave"}
+      ]
+    },
+    "thanks_bad": {
+      "speaker": "Путник",
+      "text": "[color=#86603c][i](разглядывает кривые стежки)[/i][/color]\nВыглядит так себе, но до дома дотянет. Больше не дам. [i]Получено монет: {coins}[/i]",
       "choices": [
         {"text": "Доброй дороги.", "event": "traveller_leave"}
       ]
