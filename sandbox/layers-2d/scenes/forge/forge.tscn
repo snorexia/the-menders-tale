@@ -71,18 +71,6 @@ scale = Vector2(1.3, 1.3)
 texture = ExtResource("3_sides")
 centered = false
 
-[node name="Hearth" type="Polygon2D" parent="SidesLayer/Sprite"]
-texture = ExtResource("3_sides")
-polygon = PackedVector2Array(95, 250, 100, 190, 140, 0, 378, 0, 475, 250, 475, 285, 452, 292, 452, 445, 482, 450, 482, 615, 470, 640, 400, 658, 270, 700, 255, 650, 250, 520, 205, 520, 205, 460, 150, 450, 145, 252)
-
-[node name="HearthArea" type="Area2D" parent="SidesLayer/Sprite/Hearth" node_paths=PackedStringArray("highlight_target")]
-script = ExtResource("9_area")
-placeholder_text = "Горн сам разогреет слиток, когда начнёшь ковать"
-highlight_target = NodePath("..")
-
-[node name="Shape" type="CollisionPolygon2D" parent="SidesLayer/Sprite/Hearth/HearthArea"]
-polygon = PackedVector2Array(95, 250, 100, 190, 140, 0, 378, 0, 475, 250, 475, 285, 452, 292, 452, 445, 482, 450, 482, 615, 470, 640, 400, 658, 270, 700, 255, 650, 250, 520, 205, 520, 205, 460, 150, 450, 145, 252)
-
 [node name="ForgeLight" type="PointLight2D" parent="SidesLayer/Sprite"]
 position = Vector2(285, 370)
 color = Color(1, 0.55, 0.2, 1)

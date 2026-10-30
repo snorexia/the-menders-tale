@@ -4,7 +4,9 @@ extends Control
 ## Разговор — в JSON (формат описан в поле `_note` файла). Окно держится рядом
 ## с узлом-якорем, даже когда камера осматривает комнату.
 ## Ответ может требовать предмет, забрать его, дать монеты и сообщить о событии (#37).
-## За предмет с меткой `bonus_tag` — ещё `bonus_coins` монет и реплика `bonus_next` (#51).
+## `pay_item_price` — платит цену забранного предмета, в реплике это `{coins}`; у предмета
+## с меткой `bonus_tag` забирается именно он и звучит реплика `bonus_next` (#51).
+## `start_quest` и `complete_quest` — выдать и закончить задание.
 
 signal finished
 ## Выбран ответ с полем `event`: что должно случиться в сцене, например «стражник уходит».
@@ -30,6 +32,7 @@ var _nodes: Dictionary = {}
 var _start_id: String = ""
 var _pending_choices: Array = []
 var _typing_tween: Tween
+var _paid_coins: int = 0
 
 @onready var _bubble: Control = %Bubble
 @onready var _speaker_label: Label = %SpeakerLabel
@@ -93,7 +96,7 @@ func _load_dialogue(path: String) -> void:
 func _show_line(line_id: String) -> void:
 	var line: Dictionary = _nodes.get(line_id, {})
 	_speaker_label.text = line.get("speaker", "")
-	_text_label.text = line.get("text", "")
+	_text_label.text = str(line.get("text", "")).replace("{coins}", str(_paid_coins))
 	_pending_choices = line.get("choices", [])
 	_clear_choices()
 
@@ -161,9 +164,17 @@ func _has_bonus(choice: Dictionary) -> bool:
 
 func _apply_choice_effects(choice: Dictionary, take_tag: String) -> void:
 	if choice.has("take_item"):
+		if choice.get("pay_item_price", false):
+			_paid_coins = SandboxState.get_item_price(choice["take_item"], take_tag)
+			SandboxState.add_coins(_paid_coins)
+
 		SandboxState.try_take_item(choice["take_item"], take_tag)
 	if choice.has("add_coins"):
 		SandboxState.add_coins(int(choice["add_coins"]))
+	if choice.has("start_quest"):
+		SandboxState.start_quest(choice["start_quest"])
+	if choice.has("complete_quest"):
+		SandboxState.complete_quest(choice["complete_quest"])
 	if choice.has("event"):
 		event_triggered.emit(choice["event"])
 
@@ -173,7 +184,6 @@ func _on_choice_pressed(choice: Dictionary) -> void:
 	var has_bonus := _has_bonus(choice)
 	_apply_choice_effects(choice, choice.get("bonus_tag", "") if has_bonus else "")
 	if has_bonus:
-		SandboxState.add_coins(int(choice.get("bonus_coins", 0)))
 		_show_line(choice["bonus_next"])
 	elif choice.has("next"):
 		_show_line(choice["next"])

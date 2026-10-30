@@ -5,8 +5,11 @@ extends Node
 
 signal items_changed
 signal coins_changed
+signal quest_started(title: String)
+signal quest_completed(title: String)
 
 const ITEMS_PATH := "res://common/items.json"
+const QUESTS_PATH := "res://common/quests.json"
 ## Сколько слотов в инвентаре.
 const SLOT_COUNT := 12
 
@@ -16,16 +19,21 @@ var arrived_npcs: Dictionary[String, bool] = {}
 var left_npcs: Dictionary[String, bool] = {}
 ## Разговоры, которые уже закончены, — по имени.
 var finished_dialogues: Dictionary[String, bool] = {}
-## Предметы в инвентаре по слотам: {"id": ..., "quality": ..., "tag": ...}.
+## Предметы в инвентаре по слотам: {"id": ..., "quality": ..., "tag": ..., "price": ...}.
 var items: Array[Dictionary] = []
 var coins: int = 0
 ## Что где можно сделать — из `items.json`, у каждого рецепта своё место (`station`).
 var recipes: Array = []
 
 var _item_infos: Dictionary = {}
+var _quest_infos: Dictionary = {}
+## Идут и закончены: id заданий.
+var _active_quests: Array[String] = []
+var _completed_quests: Array[String] = []
 
 
 func _ready() -> void:
+	_load_quests()
 	var data: Variant = JSON.parse_string(FileAccess.get_file_as_string(ITEMS_PATH))
 	if not data is Dictionary:
 		push_warning("SandboxState: не удалось прочитать %s" % ITEMS_PATH)
@@ -65,21 +73,24 @@ func has_tagged_item(item_id: String, tag: String) -> bool:
 
 
 ## Положить предмет в свободный слот. Слотов нет — false.
-func add_item(item_id: String, quality: String = "", tag: String = "") -> bool:
+func add_item(item_id: String, quality: String = "", tag: String = "", price: int = 0) -> bool:
 	if items.size() >= SLOT_COUNT:
 		return false
 
-	items.append({"id": item_id, "quality": quality, "tag": tag})
+	items.append({"id": item_id, "quality": quality, "tag": tag, "price": price})
 	items_changed.emit()
 	return true
 
 
+## Цена предмета, который заберёт `try_take_item` с теми же условиями. Нет его — 0.
+func get_item_price(item_id: String, tag: String = "") -> int:
+	var index := _find_item(item_id, tag)
+	return items[index]["price"] if index != -1 else 0
+
+
 ## Забрать первый такой предмет; с меткой — именно с этой меткой. Нет его — false.
 func try_take_item(item_id: String, tag: String = "") -> bool:
-	var index := items.find_custom(
-		func(item: Dictionary) -> bool:
-			return item["id"] == item_id and (tag.is_empty() or item["tag"] == tag)
-	)
+	var index := _find_item(item_id, tag)
 	if index == -1:
 		return false
 
@@ -91,3 +102,57 @@ func try_take_item(item_id: String, tag: String = "") -> bool:
 func add_coins(amount: int) -> void:
 	coins += amount
 	coins_changed.emit()
+
+
+## Выдать задание. Уже выдано или закончено — ничего не делает.
+func start_quest(quest_id: String) -> void:
+	if quest_id in _active_quests or quest_id in _completed_quests:
+		return
+
+	_active_quests.append(quest_id)
+	quest_started.emit(_get_quest_title(quest_id))
+
+
+## Закончить задание, которое идёт.
+func complete_quest(quest_id: String) -> void:
+	if not quest_id in _active_quests:
+		return
+
+	_active_quests.erase(quest_id)
+	_completed_quests.append(quest_id)
+	quest_completed.emit(_get_quest_title(quest_id))
+
+
+## Задания, которые идут: {"title": ..., "steps": [{"text": ..., "is_done": ...}]}.
+func get_active_quests() -> Array[Dictionary]:
+	var quests: Array[Dictionary] = []
+	for quest_id in _active_quests:
+		var steps: Array[Dictionary] = []
+		for step: Dictionary in _quest_infos[quest_id].get("steps", []):
+			var needed_item: String = step.get("needs_item", "")
+			var is_done := not needed_item.is_empty() and has_item(needed_item)
+			steps.append({"text": step.get("text", ""), "is_done": is_done})
+
+		quests.append({"title": _get_quest_title(quest_id), "steps": steps})
+
+	return quests
+
+
+func _load_quests() -> void:
+	var data: Variant = JSON.parse_string(FileAccess.get_file_as_string(QUESTS_PATH))
+	if not data is Dictionary:
+		push_warning("SandboxState: не удалось прочитать %s" % QUESTS_PATH)
+		return
+
+	_quest_infos = data.get("quests", {})
+
+
+func _get_quest_title(quest_id: String) -> String:
+	return _quest_infos.get(quest_id, {}).get("title", quest_id)
+
+
+func _find_item(item_id: String, tag: String) -> int:
+	return items.find_custom(
+		func(item: Dictionary) -> bool:
+			return item["id"] == item_id and (tag.is_empty() or item["tag"] == tag)
+	)

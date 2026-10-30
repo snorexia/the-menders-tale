@@ -1,7 +1,6 @@
-[gd_scene load_steps=14 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://scenes/craft/craft.gd" id="1_craft"]
-[ext_resource type="PackedScene" path="res://scenes/hearth/hearth.tscn" id="2_hearth"]
 [ext_resource type="PackedScene" path="res://scenes/anvil/anvil.tscn" id="3_anvil"]
 [ext_resource type="PackedScene" path="res://scenes/grinder/grinder.tscn" id="4_grinder"]
 [ext_resource type="Script" path="res://common/scene_link_button.gd" id="5_link"]
@@ -23,36 +22,23 @@ corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
-[sub_resource type="LabelSettings" id="LabelSettings_stage"]
-font_size = 36
-font_color = Color(1, 0.92, 0.8, 1)
-outline_size = 10
-outline_color = Color(0, 0, 0, 0.8)
-
 [sub_resource type="LabelSettings" id="LabelSettings_title"]
 font_size = 36
 font_color = Color(1, 0.92, 0.8, 1)
 
-[sub_resource type="LabelSettings" id="LabelSettings_text"]
-font_size = 28
-font_color = Color(1, 0.92, 0.8, 0.9)
-
-[sub_resource type="LabelSettings" id="LabelSettings_important"]
-font_size = 24
-font_color = Color(1, 0.8, 0.3, 1)
-
 [sub_resource type="LabelSettings" id="LabelSettings_rating"]
 font_size = 36
 font_color = Color(0.55, 0.85, 1, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_price"]
+font_size = 40
+font_color = Color(1, 0.88, 0.5, 1)
 
 [node name="Craft" type="Node2D"]
 script = ExtResource("1_craft")
 
 [node name="Camera" type="Camera2D" parent="."]
 position = Vector2(960, 540)
-
-[node name="Hearth" parent="." instance=ExtResource("2_hearth")]
-position = Vector2(-1920, 0)
 
 [node name="Anvil" parent="." instance=ExtResource("3_anvil")]
 
@@ -74,19 +60,6 @@ script = ExtResource("5_link")
 target_scene = "res://scenes/forge/forge.tscn"
 is_back_button = true
 
-[node name="StageLabel" type="Label" parent="UI"]
-unique_name_in_owner = true
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -500.0
-offset_top = 48.0
-offset_right = 500.0
-offset_bottom = 100.0
-grow_horizontal = 2
-label_settings = SubResource("LabelSettings_stage")
-horizontal_alignment = 1
-
 [node name="CreatePanel" type="PanelContainer" parent="UI"]
 unique_name_in_owner = true
 anchors_preset = 8
@@ -94,10 +67,10 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -320.0
-offset_top = -250.0
-offset_right = 320.0
-offset_bottom = 250.0
+offset_left = -300.0
+offset_top = -150.0
+offset_right = 300.0
+offset_bottom = 150.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
@@ -109,7 +82,7 @@ theme_override_constants/separation = 20
 
 [node name="CreateTitle" type="Label" parent="UI/CreatePanel/Content"]
 layout_mode = 2
-text = "Что создать?"
+text = "Что сковать?"
 label_settings = SubResource("LabelSettings_title")
 horizontal_alignment = 1
 
@@ -118,50 +91,6 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 12
 script = ExtResource("6_recipes")
-
-[node name="SharpenTitle" type="Label" parent="UI/CreatePanel/Content"]
-layout_mode = 2
-text = "Заточка"
-label_settings = SubResource("LabelSettings_text")
-horizontal_alignment = 1
-
-[node name="SharpenModes" type="HBoxContainer" parent="UI/CreatePanel/Content"]
-layout_mode = 2
-alignment = 1
-theme_override_constants/separation = 16
-
-[node name="ByHandButton" type="Button" parent="UI/CreatePanel/Content/SharpenModes"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(232, 64)
-layout_mode = 2
-focus_mode = 0
-theme_override_font_sizes/font_size = 28
-toggle_mode = true
-text = "Сам"
-
-[node name="FastButton" type="Button" parent="UI/CreatePanel/Content/SharpenModes"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(232, 64)
-layout_mode = 2
-focus_mode = 0
-theme_override_font_sizes/font_size = 28
-toggle_mode = true
-text = "Быстро (средне)"
-
-[node name="ImportantLabel" type="Label" parent="UI/CreatePanel/Content"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Заточка важна для заказа"
-label_settings = SubResource("LabelSettings_important")
-horizontal_alignment = 1
-
-[node name="CreateButton" type="Button" parent="UI/CreatePanel/Content"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 80)
-layout_mode = 2
-focus_mode = 0
-theme_override_font_sizes/font_size = 34
-text = "Создать"
 
 [node name="ResultCard" type="PanelContainer" parent="UI"]
 unique_name_in_owner = true
@@ -172,9 +101,9 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -360.0
-offset_top = -190.0
+offset_top = -220.0
 offset_right = 360.0
-offset_bottom = 190.0
+offset_bottom = 220.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
@@ -203,6 +132,13 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "Заточка"
 label_settings = SubResource("LabelSettings_rating")
+horizontal_alignment = 1
+
+[node name="PriceLabel" type="Label" parent="UI/ResultCard/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Цена"
+label_settings = SubResource("LabelSettings_price")
 horizontal_alignment = 1
 
 [node name="Buttons" type="HBoxContainer" parent="UI/ResultCard/Content"]

@@ -1,5 +1,5 @@
 {
-  "_note": "Предметы и рецепты песочницы (#37, #51). Не данные игры. items — по id: name, icon, description. start_items — что лежит в инвентаре на старте, start_coins — монеты на старте. recipes — что где можно сделать: station (smelter — плавильня, anvil — окно «Создать»), name, needs (id предмета, который тратится), gives (id предмета, который получаешь), gives_count (сколько штук, по умолчанию 1), important_stage и important_for (необязательно: какой этап важен для заказа и какого персонажа — пока он не ушёл).",
+  "_note": "Предметы и рецепты песочницы (#37, #51). Не данные игры. items — по id: name, icon, description. start_items — что лежит в инвентаре на старте, start_coins — монеты на старте. recipes — что где можно сделать: station (smelter — плавильня, anvil — окно «Создать»), name, needs (id предмета, который тратится), gives (id предмета, который получаешь), gives_count (сколько штук, по умолчанию 1), price_by_forge и price_by_edge (необязательно: цена предмета — монеты за оценку ковки плюс прибавка за оценку заточки).",
   "start_items": ["ore"],
   "start_coins": 0,
   "items": {
@@ -21,6 +21,13 @@
   },
   "recipes": [
     {"station": "smelter", "name": "Железные слитки", "needs": "ore", "gives": "ingot", "gives_count": 4},
-    {"station": "anvil", "name": "Обычный меч", "needs": "ingot", "gives": "sword", "important_stage": "sharpen", "important_for": "guard"}
+    {
+      "station": "anvil",
+      "name": "Обычный меч",
+      "needs": "ingot",
+      "gives": "sword",
+      "price_by_forge": {"Высокая рарность": 15, "Хорошее качество": 10, "Плохое качество": 7, "Мусор": 4},
+      "price_by_edge": {"средне": -2, "хорошо": 1, "отлично": 3}
+    }
   ]
 }

@@ -3,6 +3,7 @@ extends Node2D
 ## Клик или пробел жмёт педаль — колесо разгоняется, без кликов замедляется.
 ## Скорость в зелёной зоне — меч точится; выше зоны клинок греется. Заточил — оценка:
 ## почти не грел — отлично, иначе хорошо. Перегрел — «Ещё раз» или оставить среднюю.
+## Сначала выбор на самом колесе: «Сам» — мини-игра, «Быстро» — сразу средняя заточка.
 
 signal sharpened(rating: String)
 
@@ -59,6 +60,9 @@ var _is_running: bool = false
 @onready var _good_zone: Control = %GoodZone
 @onready var _sharpness_bar: ProgressBar = %SharpnessBar
 @onready var _status_label: Label = %StatusLabel
+@onready var _choice_panel: Control = %ChoicePanel
+@onready var _by_hand_button: Button = %ByHandButton
+@onready var _fast_button: Button = %FastButton
 @onready var _result_panel: Control = %ResultPanel
 @onready var _quality_label: Label = %QualityLabel
 @onready var _score_label: Label = %ScoreLabel
@@ -68,7 +72,9 @@ var _is_running: bool = false
 
 func _ready() -> void:
 	_retry_button.pressed.connect(_reset)
-	_medium_button.pressed.connect(_on_medium_button_pressed)
+	_medium_button.pressed.connect(_finish_with_medium)
+	_fast_button.pressed.connect(_finish_with_medium)
+	_by_hand_button.pressed.connect(_reset)
 	_good_zone.anchor_left = good_from
 	_good_zone.anchor_right = good_to
 	# Заливку шкалы перекрашиваем по скорости — у сцены своя копия стиля.
@@ -104,10 +110,12 @@ func _unhandled_input(event: InputEvent) -> void:
 	_speed = minf(_speed + pedal_impulse, 1.0)
 
 
-## Начать мини-игру; по окончании — сигнал `sharpened`.
+## Предложить выбор «Сам» или «Быстро»; по окончании — сигнал `sharpened`.
 func start() -> void:
+	is_excellent = false
+	_result_panel.hide()
+	_choice_panel.show()
 	set_ui_visible(true)
-	_reset()
 
 
 ## Показать или скрыть интерфейс колеса: слои экрана не подчиняются видимости узла.
@@ -122,6 +130,7 @@ func _reset() -> void:
 	_overheat = 0.0
 	_peak_overheat = 0.0
 	_is_running = true
+	_choice_panel.hide()
 	_result_panel.hide()
 	_status_label.modulate.a = 0.0
 
@@ -172,7 +181,8 @@ func _update_visuals() -> void:
 		fill_style.bg_color = too_fast_fill_color if _speed > good_to else speed_fill_color
 
 
-func _on_medium_button_pressed() -> void:
+func _finish_with_medium() -> void:
+	_choice_panel.hide()
 	_result_panel.hide()
 	is_excellent = false
 	sharpened.emit(medium_text)
