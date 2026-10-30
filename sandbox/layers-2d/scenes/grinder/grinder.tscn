@@ -113,19 +113,19 @@ speed = 9.0
 [node name="BladeGlow" type="Polygon2D" parent="Background"]
 material = SubResource("CanvasItemMaterial_add")
 color = Color(1, 0.35, 0.1, 0)
-polygon = PackedVector2Array(862, 246, 960, 232, 1180, 226, 1400, 222, 1402, 268, 1180, 266, 960, 262)
+polygon = PackedVector2Array(492, 32, 800, 65, 1148, 102, 1148, 151, 800, 90)
 
 [node name="WheelSpin" type="Node2D" parent="Background"]
 script = ExtResource("2_spin")
 
 [node name="Sparks" type="CPUParticles2D" parent="Background"]
 material = SubResource("CanvasItemMaterial_add")
-position = Vector2(866, 252)
+position = Vector2(578, 62)
 emitting = false
 amount = 80
 lifetime = 0.7
 texture = ExtResource("4_glow")
-direction = Vector2(-0.3, 1)
+direction = Vector2(-1, -0.15)
 spread = 35.0
 gravity = Vector2(0, 500)
 initial_velocity_min = 200.0
@@ -149,42 +149,35 @@ expand_mode = 1
 [node name="UI" type="CanvasLayer" parent="."]
 layer = 2
 
-[node name="Title" type="Label" parent="UI"]
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -400.0
-offset_top = 48.0
-offset_right = 400.0
-offset_bottom = 96.0
-grow_horizontal = 2
-text = "Точильное колесо — заточи меч"
-label_settings = SubResource("LabelSettings_title")
-horizontal_alignment = 1
-
 [node name="SharpnessLabel" type="Label" parent="UI"]
-anchors_preset = 5
+anchors_preset = 7
 anchor_left = 0.5
+anchor_top = 1.0
 anchor_right = 0.5
+anchor_bottom = 1.0
 offset_left = -400.0
-offset_top = 108.0
+offset_top = -232.0
 offset_right = 400.0
-offset_bottom = 140.0
+offset_bottom = -200.0
 grow_horizontal = 2
+grow_vertical = 0
 text = "Заточка"
 label_settings = SubResource("LabelSettings_hint")
 horizontal_alignment = 1
 
 [node name="SharpnessBar" type="ProgressBar" parent="UI"]
 unique_name_in_owner = true
-anchors_preset = 5
+anchors_preset = 7
 anchor_left = 0.5
+anchor_top = 1.0
 anchor_right = 0.5
+anchor_bottom = 1.0
 offset_left = -300.0
-offset_top = 144.0
+offset_top = -198.0
 offset_right = 300.0
-offset_bottom = 168.0
+offset_bottom = -174.0
 grow_horizontal = 2
+grow_vertical = 0
 mouse_filter = 2
 theme_override_styles/background = SubResource("StyleBoxFlat_bar_back")
 theme_override_styles/fill = SubResource("StyleBoxFlat_sharp_fill")
@@ -198,9 +191,9 @@ anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
 offset_left = -500.0
-offset_top = -220.0
+offset_top = -284.0
 offset_right = 500.0
-offset_bottom = -170.0
+offset_bottom = -234.0
 grow_horizontal = 2
 grow_vertical = 0
 label_settings = SubResource("LabelSettings_status")

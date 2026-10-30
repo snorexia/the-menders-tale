@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3]
+[gd_scene load_steps=13 format=3]
 
 [ext_resource type="Script" path="res://common/mouse_look_camera.gd" id="1_camera"]
 [ext_resource type="Texture2D" path="res://scenes/forge/forge_back.png" id="2_back"]
@@ -21,10 +21,6 @@ point_count = 2
 [sub_resource type="Gradient" id="Gradient_flame"]
 offsets = PackedFloat32Array(0, 0.15, 0.6, 1)
 colors = PackedColorArray(1, 0.85, 0.45, 0, 1, 0.65, 0.25, 0.55, 0.9, 0.3, 0.05, 0.35, 0.5, 0.1, 0, 0)
-
-[sub_resource type="Gradient" id="Gradient_spark"]
-offsets = PackedFloat32Array(0, 0.7, 1)
-colors = PackedColorArray(1, 0.95, 0.6, 1, 1, 0.6, 0.2, 1, 1, 0.3, 0.05, 0)
 
 [node name="Forge" type="Node2D"]
 
@@ -71,58 +67,9 @@ scale = Vector2(1.3, 1.3)
 texture = ExtResource("3_sides")
 centered = false
 
-[node name="ForgeLight" type="PointLight2D" parent="SidesLayer/Sprite"]
-position = Vector2(285, 370)
-color = Color(1, 0.55, 0.2, 1)
-texture = ExtResource("6_glow")
-texture_scale = 4.0
-script = ExtResource("5_flicker")
-strength = 0.35
-scale_strength = 0.08
-speed = 10.0
-
-[node name="Flames" type="CPUParticles2D" parent="SidesLayer/Sprite"]
-material = SubResource("CanvasItemMaterial_fire")
-position = Vector2(285, 422)
-amount = 60
-lifetime = 0.9
-preprocess = 1.0
-local_coords = true
-texture = ExtResource("6_glow")
-emission_shape = 3
-emission_rect_extents = Vector2(48, 6)
-direction = Vector2(0, -1)
-spread = 12.0
-gravity = Vector2(0, -60)
-initial_velocity_min = 30.0
-initial_velocity_max = 70.0
-scale_amount_min = 0.12
-scale_amount_max = 0.28
-scale_amount_curve = SubResource("Curve_shrink")
-color_ramp = SubResource("Gradient_flame")
-
-[node name="Sparks" type="CPUParticles2D" parent="SidesLayer/Sprite"]
-material = SubResource("CanvasItemMaterial_fire")
-position = Vector2(285, 410)
-amount = 14
-lifetime = 1.0
-preprocess = 1.0
-local_coords = true
-texture = ExtResource("6_glow")
-emission_shape = 3
-emission_rect_extents = Vector2(40, 8)
-direction = Vector2(0, -1)
-spread = 25.0
-gravity = Vector2(0, -10)
-initial_velocity_min = 50.0
-initial_velocity_max = 110.0
-scale_amount_min = 0.03
-scale_amount_max = 0.05
-color_ramp = SubResource("Gradient_spark")
-
 [node name="Smelter" type="Polygon2D" parent="SidesLayer/Sprite"]
 texture = ExtResource("3_sides")
-polygon = PackedVector2Array(572, 410, 572, 330, 600, 250, 624, 200, 624, 146, 734, 146, 734, 200, 762, 250, 792, 330, 799, 468, 820, 476, 820, 506, 806, 564, 548, 564, 548, 490, 572, 470)
+polygon = PackedVector2Array(208, 128, 340, 128, 338, 170, 352, 270, 385, 330, 405, 395, 405, 512, 470, 522, 470, 620, 440, 640, 305, 668, 285, 640, 278, 600, 272, 530, 245, 505, 195, 450, 150, 405, 165, 330, 200, 270, 215, 170)
 
 [node name="SmelterArea" type="Area2D" parent="SidesLayer/Sprite/Smelter" node_paths=PackedStringArray("highlight_target")]
 script = ExtResource("9_area")
@@ -130,14 +77,14 @@ target_scene = "res://scenes/smelter/smelter.tscn"
 highlight_target = NodePath("..")
 
 [node name="Shape" type="CollisionPolygon2D" parent="SidesLayer/Sprite/Smelter/SmelterArea"]
-polygon = PackedVector2Array(572, 410, 572, 330, 600, 250, 624, 200, 624, 146, 734, 146, 734, 200, 762, 250, 792, 330, 799, 468, 820, 476, 820, 506, 806, 564, 548, 564, 548, 490, 572, 470)
+polygon = PackedVector2Array(208, 128, 340, 128, 338, 170, 352, 270, 385, 330, 405, 395, 405, 512, 470, 522, 470, 620, 440, 640, 305, 668, 285, 640, 278, 600, 272, 530, 245, 505, 195, 450, 150, 405, 165, 330, 200, 270, 215, 170)
 
 [node name="SmelterLight" type="PointLight2D" parent="SidesLayer/Sprite"]
-position = Vector2(670, 432)
+position = Vector2(320, 450)
 color = Color(1, 0.55, 0.2, 1)
-energy = 0.8
+energy = 1.0
 texture = ExtResource("6_glow")
-texture_scale = 1.8
+texture_scale = 3.5
 script = ExtResource("5_flicker")
 strength = 0.3
 scale_strength = 0.06
@@ -145,14 +92,14 @@ speed = 8.0
 
 [node name="SmelterFlames" type="CPUParticles2D" parent="SidesLayer/Sprite"]
 material = SubResource("CanvasItemMaterial_fire")
-position = Vector2(670, 462)
+position = Vector2(320, 492)
 amount = 24
 lifetime = 0.7
 preprocess = 1.0
 local_coords = true
 texture = ExtResource("6_glow")
 emission_shape = 3
-emission_rect_extents = Vector2(34, 4)
+emission_rect_extents = Vector2(44, 4)
 direction = Vector2(0, -1)
 spread = 10.0
 gravity = Vector2(0, -40)
