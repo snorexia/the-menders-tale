@@ -1,75 +1,73 @@
 extends Node2D
 ## Прилавок (песочница, #37, #54): связывает посетителей и окно диалога.
-## Стражник: первый разговор начинается сам, потом клик по нему открывает разговор о заказе.
-## Ушёл стражник — приходит путник со своим заказом, всё так же.
+## Посетители приходят сразу и ждут: клик по любому — первый разговор, потом разговор
+## о заказе. Заказы можно брать и сдавать в любом порядке. Сдал заказ — посетитель уходит.
 
-const GUARD_LEAVE_EVENT := "guard_leave"
-const TRAVELLER_AGREED_EVENT := "traveller_agreed"
-const TRAVELLER_LEAVE_EVENT := "traveller_leave"
-const GUARD_KEY := "guard"
-const TRAVELLER_KEY := "traveller"
+## События разговора: имя посетителя + окончание.
+const AGREED_EVENT_SUFFIX := "_agreed"
+const LEAVE_EVENT_SUFFIX := "_leave"
 
-## Разговор о заказе, по клику на стражника.
-@export_file("*.json") var order_dialogue_path: String
-## Первый разговор с путником и разговор о его заказе.
+## Разговоры со стражником: первый и о заказе.
+@export_file("*.json") var guard_intro_path: String
+@export_file("*.json") var guard_order_path: String
+## Разговоры с путником: первый и о заказе.
 @export_file("*.json") var traveller_intro_path: String
 @export_file("*.json") var traveller_order_path: String
+@export var talk_hint_text: String = "Кликни по посетителю, чтобы поговорить"
 
-@onready var _guard: WalkingNpc = $NpcLayer/Guard
-@onready var _guard_area: ClickableArea = $NpcLayer/Guard/Body/ClickArea
-@onready var _traveller: WalkingNpc = $NpcLayer/Traveller
-@onready var _traveller_area: ClickableArea = $NpcLayer/Traveller/Body/ClickArea
+var _visitors: Array[Dictionary] = []
+var _is_hint_shown: bool = false
+
 @onready var _dialogue_box: DialogueBox = $UI/DialogueBox
 
 
 func _ready() -> void:
-	# Стражник уже ушёл раньше — его не видно, и кликать не по кому.
-	_guard_area.is_enabled = _guard.visible
-	_traveller_area.is_enabled = false
-	_guard_area.clicked.connect(_on_guard_area_clicked)
-	_traveller_area.clicked.connect(_on_traveller_area_clicked)
-	_traveller.arrived.connect(_on_traveller_arrived)
-	_guard.left.connect(_traveller.walk_in)
+	# Путник стоит справа, поэтому окно его реплик — слева от него.
+	_add_visitor("guard", $NpcLayer/Guard, guard_intro_path, guard_order_path, false)
+	_add_visitor("traveller", $NpcLayer/Traveller, traveller_intro_path, traveller_order_path, true)
 	_dialogue_box.event_triggered.connect(_on_dialogue_box_event_triggered)
-	if SandboxState.left_npcs.get(GUARD_KEY, false):
-		_traveller.walk_in()
 
 
-func _start_traveller_dialogue() -> void:
-	var is_order_known: bool = SandboxState.finished_dialogues.get(TRAVELLER_KEY, false)
-	_dialogue_box.anchor_node = _traveller
-	_dialogue_box.start_other(traveller_order_path if is_order_known else traveller_intro_path)
+func _add_visitor(
+	key: String, npc: WalkingNpc, intro_path: String, order_path: String, is_box_on_left: bool
+) -> void:
+	var area: ClickableArea = npc.get_node("Body/ClickArea")
+	area.is_enabled = false
+	var visitor := {
+		"key": key,
+		"npc": npc,
+		"area": area,
+		"intro_path": intro_path,
+		"order_path": order_path,
+		"is_box_on_left": is_box_on_left,
+	}
+	_visitors.append(visitor)
+	area.clicked.connect(_on_visitor_clicked.bind(visitor))
+	npc.arrived.connect(_on_visitor_arrived.bind(visitor))
 
 
-func _on_guard_area_clicked() -> void:
-	if _dialogue_box.visible or not _guard.is_standing():
+func _on_visitor_arrived(visitor: Dictionary) -> void:
+	visitor["area"].is_enabled = true
+	if not _is_hint_shown:
+		_is_hint_shown = true
+		SandboxHud.show_message(talk_hint_text)
+
+
+func _on_visitor_clicked(visitor: Dictionary) -> void:
+	var npc: WalkingNpc = visitor["npc"]
+	if _dialogue_box.visible or not npc.is_standing():
 		return
 
-	_dialogue_box.start()
-	if not _dialogue_box.visible:
-		_dialogue_box.start_other(order_dialogue_path)
-
-
-func _on_traveller_area_clicked() -> void:
-	if _dialogue_box.visible or not _traveller.is_standing():
-		return
-
-	_start_traveller_dialogue()
-
-
-func _on_traveller_arrived() -> void:
-	_traveller_area.is_enabled = true
-	if not SandboxState.finished_dialogues.get(TRAVELLER_KEY, false):
-		_start_traveller_dialogue()
+	var is_order_known: bool = SandboxState.finished_dialogues.get(visitor["key"], false)
+	var path: String = visitor["order_path"] if is_order_known else visitor["intro_path"]
+	_dialogue_box.start(path, npc, visitor["is_box_on_left"])
 
 
 func _on_dialogue_box_event_triggered(event_name: String) -> void:
-	match event_name:
-		GUARD_LEAVE_EVENT:
-			_guard_area.is_enabled = false
-			_guard.walk_away()
-		TRAVELLER_AGREED_EVENT:
-			SandboxState.finished_dialogues[TRAVELLER_KEY] = true
-		TRAVELLER_LEAVE_EVENT:
-			_traveller_area.is_enabled = false
-			_traveller.walk_away()
+	for visitor in _visitors:
+		var key: String = visitor["key"]
+		if event_name == key + AGREED_EVENT_SUFFIX:
+			SandboxState.finished_dialogues[key] = true
+		elif event_name == key + LEAVE_EVENT_SUFFIX:
+			visitor["area"].is_enabled = false
+			visitor["npc"].walk_away()

@@ -13,7 +13,7 @@
       "speaker": "Старый стражник",
       "text": "[color=#86603c][i](хлопает по пустым ножнам)[/i][/color]\nСтарый меч сломался. А стражник без клинка — пугало огородное. Выкуй простой одноручный: без украшений, лишь бы держал удар.",
       "choices": [
-        {"text": "Сделаю.", "next": "agreed", "start_quest": "guard_sword"}
+        {"text": "Сделаю.", "next": "agreed", "start_quest": "guard_sword", "event": "guard_agreed"}
       ]
     },
     "agreed": {

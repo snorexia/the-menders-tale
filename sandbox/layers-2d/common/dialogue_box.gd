@@ -14,26 +14,22 @@ signal event_triggered(event_name: String)
 
 const FADE_TIME := 0.25
 
-## Файл разговора.
-@export_file("*.json") var dialogue_path: String
-## Возле кого показывать окно, например персонаж.
-@export var anchor_node: Node2D
-## Сдвиг окна от якоря на экране, px.
-@export var anchor_offset: Vector2 = Vector2(300, -600)
+## Сдвиг окна от персонажа на экране, px: вправо (или влево, если окно слева) и по высоте.
+@export var anchor_offset: Vector2 = Vector2(240, -600)
 ## Скорость печати текста, букв в секунду.
 @export var characters_per_second: float = 50.0
 ## Знак перед каждым вариантом ответа.
 @export var choice_prefix: String = "▸  "
-## Имя, под которым песочница помнит, что разговор закончен: второй раз не начнётся.
-## Пусто — не помнить.
-@export var memory_key: String = ""
 
+var _anchor_node: Node2D
+var _is_on_left: bool = false
 var _nodes: Dictionary = {}
 var _start_id: String = ""
 var _pending_choices: Array = []
 var _typing_tween: Tween
 var _paid_coins: int = 0
 
+@onready var _tail: Node2D = $Tail
 @onready var _bubble: Control = %Bubble
 @onready var _speaker_label: Label = %SpeakerLabel
 @onready var _text_label: RichTextLabel = %TextLabel
@@ -42,45 +38,36 @@ var _paid_coins: int = 0
 
 func _ready() -> void:
 	hide()
-	_load_dialogue(dialogue_path)
 	_bubble.gui_input.connect(_on_bubble_gui_input)
 
 
 func _process(_delta: float) -> void:
-	if anchor_node == null or not visible:
+	if _anchor_node == null or not visible:
 		return
 
-	position = anchor_node.get_global_transform_with_canvas().origin + anchor_offset
 	# Окно по размеру текста: само по себе оно только растёт и не сжимается обратно.
 	_bubble.size = _bubble.get_combined_minimum_size()
+	var offset := anchor_offset
+	if _is_on_left:
+		offset.x = -anchor_offset.x - _bubble.size.x
+
+	position = _anchor_node.get_global_transform_with_canvas().origin + offset
+	_tail.scale.x = -1.0 if _is_on_left else 1.0
+	_tail.position.x = _bubble.size.x if _is_on_left else 0.0
 
 
-## Начать разговор с первой реплики.
-func start() -> void:
-	if _start_id.is_empty() or _is_finished_before():
-		return
-
-	_open()
-
-
-## Начать другой разговор из файла, даже если основной уже закончен.
-func start_other(path: String) -> void:
+## Начать разговор из файла рядом с персонажем: окно справа от него или слева.
+func start(path: String, anchor: Node2D, is_on_left: bool = false) -> void:
+	_anchor_node = anchor
+	_is_on_left = is_on_left
 	_load_dialogue(path)
 	if _start_id.is_empty():
 		return
 
-	_open()
-
-
-func _open() -> void:
 	modulate.a = 0.0
 	show()
 	create_tween().tween_property(self, "modulate:a", 1.0, FADE_TIME)
 	_show_line(_start_id)
-
-
-func _is_finished_before() -> bool:
-	return not memory_key.is_empty() and SandboxState.finished_dialogues.get(memory_key, false)
 
 
 func _load_dialogue(path: String) -> void:
@@ -141,9 +128,6 @@ func _close() -> void:
 	var tween := create_tween()
 	tween.tween_property(self, "modulate:a", 0.0, FADE_TIME)
 	tween.tween_callback(hide)
-	if not memory_key.is_empty():
-		SandboxState.finished_dialogues[memory_key] = true
-
 	finished.emit()
 
 
