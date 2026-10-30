@@ -11,6 +11,7 @@
 [ext_resource type="Texture2D" path="res://scenes/counter/npc_guard.png" id="9_guard"]
 [ext_resource type="Script" path="res://common/dialogue_box.gd" id="10_dialogue"]
 [ext_resource type="Script" path="res://scenes/counter/counter.gd" id="11_counter"]
+[ext_resource type="Texture2D" path="res://scenes/counter/npc_traveller.png" id="13_traveller"]
 [ext_resource type="Script" path="res://common/clickable_area.gd" id="12_click"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_parchment"]
@@ -192,16 +193,15 @@ start_delay = 1.6
 memory_key = "traveller"
 
 [node name="Body" type="Sprite2D" parent="NpcLayer/Traveller"]
-modulate = Color(0.7, 0.82, 1.05, 1)
 scale = Vector2(0.39, 0.39)
-texture = ExtResource("9_guard")
+texture = ExtResource("13_traveller")
 centered = false
-offset = Vector2(-513, -1150)
+offset = Vector2(-543, -1189)
 
 [node name="ClickArea" type="Area2D" parent="NpcLayer/Traveller/Body" node_paths=PackedStringArray("highlight_target")]
 script = ExtResource("12_click")
 highlight_target = NodePath("..")
-highlight_color = Color(0.85, 0.97, 1.2, 1)
+highlight_color = Color(1.15, 1.12, 1.05, 1)
 
 [node name="Shape" type="CollisionShape2D" parent="NpcLayer/Traveller/Body/ClickArea"]
 position = Vector2(0, -700)
