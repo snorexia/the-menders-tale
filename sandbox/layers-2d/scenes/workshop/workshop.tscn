@@ -1,0 +1,333 @@
+[gd_scene load_steps=20 format=3]
+
+[ext_resource type="Script" path="res://scenes/workshop/workshop.gd" id="1_workshop"]
+[ext_resource type="Texture2D" path="res://scenes/workshop/workshop_background.webp" id="2_background"]
+[ext_resource type="Script" path="res://common/clickable_area.gd" id="3_click"]
+[ext_resource type="Texture2D" path="res://scenes/workshop/bag_torn.png" id="4_torn"]
+[ext_resource type="Texture2D" path="res://scenes/workshop/bag_repaired.png" id="5_repaired"]
+[ext_resource type="Script" path="res://scenes/workshop/stitch_seam.gd" id="6_seam"]
+[ext_resource type="Script" path="res://common/scene_link_button.gd" id="7_link"]
+[ext_resource type="Script" path="res://common/recipe_menu.gd" id="8_recipes"]
+[ext_resource type="Script" path="res://common/flicker_light.gd" id="9_flicker"]
+[ext_resource type="Texture2D" path="res://common/light_glow.tres" id="10_glow"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
+content_margin_left = 48.0
+content_margin_top = 32.0
+content_margin_right = 48.0
+content_margin_bottom = 32.0
+bg_color = Color(0.08, 0.05, 0.04, 0.9)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.75, 0.5, 0.3, 0.8)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bar_back"]
+bg_color = Color(0.08, 0.05, 0.04, 0.85)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.75, 0.5, 0.3, 0.8)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_progress_fill"]
+bg_color = Color(0.45, 0.75, 0.35, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tension_fill"]
+bg_color = Color(1, 0.35, 0.2, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="LabelSettings" id="LabelSettings_title"]
+font_size = 36
+font_color = Color(1, 0.92, 0.8, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_hint"]
+font_size = 28
+font_color = Color(1, 0.92, 0.8, 0.95)
+outline_size = 8
+outline_color = Color(0, 0, 0, 0.8)
+
+[sub_resource type="LabelSettings" id="LabelSettings_stars"]
+font_size = 52
+font_color = Color(1, 0.8, 0.3, 1)
+outline_size = 8
+outline_color = Color(0, 0, 0, 0.8)
+
+[sub_resource type="LabelSettings" id="LabelSettings_snap"]
+font_size = 36
+font_color = Color(1, 0.5, 0.35, 1)
+outline_size = 10
+outline_color = Color(0, 0, 0, 0.85)
+
+[node name="Workshop" type="Node2D"]
+script = ExtResource("1_workshop")
+
+[node name="Background" type="Sprite2D" parent="."]
+scale = Vector2(1.1483, 1.1483)
+texture = ExtResource("2_background")
+centered = false
+
+[node name="CandleLight" type="PointLight2D" parent="Background"]
+position = Vector2(170, 70)
+color = Color(1, 0.75, 0.45, 1)
+energy = 0.5
+texture = ExtResource("10_glow")
+texture_scale = 3.5
+script = ExtResource("9_flicker")
+strength = 0.25
+speed = 7.0
+
+[node name="TableArea" type="Area2D" parent="."]
+script = ExtResource("3_click")
+
+[node name="Shape" type="CollisionPolygon2D" parent="TableArea"]
+polygon = PackedVector2Array(480, 200, 1480, 400, 1560, 800, 1480, 1060, 360, 1060, 420, 560)
+
+[node name="Bag" type="Sprite2D" parent="."]
+position = Vector2(960, 585)
+scale = Vector2(0.83, 0.83)
+texture = ExtResource("4_torn")
+
+[node name="Repaired" type="Sprite2D" parent="Bag"]
+texture = ExtResource("5_repaired")
+
+[node name="Seam" type="Node2D" parent="Bag"]
+position = Vector2(-836, -470.5)
+script = ExtResource("6_seam")
+path = PackedVector2Array(440, 250, 500, 265, 560, 290, 620, 310, 680, 345, 750, 370, 810, 395, 870, 420, 940, 445, 1020, 470, 1100, 495, 1180, 520, 1260, 535)
+
+[node name="UI" type="CanvasLayer" parent="."]
+layer = 2
+
+[node name="BackButton" type="Button" parent="UI"]
+offset_left = 32.0
+offset_top = 32.0
+offset_right = 342.0
+offset_bottom = 112.0
+focus_mode = 0
+theme_override_font_sizes/font_size = 32
+text = "◀ К прилавку"
+script = ExtResource("7_link")
+target_scene = "res://scenes/counter/counter.tscn"
+is_back_button = true
+
+[node name="TableHint" type="Label" parent="UI"]
+unique_name_in_owner = true
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -600.0
+offset_top = -90.0
+offset_right = 600.0
+offset_bottom = -40.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "Кликни по столу, чтобы выбрать, что чинить"
+label_settings = SubResource("LabelSettings_hint")
+horizontal_alignment = 1
+
+[node name="RepairPanel" type="PanelContainer" parent="UI"]
+unique_name_in_owner = true
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -150.0
+offset_right = 300.0
+offset_bottom = 150.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="Content" type="VBoxContainer" parent="UI/RepairPanel"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 20
+
+[node name="RepairTitle" type="Label" parent="UI/RepairPanel/Content"]
+layout_mode = 2
+text = "Что починить?"
+label_settings = SubResource("LabelSettings_title")
+horizontal_alignment = 1
+
+[node name="Recipes" type="VBoxContainer" parent="UI/RepairPanel/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 12
+script = ExtResource("8_recipes")
+
+[node name="SewUi" type="Control" parent="UI"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="ProgressBox" type="VBoxContainer" parent="UI/SewUi"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -300.0
+offset_top = 28.0
+offset_right = 300.0
+offset_bottom = 170.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="ProgressLabel" type="Label" parent="UI/SewUi/ProgressBox"]
+layout_mode = 2
+text = "Шов"
+label_settings = SubResource("LabelSettings_hint")
+horizontal_alignment = 1
+
+[node name="ProgressBar" type="ProgressBar" parent="UI/SewUi/ProgressBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_bar_back")
+theme_override_styles/fill = SubResource("StyleBoxFlat_progress_fill")
+show_percentage = false
+
+[node name="TensionLabel" type="Label" parent="UI/SewUi/ProgressBox"]
+layout_mode = 2
+text = "Натяжение нитки"
+label_settings = SubResource("LabelSettings_hint")
+horizontal_alignment = 1
+
+[node name="TensionBar" type="ProgressBar" parent="UI/SewUi/ProgressBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_bar_back")
+theme_override_styles/fill = SubResource("StyleBoxFlat_tension_fill")
+show_percentage = false
+
+[node name="StarsLabel" type="Label" parent="UI/SewUi"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 170.0
+offset_top = -110.0
+offset_right = 470.0
+offset_bottom = -30.0
+grow_vertical = 0
+text = "★★★"
+label_settings = SubResource("LabelSettings_stars")
+
+[node name="SnapLabel" type="Label" parent="UI/SewUi"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -500.0
+offset_top = -150.0
+offset_right = 500.0
+offset_bottom = -100.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "Нитка порвалась! Подхвати шов снова"
+label_settings = SubResource("LabelSettings_snap")
+horizontal_alignment = 1
+
+[node name="SewHint" type="Label" parent="UI/SewUi"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -700.0
+offset_top = -90.0
+offset_right = 700.0
+offset_bottom = -40.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "Зажми кнопку у мигающего кружка и веди иглу по пунктиру, не спеша"
+label_settings = SubResource("LabelSettings_hint")
+horizontal_alignment = 1
+
+[node name="ResultCard" type="PanelContainer" parent="UI"]
+unique_name_in_owner = true
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -340.0
+offset_top = -180.0
+offset_right = 340.0
+offset_bottom = 180.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="Content" type="VBoxContainer" parent="UI/ResultCard"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 18
+
+[node name="CardTitle" type="Label" parent="UI/ResultCard/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Готово"
+label_settings = SubResource("LabelSettings_title")
+horizontal_alignment = 1
+
+[node name="CardStars" type="Label" parent="UI/ResultCard/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "★★★"
+label_settings = SubResource("LabelSettings_stars")
+horizontal_alignment = 1
+
+[node name="PriceLabel" type="Label" parent="UI/ResultCard/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Цена"
+label_settings = SubResource("LabelSettings_title")
+horizontal_alignment = 1
+
+[node name="CounterButton" type="Button" parent="UI/ResultCard/Content"]
+custom_minimum_size = Vector2(320, 72)
+layout_mode = 2
+size_flags_horizontal = 4
+focus_mode = 0
+theme_override_font_sizes/font_size = 30
+text = "◀ К прилавку"
+script = ExtResource("7_link")
+target_scene = "res://scenes/counter/counter.tscn"

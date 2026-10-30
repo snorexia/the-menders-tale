@@ -6,7 +6,7 @@ extends Control
 ## Ответ может требовать предмет, забрать его, дать монеты и сообщить о событии (#37).
 ## `pay_item_price` — платит цену забранного предмета, в реплике это `{coins}`; у предмета
 ## с меткой `bonus_tag` забирается именно он и звучит реплика `bonus_next` (#51).
-## `start_quest` и `complete_quest` — выдать и закончить задание.
+## `start_quest` и `complete_quest` — выдать и закончить задание, `give_item` — дать предмет.
 
 signal finished
 ## Выбран ответ с полем `event`: что должно случиться в сцене, например «стражник уходит».
@@ -171,6 +171,8 @@ func _apply_choice_effects(choice: Dictionary, take_tag: String) -> void:
 		SandboxState.try_take_item(choice["take_item"], take_tag)
 	if choice.has("add_coins"):
 		SandboxState.add_coins(int(choice["add_coins"]))
+	if choice.has("give_item"):
+		SandboxState.add_item(choice["give_item"])
 	if choice.has("start_quest"):
 		SandboxState.start_quest(choice["start_quest"])
 	if choice.has("complete_quest"):

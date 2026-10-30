@@ -46,7 +46,7 @@ func _ready() -> void:
 		add_item(item_id)
 
 
-## Рецепты одного места: `anvil`, `smelter` — см. `items.json`.
+## Рецепты одного места: `anvil`, `smelter`, `workshop` — см. `items.json`.
 func get_recipes(station: String) -> Array:
 	return recipes.filter(func(recipe: Dictionary) -> bool: return recipe.get("station") == station)
 

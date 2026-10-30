@@ -5,6 +5,7 @@ extends Node2D
 ## start_offset. Ноги не нужны — низ картинки прячется за слоем спереди.
 ## Шаги — покачивание вверх-вниз и наклон корпуса; стоя — лёгкое «дыхание».
 ## `walk_away()` — уходит туда, откуда пришёл, и пропадает (#37).
+## Может ждать своей очереди: скрыт, пока не позовут `walk_in()` (#54).
 
 signal arrived
 signal left
@@ -15,7 +16,9 @@ const STOP_TIME := 0.35
 
 ## Откуда идёт, относительно места остановки, px.
 @export var start_offset: Vector2 = Vector2(1100, 0)
-## Через сколько секунд после открытия сцены начинает идти.
+## Начинает идти сам при открытии сцены. Иначе скрыт и ждёт `walk_in()`.
+@export var walks_in_on_ready: bool = true
+## Через сколько секунд начинает идти.
 @export var start_delay: float = 1.0
 ## Скорость ходьбы, px в секунду.
 @export var walk_speed: float = 420.0
@@ -53,8 +56,19 @@ func _ready() -> void:
 	elif _has_arrived_before():
 		_state = State.STANDING
 		arrived.emit.call_deferred()
-	else:
+	elif walks_in_on_ready:
 		_walk_in()
+	else:
+		hide()
+
+
+## Выйти к месту, если ещё не выходил и не ушёл.
+func walk_in() -> void:
+	if _state != State.WAITING or _is_leaving or _has_left_before():
+		return
+
+	show()
+	_walk_in()
 
 
 ## Подошёл и стоит на месте: не идёт и не уходит.
