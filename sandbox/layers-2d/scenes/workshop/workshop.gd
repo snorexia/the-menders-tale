@@ -3,8 +3,8 @@ extends Node2D
 ## выбрал вещь — выпадает её случайный вариант и начинается мини-игра рецепта (`game`).
 ## Цена — от звёзд и сложности варианта. Материал тратится в конце: ушёл посреди — он остался.
 ## У каждой мини-игры одно и то же: `start(variant)`, `get_progress_ratio()`, `get_tension()`,
-## `get_stars()`, `get_price_bonus()`, сигналы `finished(stars)` и `mistake_made`. Витраж и
-## карта — та же игра, что кувшин (`shards`), с другими картинками.
+## `get_stars()`, `get_price_bonus()`, сигналы `finished(stars)` и `mistake_made`. Карта —
+## та же игра, что кувшин (`shards`), с другими картинками.
 
 ## Рецепты какого места показывать — `station` в `common/items.json`.
 const STATION := "workshop"
@@ -36,7 +36,6 @@ var _game: Node
 @onready var _shards_game: ShardsGame = $ShardsGame
 @onready var _sharpen_game: SharpenGame = $SharpenGame
 @onready var _embroidery_game: EmbroideryGame = $EmbroideryGame
-@onready var _solder_game: SolderGame = $SolderGame
 @onready var _gears_game: GearsGame = $GearsGame
 @onready var _box_game: BoxGame = $BoxGame
 @onready var _chain_game: ChainGame = $ChainGame
@@ -74,7 +73,6 @@ func _ready() -> void:
 		"shards": _shards_game,
 		"sharpen": _sharpen_game,
 		"embroidery": _embroidery_game,
-		"solder": _solder_game,
 		"gears": _gears_game,
 		"box": _box_game,
 		"chain": _chain_game,

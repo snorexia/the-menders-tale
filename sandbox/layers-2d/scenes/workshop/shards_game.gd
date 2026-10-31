@@ -114,7 +114,7 @@ func _draw() -> void:
 
 
 ## Начать по варианту: texture, pieces, glue_time, rotate, show_cracks, show_picture, price_bonus.
-## Для витража: pieces_file — готовые контуры кусков, ghost_texture — рамка вместо контура.
+## ready_pieces — сколько кусков у середины уже на месте: от них легче отталкиваться.
 func start(variant: Dictionary) -> void:
 	var texture: Texture2D = load(variant.get("texture", ""))
 	_can_rotate = variant.get("rotate", false)
@@ -130,18 +130,9 @@ func start(variant: Dictionary) -> void:
 
 	var shows_picture: bool = variant.get("show_picture", false)
 	_ghost.modulate = picture_color if shows_picture else ghost_color
-	var ghost_path: String = variant.get("ghost_texture", "")
-	if not ghost_path.is_empty():
-		_ghost.texture = load(ghost_path)
-		_ghost.modulate = Color.WHITE
-
 	_whole.modulate.a = 0.0
-	var pieces_path: String = variant.get("pieces_file", "")
-	if pieces_path.is_empty():
-		_build_shards(texture, int(variant.get("pieces", 6)))
-	else:
-		_load_shards(texture, pieces_path)
-
+	_build_shards(texture, int(variant.get("pieces", 6)))
+	_place_ready_shards(int(variant.get("ready_pieces", 0)))
 	_scatter_shards()
 	queue_redraw()
 	show()
@@ -175,21 +166,6 @@ func get_stars() -> int:
 		stars = 2
 
 	return stars
-
-
-## Куски заданы файлом: стёкла витража идут по свинцовым линиям.
-func _load_shards(texture: Texture2D, path: String) -> void:
-	var data: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
-	if not data is Dictionary:
-		push_warning("ShardsGame: не удалось прочитать %s" % path)
-		return
-
-	for raw_polygon: Array in data.get("polygons", []):
-		var polygon := PackedVector2Array()
-		for point: Array in raw_polygon:
-			polygon.append(Vector2(point[0], point[1]))
-
-		_add_shard(texture, polygon, texture.get_size())
 
 
 ## Разрезать картинку сеткой со сдвинутыми узлами. Общие края у соседей совпадают.
@@ -322,12 +298,30 @@ func _add_shard(texture: Texture2D, polygon: PackedVector2Array, size: Vector2) 
 	_crack_lines.append(line)
 
 
+## Поставить на место куски, ближайшие к середине картинки.
+func _place_ready_shards(count: int) -> void:
+	var by_distance := _shards.duplicate()
+	by_distance.sort_custom(
+		func(first: Polygon2D, second: Polygon2D) -> bool:
+			return _get_center_distance(first) < _get_center_distance(second)
+	)
+	for shard: Polygon2D in by_distance.slice(0, count):
+		_place_shard(shard, _targets[shard])
+
+
+func _get_center_distance(shard: Polygon2D) -> float:
+	return _targets[shard].distance_to(board_center)
+
+
 func _scatter_shards() -> void:
-	_shards.shuffle()
+	var loose: Array[Polygon2D] = _shards.filter(
+		func(shard: Polygon2D) -> bool: return not _is_placed(shard)
+	)
+	loose.shuffle()
 	# Осколки лежат столбиками слева и справа, чтобы не закрывали друг друга.
-	var row_count := ceili(_shards.size() / 2.0)
-	for shard_index in _shards.size():
-		var shard := _shards[shard_index]
+	var row_count := ceili(loose.size() / 2.0)
+	for shard_index in loose.size():
+		var shard := loose[shard_index]
 		var area := scatter_left if shard_index % 2 == 0 else scatter_right
 		var row_share := (floorf(shard_index / 2.0) + 0.5) / row_count
 		var share := Vector2(randf(), row_share)

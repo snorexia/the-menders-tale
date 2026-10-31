@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dh2ldv4ssypw7"
-path="res://.godot/imported/glass_lancet_frame.png-eb1527628338ca72453ae60d5e5c10da.ctex"
+uid="uid://bfk6423ds7bf8"
+path="res://.godot/imported/torn_islands.png-1a4e52053d0976b37f9a4c75344ac926.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://scenes/workshop/glass_lancet_frame.png"
-dest_files=["res://.godot/imported/glass_lancet_frame.png-eb1527628338ca72453ae60d5e5c10da.ctex"]
+source_file="res://scenes/workshop/torn_islands.png"
+dest_files=["res://.godot/imported/torn_islands.png-1a4e52053d0976b37f9a4c75344ac926.ctex"]
 
 [params]
 

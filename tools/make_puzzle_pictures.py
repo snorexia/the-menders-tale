@@ -1,185 +1,127 @@
-"""Рисует заглушки для пазлов верстака: витражи с контурами стёкол и порванную карту (#60).
+"""Рисует заглушки для пазла «карта гонца»: две карты с яркими разными зонами (#60).
 
 Запуск из корня репозитория: python tools/make_puzzle_pictures.py
-Витраж: `glass_<имя>.png`, рамка-подсказка `glass_<имя>_frame.png`, стёкла `glass_<имя>.json`.
+У каждой зоны свой цвет и свои рисунки, чтобы по обрывку было видно, откуда он.
 Нужен Pillow 13.0.0.
 """
 
-import json
-import math
 import random
 from pathlib import Path
 
 from PIL import Image, ImageDraw
 
 WORKSHOP_DIR = Path("sandbox/layers-2d/scenes/workshop")
-LEAD_COLOR = (24, 22, 24, 255)
-FRAME_BACK = (20, 18, 22, 255)
-LEAD_WIDTH = 7
-SIZE = (640, 640)
-PALETTE = [
-    (190, 40, 50),
-    (35, 80, 170),
-    (235, 180, 45),
-    (45, 140, 80),
-    (120, 50, 150),
-    (235, 120, 40),
-    (70, 170, 190),
-    (225, 225, 205),
-]
+SIZE = (780, 600)
+SEA = (70, 135, 190, 255)
+DARK_SEA = (45, 100, 160, 255)
+GRASS = (135, 180, 90, 255)
+FOREST = (60, 120, 65, 255)
+SAND = (232, 200, 120, 255)
+SNOW = (225, 228, 235, 255)
+ROCK = (125, 110, 100, 255)
+WHEAT = (235, 170, 60, 255)
+RED = (190, 40, 50, 255)
+INK = (55, 35, 25, 255)
+WHITE = (245, 240, 225, 255)
 
 
-def ring_sector(center, inner, outer, start, end, steps=8):
-    points = []
-    for step in range(steps + 1):
-        angle = start + (end - start) * step / steps
-        points.append((center[0] + math.cos(angle) * outer, center[1] + math.sin(angle) * outer))
-    for step in range(steps, -1, -1):
-        angle = start + (end - start) * step / steps
-        points.append((center[0] + math.cos(angle) * inner, center[1] + math.sin(angle) * inner))
-    return points
+def tree(draw, x, y):
+    draw.polygon([(x, y - 34), (x - 24, y + 14), (x + 24, y + 14)], fill=FOREST)
+    draw.rectangle((x - 5, y + 14, x + 5, y + 26), fill=INK)
 
 
-def make_rose():
-    """Круглое окно-роза: середина и два кольца секторов."""
-    center = (320, 320)
-    polygons = [(ring_sector(center, 0.1, 80, 0, math.tau, 24)[:25], PALETTE[2])]
-    for sector in range(6):
-        start = sector * math.tau / 6
-        polygons.append((ring_sector(center, 80, 200, start, start + math.tau / 6), PALETTE[sector % 2]))
-    for sector in range(8):
-        start = sector * math.tau / 8 + 0.2
-        polygons.append((ring_sector(center, 200, 310, start, start + math.tau / 8), PALETTE[3 + sector % 4]))
-    return polygons
+def mountain(draw, x, y):
+    draw.polygon([(x - 56, y + 50), (x, y - 52), (x + 56, y + 50)], fill=ROCK)
+    draw.polygon([(x - 18, y - 18), (x, y - 52), (x + 18, y - 18)], fill=WHITE)
 
 
-def make_lancet():
-    """Узкое окно с аркой: ромбы и верхушка."""
-    left, right = 150, 490
-    top, bottom = 150, 620
-    middle = (left + right) / 2
-    arch = [(middle + math.cos(a) * 170, top + math.sin(a) * 140) for a in [math.pi + i * math.pi / 16 for i in range(17)]]
-    polygons = [(arch, PALETTE[2])]
-    rows = 4
-    row_height = (bottom - top) / rows
-    for row in range(rows):
-        y0 = top + row * row_height
-        y1 = y0 + row_height
-        polygons.append(([(left, y0), (middle, y0), (left, y1)], PALETTE[(row * 3) % 8]))
-        polygons.append(([(middle, y0), (right, y0), (right, y1)], PALETTE[(row * 3 + 1) % 8]))
-        polygons.append(([(middle, y0), (right, y1), (left, y1)], PALETTE[(row * 3 + 2) % 8]))
-    return polygons
+def castle(draw, x, y):
+    draw.rectangle((x - 62, y - 40, x + 62, y + 50), fill=(165, 90, 70, 255))
+    for tower in (-62, 0, 62):
+        draw.polygon([(x + tower - 26, y - 40), (x + tower, y - 92), (x + tower + 26, y - 40)], fill=RED)
+    draw.rectangle((x - 16, y + 8, x + 16, y + 50), fill=INK)
 
 
-def make_sunburst():
-    """Солнце ведьмы: лучи из точки сбоку, у каждого свой цвет."""
-    center = (250, 380)
-    corners = [(20, 20), (620, 20), (620, 620), (20, 620)]
-    edge = []
-    for from_point, to_point in zip(corners, corners[1:] + corners[:1]):
-        for step in range(4):
-            share = step / 4
-            edge.append((from_point[0] + (to_point[0] - from_point[0]) * share, from_point[1] + (to_point[1] - from_point[1]) * share))
-    polygons = []
-    for index, point in enumerate(edge):
-        following = edge[(index + 1) % len(edge)]
-        polygons.append(([center, point, following], PALETTE[index % len(PALETTE)]))
-    return polygons
+def ship(draw, x, y):
+    draw.polygon([(x - 50, y), (x + 50, y), (x + 30, y + 26), (x - 30, y + 26)], fill=INK)
+    draw.polygon([(x, y - 60), (x + 40, y - 8), (x, y - 8)], fill=WHITE)
 
 
-def save_window(name, polygons, tint):
-    glass = Image.new("RGBA", SIZE, (0, 0, 0, 0))
-    frame = Image.new("RGBA", SIZE, (0, 0, 0, 0))
-    glass_draw = ImageDraw.Draw(glass)
-    frame_draw = ImageDraw.Draw(frame)
-    for polygon, color in polygons:
-        flat = [(round(x), round(y)) for x, y in polygon]
-        glass_draw.polygon(flat, fill=(*color, 255))
-        frame_color = (*[round(c * tint + 18 * (1 - tint)) for c in color], 255)
-        frame_draw.polygon(flat, fill=frame_color)
-    for polygon, _color in polygons:
-        flat = [(round(x), round(y)) for x, y in polygon]
-        flat.append(flat[0])
-        glass_draw.line(flat, fill=LEAD_COLOR, width=LEAD_WIDTH, joint="curve")
-        frame_draw.line(flat, fill=LEAD_COLOR, width=LEAD_WIDTH, joint="curve")
-    glass.save(WORKSHOP_DIR / f"glass_{name}.png")
-    frame.save(WORKSHOP_DIR / f"glass_{name}_frame.png")
-    data = {"polygons": [[[round(x, 1), round(y, 1)] for x, y in polygon] for polygon, _color in polygons]}
-    (WORKSHOP_DIR / f"glass_{name}.json").write_text(json.dumps(data), encoding="utf-8")
+def compass(draw, x, y):
+    draw.ellipse((x - 54, y - 54, x + 54, y + 54), fill=WHITE, outline=INK, width=4)
+    draw.polygon([(x, y - 46), (x + 12, y), (x - 12, y)], fill=RED)
+    draw.polygon([(x, y + 46), (x + 12, y), (x - 12, y)], fill=INK)
 
 
-def parchment(size, seed):
-    random.seed(seed)
-    picture = Image.new("RGBA", size, (222, 200, 150, 255))
-    draw = ImageDraw.Draw(picture)
-    for _spot in range(320):
-        x, y = random.randrange(size[0]), random.randrange(size[1])
-        radius = random.randint(4, 28)
-        shade = random.randint(190, 230)
-        draw.ellipse((x - radius, y - radius, x + radius, y + radius), fill=(shade, shade - 24, shade - 70, 255))
-    return picture
+def cross(draw, x, y):
+    draw.line((x - 28, y - 28, x + 28, y + 28), fill=RED, width=13)
+    draw.line((x + 28, y - 28, x - 28, y + 28), fill=RED, width=13)
 
 
-def make_map():
-    picture = parchment((780, 600), 11)
-    draw = ImageDraw.Draw(picture)
-    draw.polygon([(0, 0), (260, 0), (190, 110), (70, 190), (0, 230)], fill=(90, 150, 190, 255))
-    draw.line([(190, 110), (310, 230), (280, 360), (420, 470), (480, 600)], fill=(70, 130, 180, 255), width=14)
-    for x, y in [(520, 70), (590, 110), (660, 60), (720, 130)]:
-        draw.polygon([(x - 50, y + 50), (x, y - 50), (x + 50, y + 50)], fill=(120, 105, 90, 255))
-        draw.polygon([(x - 15, y - 20), (x, y - 50), (x + 15, y - 20)], fill=(240, 240, 240, 255))
-    for x, y in [(90, 400), (140, 450), (70, 500), (170, 520), (220, 420)]:
-        draw.ellipse((x - 32, y - 32, x + 32, y + 32), fill=(60, 120, 60, 255))
-    draw.rectangle((440, 260, 560, 360), fill=(150, 80, 60, 255))
-    draw.polygon([(430, 260), (500, 190), (570, 260)], fill=(190, 40, 50, 255))
-    road = [(250, 560), (340, 420), (500, 360), (620, 300), (730, 380)]
-    for start, end in zip(road, road[1:]):
-        steps = 8
-        for step in range(steps):
-            a = step / steps
-            b = (step + 0.5) / steps
+def road(draw, points):
+    for start, end in zip(points, points[1:]):
+        for step in range(8):
+            share = step / 8
+            half = (step + 0.5) / 8
             draw.line(
-                [
-                    (start[0] + (end[0] - start[0]) * a, start[1] + (end[1] - start[1]) * a),
-                    (start[0] + (end[0] - start[0]) * b, start[1] + (end[1] - start[1]) * b),
-                ],
-                fill=(70, 40, 25, 255),
-                width=8,
+                (
+                    start[0] + (end[0] - start[0]) * share,
+                    start[1] + (end[1] - start[1]) * share,
+                    start[0] + (end[0] - start[0]) * half,
+                    start[1] + (end[1] - start[1]) * half,
+                ),
+                fill=INK,
+                width=7,
             )
-    draw.line([(710, 500), (760, 560)], fill=(190, 40, 50, 255), width=12)
-    draw.line([(760, 500), (710, 560)], fill=(190, 40, 50, 255), width=12)
-    compass = (650, 470)
-    draw.polygon([(compass[0], compass[1] - 50), (compass[0] + 14, compass[1]), (compass[0] - 14, compass[1])], fill=(40, 30, 25, 255))
-    draw.polygon([(compass[0], compass[1] + 50), (compass[0] + 14, compass[1]), (compass[0] - 14, compass[1])], fill=(190, 40, 50, 255))
+
+
+def make_kingdom():
+    """Королевство: море, лес, горы, поле, пустыня, у каждой зоны свой цвет."""
+    picture = Image.new("RGBA", SIZE, GRASS)
+    draw = ImageDraw.Draw(picture)
+    draw.polygon([(0, 0), (300, 0), (240, 150), (90, 230), (0, 260)], fill=SEA)
+    draw.polygon([(470, 0), (780, 0), (780, 240), (520, 200)], fill=SNOW)
+    draw.polygon([(0, 390), (300, 360), (340, 600), (0, 600)], fill=(190, 215, 130, 255))
+    draw.polygon([(520, 360), (780, 310), (780, 600), (560, 600)], fill=SAND)
+    draw.polygon([(300, 360), (520, 360), (560, 600), (340, 600)], fill=WHEAT)
+    draw.line([(240, 150), (320, 250), (290, 370), (430, 480), (470, 600)], fill=SEA, width=18)
+    ship(draw, 110, 90)
+    for x, y in [(540, 90), (640, 130), (720, 70)]:
+        mountain(draw, x, y)
+    for x, y in [(60, 440), (130, 490), (70, 540), (190, 450), (230, 540)]:
+        tree(draw, x, y)
+    castle(draw, 450, 280)
+    compass(draw, 680, 490)
+    cross(draw, 590, 560)
+    road(draw, [(200, 300), (350, 330), (450, 330), (620, 300), (720, 380)])
     picture.save(WORKSHOP_DIR / "torn_map.png")
 
 
-def make_letter():
-    picture = parchment((560, 700), 12)
+def make_islands():
+    """Морская карта: острова разных цветов на воде, киты и корабли между ними."""
+    picture = Image.new("RGBA", SIZE, SEA)
     draw = ImageDraw.Draw(picture)
-    random.seed(13)
-    draw.rectangle((60, 60, 170, 180), fill=(150, 40, 50, 255))
-    draw.polygon([(115, 80), (150, 160), (80, 160)], fill=(235, 190, 70, 255))
-    y = 90
-    while y < 560:
-        left = 200 if y < 190 else 60
-        x = left
-        while x < 490:
-            length = random.randint(20, 80)
-            draw.line((x, y, min(x + length, 500), y), fill=(50, 35, 30, 255), width=7)
-            x += length + 16
-        y += 44
-    draw.ellipse((340, 570, 480, 690), fill=(170, 30, 40, 255))
-    draw.polygon([(410, 590), (440, 650), (380, 650)], fill=(110, 15, 25, 255))
-    picture.save(WORKSHOP_DIR / "torn_letter.png")
+    draw.rectangle((0, 300, 780, 600), fill=DARK_SEA)
+    draw.ellipse((40, 40, 300, 240), fill=FOREST)
+    draw.ellipse((470, 30, 740, 230), fill=SAND)
+    draw.ellipse((60, 370, 320, 560), fill=(150, 90, 150, 255))
+    draw.ellipse((480, 360, 740, 570), fill=SNOW)
+    for x, y in [(120, 130), (190, 100), (220, 180)]:
+        tree(draw, x, y)
+    cross(draw, 600, 130)
+    mountain(draw, 190, 470)
+    castle(draw, 610, 480)
+    ship(draw, 390, 130)
+    compass(draw, 390, 470)
+    draw.ellipse((330, 280, 450, 340), fill=INK)
+    draw.polygon([(450, 310), (490, 280), (490, 340)], fill=INK)
+    picture.save(WORKSHOP_DIR / "torn_islands.png")
 
 
 def main() -> None:
-    save_window("rose", make_rose(), 0.32)
-    save_window("lancet", make_lancet(), 0.12)
-    save_window("sun", make_sunburst(), 0.0)
-    make_map()
-    make_letter()
+    random.seed(11)
+    make_kingdom()
+    make_islands()
 
 
 if __name__ == "__main__":

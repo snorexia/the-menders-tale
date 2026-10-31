@@ -27,8 +27,6 @@ REPAIR_ICONS = {
     "mail": ("A_Armor04.png", "torn"),
     "amulet": ("Ac_Medal04.png", "broken"),
     "coat": ("I_Fabric.png", "broken"),
-    "armor": ("A_Armour01.png", "broken"),
-    "window": ("I_Mirror.png", "broken"),
     "map": ("I_Map.png", "broken"),
     "clock": ("I_Clock.png", "broken"),
     "box": ("I_Chest02.png", "broken"),

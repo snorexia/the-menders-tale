@@ -1,6 +1,6 @@
 {
-  "_note": "Предметы, рецепты и лавка песочницы (#37, #51, #56). Не данные игры. items — по id: name, icon, description, not_for_sale (необязательно: в лавке не продать). start_items, start_coins — что есть на старте. grade_names — как называть итог вещи. material_bonus — сколько монет прибавляет к цене качество материала. recipes — что где можно сделать: station (smelter, anvil, workshop), name, needs, gives, gives_count (сколько штук, по умолчанию 1), blueprint (необязательно: рецепт виден, только если чертёж куплен), needs_count (сколько штук материала, по умолчанию 1), forge (сложность ковки: rings_per_stage, ring_shrink_time, ring_hit_from, ring_late_time, stages — картинки стадий, strike_area — [x, y, ширина, высота]), edge (сложность заточки: sharpen_time, snag_strength), price_by_forge и price_by_edge (цена: монеты за ковку плюс прибавка за заточку), price_by_stars (цена по звёздам починки), game (мини-игра верстака: stitch, shards, chain, runes, sharpen, embroidery, solder, gears, box), hint, progress_label, tension_label (нет — шкала скрыта), mistake_text — тексты мини-игры, variants — варианты вещи, выпадают случайно, hint у варианта заменяет подсказку рецепта, price_bonus у варианта прибавляется к цене, grade_from_price (с какой цены вещь обычная и хорошая, ниже — плохая). blueprints — чертежи лавки: name, price. shop — goods: что продаёт лавка, sell_ratio: какую долю цены вещи она платит.",
-  "start_items": ["ore", "jug_broken", "mail_torn", "amulet_broken", "sickle_broken", "coat_broken", "armor_broken", "window_broken", "map_broken", "clock_broken", "box_broken"],
+  "_note": "Предметы, рецепты и лавка песочницы (#37, #51, #56). Не данные игры. items — по id: name, icon, description, not_for_sale (необязательно: в лавке не продать). start_items, start_coins — что есть на старте. grade_names — как называть итог вещи. material_bonus — сколько монет прибавляет к цене качество материала. recipes — что где можно сделать: station (smelter, anvil, workshop), name, needs, gives, gives_count (сколько штук, по умолчанию 1), blueprint (необязательно: рецепт виден, только если чертёж куплен), needs_count (сколько штук материала, по умолчанию 1), forge (сложность ковки: rings_per_stage, ring_shrink_time, ring_hit_from, ring_late_time, stages — картинки стадий, strike_area — [x, y, ширина, высота]), edge (сложность заточки: sharpen_time, snag_strength), price_by_forge и price_by_edge (цена: монеты за ковку плюс прибавка за заточку), price_by_stars (цена по звёздам починки), game (мини-игра верстака: stitch, shards, chain, runes, sharpen, embroidery, gears, box), hint, progress_label, tension_label (нет — шкала скрыта), mistake_text — тексты мини-игры, variants — варианты вещи, выпадают случайно, hint у варианта заменяет подсказку рецепта, price_bonus у варианта прибавляется к цене, grade_from_price (с какой цены вещь обычная и хорошая, ниже — плохая). blueprints — чертежи лавки: name, price. shop — goods: что продаёт лавка, sell_ratio: какую долю цены вещи она платит.",
+  "start_items": ["ore", "jug_broken", "mail_torn", "amulet_broken", "sickle_broken", "coat_broken", "map_broken", "clock_broken", "box_broken"],
   "start_coins": 50,
   "grade_names": {"bad": "плохая вещь", "normal": "обычная вещь", "good": "хорошая вещь"},
   "material_bonus": {"Чистейший металл": 3, "Хороший металл": 1, "С примесями": 0, "Грязный металл": -2},
@@ -115,28 +115,6 @@
       "name": "Вышитый герб",
       "icon": "res://common/icons/coat_repaired_icon.png",
       "description": "Горит золотой нитью. Можно продать в лавке."
-    },
-    "armor_broken": {
-      "name": "Треснувший доспех",
-      "icon": "res://common/icons/armor_broken_icon.png",
-      "description": "Доспех стражника весь в трещинах. Запаяй их в мастерской.",
-      "not_for_sale": true
-    },
-    "armor_repaired": {
-      "name": "Запаянный доспех",
-      "icon": "res://common/icons/armor_repaired_icon.png",
-      "description": "Швы держат. Можно продать в лавке."
-    },
-    "window_broken": {
-      "name": "Разбитый витраж",
-      "icon": "res://common/icons/window_broken_icon.png",
-      "description": "Окно церкви разбито. Вставь стёкла в рамку в мастерской.",
-      "not_for_sale": true
-    },
-    "window_repaired": {
-      "name": "Целый витраж",
-      "icon": "res://common/icons/window_repaired_icon.png",
-      "description": "Снова играет цветами. Можно продать в лавке."
     },
     "map_broken": {
       "name": "Порванная карта",
@@ -360,56 +338,20 @@
     },
     {
       "station": "workshop",
-      "name": "Доспех стражника",
-      "needs": "armor_broken",
-      "gives": "armor_repaired",
-      "game": "solder",
-      "hint": "Веди паяльник по трещинам: стоишь — прожжёшь, спешишь — не схватится",
-      "progress_label": "Швы",
-      "tension_label": "Перегрев",
-      "mistake_text": "Прожёг! Не держи паяльник на месте",
-      "price_by_stars": {"1": 9, "2": 16, "3": 24},
-      "grade_from_price": {"normal": 16, "good": 24},
-      "variants": [
-        {"name": "нагрудник", "plate": [[660, 270], [1260, 270], [1320, 440], [1200, 880], [720, 880], [600, 440]], "cracks": [[[720, 420], [880, 520], [1040, 490], [1200, 620]], [[880, 520], [860, 760]]]},
-        {"name": "щит", "price_bonus": 2, "plate": [[640, 250], [1280, 250], [1280, 620], [960, 920], [640, 620]], "cracks": [[[960, 300], [920, 480], [1010, 620], [950, 820]], [[920, 480], [740, 400]], [[1010, 620], [1190, 520]]]},
-        {"name": "шлем", "price_bonus": 5, "plate": [[720, 260], [1200, 260], [1300, 520], [1240, 860], [1060, 880], [1040, 640], [880, 640], [860, 880], [680, 860], [620, 520]], "cracks": [[[960, 300], [900, 420], [1000, 540], [1180, 500]], [[900, 420], [720, 500], [740, 780]], [[1000, 540], [960, 600]], [[1180, 500], [1190, 780]]]}
-      ]
-    },
-    {
-      "station": "workshop",
-      "name": "Витраж церкви",
-      "needs": "window_broken",
-      "gives": "window_repaired",
-      "game": "shards",
-      "hint": "Тащи стёкла в свинцовую рамку. Важна и форма, и цвет",
-      "progress_label": "Стёкла",
-      "tension_label": "Клей сохнет",
-      "mistake_text": "Не то стекло! Посмотри на форму",
-      "price_by_stars": {"1": 10, "2": 18, "3": 26},
-      "grade_from_price": {"normal": 18, "good": 26},
-      "variants": [
-        {"name": "роза", "texture": "res://scenes/workshop/glass_rose.png", "ghost_texture": "res://scenes/workshop/glass_rose_frame.png", "pieces_file": "res://scenes/workshop/glass_rose.json", "glue_time": 80},
-        {"name": "стрельчатое", "texture": "res://scenes/workshop/glass_lancet.png", "ghost_texture": "res://scenes/workshop/glass_lancet_frame.png", "pieces_file": "res://scenes/workshop/glass_lancet.json", "glue_time": 80, "price_bonus": 2},
-        {"name": "солнце", "texture": "res://scenes/workshop/glass_sun.png", "ghost_texture": "res://scenes/workshop/glass_sun_frame.png", "pieces_file": "res://scenes/workshop/glass_sun.json", "glue_time": 90, "rotate": true, "price_bonus": 6, "hint": "Рамка без цвета, стёкла повёрнуты. Колесо мыши или R поворачивают"}
-      ]
-    },
-    {
-      "station": "workshop",
       "name": "Карта гонца",
       "needs": "map_broken",
       "gives": "map_repaired",
       "game": "shards",
-      "hint": "Сложи обрывки. Колесо мыши или R поворачивают обрывок",
+      "hint": "Середина уже собрана. Тащи обрывки к ней, смотри на цвета и рисунки",
       "progress_label": "Обрывки",
       "tension_label": "Гонец ждёт",
-      "mistake_text": "Не подходит! Смотри на рисунок",
+      "mistake_text": "Не подходит! Смотри на цвета и рисунки",
       "price_by_stars": {"1": 8, "2": 15, "3": 22},
       "grade_from_price": {"normal": 15, "good": 22},
       "variants": [
-        {"name": "карта", "texture": "res://scenes/workshop/torn_map.png", "pieces": 9, "glue_time": 50, "show_picture": true, "hint": "Сложи обрывки карты по контуру"},
-        {"name": "письмо", "texture": "res://scenes/workshop/torn_letter.png", "pieces": 8, "glue_time": 55, "rotate": true, "price_bonus": 2},
-        {"name": "большая карта", "texture": "res://scenes/workshop/torn_map.png", "pieces": 14, "glue_time": 80, "rotate": true, "price_bonus": 5}
+        {"name": "королевство", "texture": "res://scenes/workshop/torn_map.png", "pieces": 8, "ready_pieces": 3, "glue_time": 50, "show_picture": true},
+        {"name": "острова", "texture": "res://scenes/workshop/torn_islands.png", "pieces": 9, "ready_pieces": 3, "glue_time": 60, "show_cracks": true, "price_bonus": 2},
+        {"name": "большая карта", "texture": "res://scenes/workshop/torn_map.png", "pieces": 12, "ready_pieces": 4, "glue_time": 80, "price_bonus": 4}
       ]
     },
     {
@@ -453,7 +395,7 @@
     "axe_plan": {"name": "Чертёж топора", "price": 40}
   },
   "shop": {
-    "goods": [{"item": "ore", "price": 6}, {"item": "bag_torn", "price": 3}, {"item": "jug_broken", "price": 3}, {"item": "mail_torn", "price": 5}, {"item": "amulet_broken", "price": 6}, {"item": "sickle_broken", "price": 4}, {"item": "coat_broken", "price": 4}, {"item": "armor_broken", "price": 4}, {"item": "window_broken", "price": 4}, {"item": "map_broken", "price": 4}, {"item": "clock_broken", "price": 4}, {"item": "box_broken", "price": 4}],
+    "goods": [{"item": "ore", "price": 6}, {"item": "bag_torn", "price": 3}, {"item": "jug_broken", "price": 3}, {"item": "mail_torn", "price": 5}, {"item": "amulet_broken", "price": 6}, {"item": "sickle_broken", "price": 4}, {"item": "coat_broken", "price": 4}, {"item": "map_broken", "price": 4}, {"item": "clock_broken", "price": 4}, {"item": "box_broken", "price": 4}],
     "sell_ratio": 0.5
   }
 }

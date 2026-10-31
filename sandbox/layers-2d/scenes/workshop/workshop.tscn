@@ -1,4 +1,4 @@
-[gd_scene load_steps=27 format=3]
+[gd_scene load_steps=26 format=3]
 
 [ext_resource type="Script" path="res://scenes/workshop/workshop.gd" id="1_workshop"]
 [ext_resource type="Texture2D" path="res://scenes/workshop/workshop_background.webp" id="2_background"]
@@ -12,7 +12,6 @@
 [ext_resource type="Script" path="res://scenes/workshop/shards_game.gd" id="11_shards"]
 [ext_resource type="Script" path="res://scenes/workshop/sharpen_game.gd" id="12_sharpen"]
 [ext_resource type="Script" path="res://scenes/workshop/embroidery_game.gd" id="13_embroidery"]
-[ext_resource type="Script" path="res://scenes/workshop/solder_game.gd" id="14_solder"]
 [ext_resource type="Script" path="res://scenes/workshop/gears_game.gd" id="17_gears"]
 [ext_resource type="Script" path="res://scenes/workshop/box_game.gd" id="18_box"]
 [ext_resource type="Script" path="res://scenes/workshop/chain_game.gd" id="15_chain"]
@@ -130,9 +129,6 @@ script = ExtResource("12_sharpen")
 
 [node name="EmbroideryGame" type="Node2D" parent="."]
 script = ExtResource("13_embroidery")
-
-[node name="SolderGame" type="Node2D" parent="."]
-script = ExtResource("14_solder")
 
 [node name="GearsGame" type="Node2D" parent="."]
 script = ExtResource("17_gears")

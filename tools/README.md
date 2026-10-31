@@ -9,7 +9,7 @@
 | `render_model.gd` | Рендерит 3D-модель (`.glb`/`.gltf`) в PNG с прозрачным фоном — модель дизайнера становится 2D-картинкой. Камера ортогональная, спереди, тёплый свет слева сверху. Запуск: `"$GODOT_PATH" --path <проект> --script "$(pwd -W)/tools/render_model.gd" -- <абс. путь к модели> <файл.png> [пикселей на метр] [поворот°]` (без `--headless`) | snorexia (#22) |
 | `make_sword_stages.py` | Рисует стадии ковки мечей-заглушек поверх пустой наковальни, форма клинка — числами в скрипте. Запуск: `python tools/make_sword_stages.py`, печатает `strike_area` для `items.json`. Нужен Pillow 13.0.0 | Weh2 (#60) |
 | `make_workbench_items.py` | Делает заглушки верстака: расписные сосуды, иконки. Запуск: `python tools/make_workbench_items.py <папка 496_RPG_icons>`, ссылка на набор — в `docs/art/asset-log.md`. Нужен Pillow 13.0.0 | Weh2 (#60) |
-| `make_puzzle_pictures.py` | Рисует заглушки для пазлов: витражи с рамками и контурами стёкол, порванную карту и письмо. Запуск: `python tools/make_puzzle_pictures.py`. Нужен Pillow 13.0.0 | Weh2 (#60) |
+| `make_puzzle_pictures.py` | Рисует заглушки для пазла «карта гонца»: две карты с яркими разными зонами. Запуск: `python tools/make_puzzle_pictures.py`. Нужен Pillow 13.0.0 | Weh2 (#60) |
 
 Проверить проект Godot без окна: `"$GODOT_PATH" --headless --path <проект> --quit-after 5` — ошибки скриптов и сцен попадут в вывод. Стиль GDScript: `gdlint <папка>` (конфиг `gdlintrc` в корне).
 
