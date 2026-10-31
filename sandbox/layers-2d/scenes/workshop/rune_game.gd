@@ -2,8 +2,8 @@ class_name RuneGame
 extends Node2D
 ## Мини-игра «амулет ведьмы» (песочница, #60): руны загораются по очереди — повтори их кликами.
 ## С каждым кругом порядок длиннее. Ошибка — амулет трескается, тот же порядок покажут снова.
-## Вариант — в `common/items.json`: runes, length, shuffle (руны меняются местами между кругами),
-## reversed (повторять с конца), same_color (все руны одного цвета), show_time, price_bonus.
+## Вариант — в `common/items.json`: runes, length, reversed (повторять с конца),
+## same_color (все руны одного цвета), show_time, price_bonus.
 
 signal finished(stars: int)
 signal mistake_made
@@ -55,7 +55,6 @@ var _is_running: bool = false
 var _is_showing: bool = false
 var _rune_count: int = 6
 var _length: int = 5
-var _shuffles: bool = false
 var _is_reversed: bool = false
 var _uses_same_color: bool = false
 var _show_time: float = 0.55
@@ -65,7 +64,7 @@ var _sequence: Array[int] = []
 var _round_length: int = 1
 var _input_index: int = 0
 var _mistake_count: int = 0
-## Какая руна на каком месте круга.
+## Какая руна на каком месте круга: места не меняются.
 var _places: Array[int] = []
 var _lit_rune: int = -1
 ## Трещины амулета: отрезки.
@@ -106,7 +105,6 @@ func _draw() -> void:
 func start(variant: Dictionary) -> void:
 	_rune_count = mini(int(variant.get("runes", 6)), GLYPHS.size())
 	_length = int(variant.get("length", 5))
-	_shuffles = variant.get("shuffle", false)
 	_is_reversed = variant.get("reversed", false)
 	_uses_same_color = variant.get("same_color", false)
 	_show_time = variant.get("show_time", _show_time)
@@ -155,9 +153,6 @@ func _play_round() -> void:
 		await get_tree().create_timer(_show_time).timeout
 		_lit_rune = -1
 		await get_tree().create_timer(pause_between_runes).timeout
-
-	if _shuffles:
-		_places.shuffle()
 
 	_is_showing = false
 

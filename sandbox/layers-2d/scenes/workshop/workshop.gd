@@ -34,7 +34,6 @@ var _game: Node
 @onready var _seam: StitchSeam = $Bag/Seam
 @onready var _shards_game: ShardsGame = $ShardsGame
 @onready var _rivets_game: RivetsGame = $RivetsGame
-@onready var _scales_game: ScalesGame = $ScalesGame
 @onready var _chain_game: ChainGame = $ChainGame
 @onready var _rune_game: RuneGame = $RuneGame
 @onready var _table_hint: Label = %TableHint
@@ -69,7 +68,6 @@ func _ready() -> void:
 		STITCH_GAME: _seam,
 		"shards": _shards_game,
 		"rivets": _rivets_game,
-		"scales": _scales_game,
 		"chain": _chain_game,
 		"runes": _rune_game,
 	}

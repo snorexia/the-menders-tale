@@ -1,6 +1,6 @@
 {
-  "_note": "Предметы, рецепты и лавка песочницы (#37, #51, #56). Не данные игры. items — по id: name, icon, description, not_for_sale (необязательно: в лавке не продать). start_items, start_coins — что есть на старте. grade_names — как называть итог вещи. material_bonus — сколько монет прибавляет к цене качество материала. recipes — что где можно сделать: station (smelter, anvil, workshop), name, needs, gives, gives_count (сколько штук, по умолчанию 1), blueprint (необязательно: рецепт виден, только если чертёж куплен), needs_count (сколько штук материала, по умолчанию 1), forge (сложность ковки: rings_per_stage, ring_shrink_time, ring_hit_from, ring_late_time, stages — картинки стадий, strike_area — [x, y, ширина, высота]), edge (сложность заточки: sharpen_time, snag_strength), price_by_forge и price_by_edge (цена: монеты за ковку плюс прибавка за заточку), price_by_stars (цена по звёздам починки), game (мини-игра верстака: stitch, shards, rivets, scales, chain, runes), hint, progress_label, tension_label (нет — шкала скрыта), mistake_text — тексты мини-игры, variants — варианты вещи, выпадают случайно, hint у варианта заменяет подсказку рецепта, price_bonus у варианта прибавляется к цене, grade_from_price (с какой цены вещь обычная и хорошая, ниже — плохая). blueprints — чертежи лавки: name, price. shop — goods: что продаёт лавка, sell_ratio: какую долю цены вещи она платит.",
-  "start_items": ["ore", "belt_torn", "jug_broken", "scales_broken", "mail_torn", "amulet_broken"],
+  "_note": "Предметы, рецепты и лавка песочницы (#37, #51, #56). Не данные игры. items — по id: name, icon, description, not_for_sale (необязательно: в лавке не продать). start_items, start_coins — что есть на старте. grade_names — как называть итог вещи. material_bonus — сколько монет прибавляет к цене качество материала. recipes — что где можно сделать: station (smelter, anvil, workshop), name, needs, gives, gives_count (сколько штук, по умолчанию 1), blueprint (необязательно: рецепт виден, только если чертёж куплен), needs_count (сколько штук материала, по умолчанию 1), forge (сложность ковки: rings_per_stage, ring_shrink_time, ring_hit_from, ring_late_time, stages — картинки стадий, strike_area — [x, y, ширина, высота]), edge (сложность заточки: sharpen_time, snag_strength), price_by_forge и price_by_edge (цена: монеты за ковку плюс прибавка за заточку), price_by_stars (цена по звёздам починки), game (мини-игра верстака: stitch, shards, rivets, chain, runes), hint, progress_label, tension_label (нет — шкала скрыта), mistake_text — тексты мини-игры, variants — варианты вещи, выпадают случайно, hint у варианта заменяет подсказку рецепта, price_bonus у варианта прибавляется к цене, grade_from_price (с какой цены вещь обычная и хорошая, ниже — плохая). blueprints — чертежи лавки: name, price. shop — goods: что продаёт лавка, sell_ratio: какую долю цены вещи она платит.",
+  "start_items": ["ore", "belt_torn", "jug_broken", "mail_torn", "amulet_broken"],
   "start_coins": 50,
   "grade_names": {"bad": "плохая вещь", "normal": "обычная вещь", "good": "хорошая вещь"},
   "material_bonus": {"Чистейший металл": 3, "Хороший металл": 1, "С примесями": 0, "Грязный металл": -2},
@@ -82,17 +82,6 @@
       "name": "Склеенный кувшин",
       "icon": "res://common/icons/jug_repaired_icon.png",
       "description": "Трещины видно, но вода не течёт. Можно продать в лавке."
-    },
-    "scales_broken": {
-      "name": "Сбитые весы",
-      "icon": "res://common/icons/scales_broken_icon.png",
-      "description": "Весы торговца врут. Выверь их на столе в мастерской.",
-      "not_for_sale": true
-    },
-    "scales_repaired": {
-      "name": "Выверенные весы",
-      "icon": "res://common/icons/scales_repaired_icon.png",
-      "description": "Теперь никого не обвесят. Можно продать в лавке."
     },
     "mail_torn": {
       "name": "Порванная кольчуга",
@@ -252,24 +241,6 @@
     },
     {
       "station": "workshop",
-      "name": "Весы торговца",
-      "needs": "scales_broken",
-      "gives": "scales_repaired",
-      "game": "scales",
-      "hint": "Клик по гирьке ставит или снимает её. Уравновесь мерку за меньшее число ходов",
-      "progress_label": "Мерки",
-      "tension_label": "Ходы",
-      "mistake_text": "Торговец уже косится: лишний ход",
-      "price_by_stars": {"1": 8, "2": 14, "3": 20},
-      "grade_from_price": {"normal": 14, "good": 20},
-      "variants": [
-        {"name": "лёгкие", "weights": [1, 2, 4], "rounds": 2, "par_moves": 4, "shows_amount": true},
-        {"name": "обычные", "weights": [1, 2, 4, 8], "rounds": 3, "par_moves": 5, "shows_amount": true, "price_bonus": 2},
-        {"name": "хитрые", "weights": [1, 3, 5, 7, 11], "rounds": 3, "par_moves": 6, "shows_amount": false, "price_bonus": 5, "hint": "Весы показывают только, какая чаша тяжелее. Подбери вес за меньшее число ходов"}
-      ]
-    },
-    {
-      "station": "workshop",
       "name": "Кольчуга рыцаря",
       "needs": "mail_torn",
       "gives": "mail_repaired",
@@ -298,9 +269,9 @@
       "grade_from_price": {"normal": 20, "good": 30},
       "variants": [
         {"name": "простой", "runes": 5, "length": 5},
-        {"name": "перемешка", "runes": 6, "length": 5, "shuffle": true, "price_bonus": 3, "hint": "Запомни сами руны: после показа они меняются местами"},
+        {"name": "длинный", "runes": 6, "length": 7, "price_bonus": 3},
         {"name": "наоборот", "runes": 5, "length": 5, "reversed": true, "price_bonus": 3, "hint": "Заклятие читается задом наперёд: повтори руны с последней до первой"},
-        {"name": "проклятый", "runes": 8, "length": 6, "shuffle": true, "same_color": true, "show_time": 0.45, "price_bonus": 8, "hint": "Проклятый амулет: цвета нет, руны меняются местами. Запоминай значки"}
+        {"name": "проклятый", "runes": 8, "length": 6, "same_color": true, "show_time": 0.45, "price_bonus": 6, "hint": "Проклятый амулет: у рун нет цвета. Запоминай значки"}
       ]
     }
   ],
@@ -309,7 +280,7 @@
     "axe_plan": {"name": "Чертёж топора", "price": 40}
   },
   "shop": {
-    "goods": [{"item": "ore", "price": 6}, {"item": "bag_torn", "price": 3}, {"item": "belt_torn", "price": 3}, {"item": "jug_broken", "price": 3}, {"item": "scales_broken", "price": 4}, {"item": "mail_torn", "price": 5}, {"item": "amulet_broken", "price": 6}],
+    "goods": [{"item": "ore", "price": 6}, {"item": "bag_torn", "price": 3}, {"item": "belt_torn", "price": 3}, {"item": "jug_broken", "price": 3}, {"item": "mail_torn", "price": 5}, {"item": "amulet_broken", "price": 6}],
     "sell_ratio": 0.5
   }
 }

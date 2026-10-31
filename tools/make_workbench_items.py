@@ -214,25 +214,6 @@ def make_broken_icon(icon: Image.Image) -> Image.Image:
     return colors
 
 
-def make_scales_icon() -> Image.Image:
-    size = ICON_SIZE * SUPERSAMPLE
-    icon = Image.new("RGBA", (size, size), (0, 0, 0, 0))
-    draw = ImageDraw.Draw(icon)
-    brass = (214, 165, 70, 255)
-    dark = (120, 84, 34, 255)
-    stroke = round(size * 0.05)
-    middle = size / 2
-    draw.line((middle, size * 0.16, middle, size * 0.86), fill=dark, width=stroke)
-    draw.line((size * 0.28, size * 0.88, size * 0.72, size * 0.88), fill=dark, width=stroke)
-    draw.line((size * 0.12, size * 0.22, size * 0.88, size * 0.22), fill=brass, width=stroke)
-    for pan_x in (size * 0.2, size * 0.8):
-        draw.line((pan_x, size * 0.22, pan_x - size * 0.13, size * 0.55), fill=brass, width=stroke // 2)
-        draw.line((pan_x, size * 0.22, pan_x + size * 0.13, size * 0.55), fill=brass, width=stroke // 2)
-        box = (pan_x - size * 0.17, size * 0.44, pan_x + size * 0.17, size * 0.68)
-        draw.chord(box, 0, 180, fill=brass)
-    return icon.resize((ICON_SIZE, ICON_SIZE), Image.Resampling.LANCZOS)
-
-
 def make_belt() -> Image.Image:
     """Ремень: кожа сумки дизайнера, строчка, пряжка, дырки на конце."""
     width, height = BELT_SIZE
@@ -298,10 +279,6 @@ def main() -> None:
     torn.save(WORKSHOP_DIR / "belt_torn.png")
     make_icon(belt).save(ICONS_DIR / "belt_repaired_icon.png")
     make_icon(torn).save(ICONS_DIR / "belt_torn_icon.png")
-
-    scales = make_scales_icon()
-    scales.save(ICONS_DIR / "scales_repaired_icon.png")
-    make_broken_icon(scales).save(ICONS_DIR / "scales_broken_icon.png")
 
     for icon_name, (source_name, broken_word) in REPAIR_ICONS.items():
         icon = find_icon(icon_source, source_name)
