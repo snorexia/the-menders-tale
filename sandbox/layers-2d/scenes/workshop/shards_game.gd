@@ -37,6 +37,8 @@ const CRACK_WIDTH := 3.0
 
 @export_group("Вид")
 @export var ghost_color: Color = Color(0.05, 0.03, 0.02, 0.55)
+## Контур с подсказкой: рисунок кувшина еле виден.
+@export var picture_color: Color = Color(1.0, 1.0, 1.0, 0.3)
 @export var crack_color: Color = Color(1.0, 0.8, 0.3, 0.35)
 @export var held_color: Color = Color(1.25, 1.25, 1.1)
 
@@ -111,7 +113,7 @@ func _draw() -> void:
 		draw_polyline(line, crack_color, CRACK_WIDTH, true)
 
 
-## Начать по варианту: texture, pieces, glue_time, rotate, show_cracks, price_bonus.
+## Начать по варианту: texture, pieces, glue_time, rotate, show_cracks, show_picture, price_bonus.
 func start(variant: Dictionary) -> void:
 	var texture: Texture2D = load(variant.get("texture", ""))
 	_can_rotate = variant.get("rotate", false)
@@ -125,7 +127,8 @@ func start(variant: Dictionary) -> void:
 		sprite.position = board_center
 		sprite.scale = Vector2.ONE * _scale
 
-	_ghost.modulate = ghost_color
+	var shows_picture: bool = variant.get("show_picture", false)
+	_ghost.modulate = picture_color if shows_picture else ghost_color
 	_whole.modulate.a = 0.0
 	_build_shards(texture, int(variant.get("pieces", 6)))
 	_scatter_shards()
@@ -295,10 +298,13 @@ func _add_shard(texture: Texture2D, polygon: PackedVector2Array, size: Vector2) 
 
 func _scatter_shards() -> void:
 	_shards.shuffle()
+	# Осколки лежат столбиками слева и справа, чтобы не закрывали друг друга.
+	var row_count := ceili(_shards.size() / 2.0)
 	for shard_index in _shards.size():
 		var shard := _shards[shard_index]
 		var area := scatter_left if shard_index % 2 == 0 else scatter_right
-		var share := Vector2(randf(), randf())
+		var row_share := (floorf(shard_index / 2.0) + 0.5) / row_count
+		var share := Vector2(randf(), row_share)
 		shard.position = area.position + area.size * share
 		if _can_rotate:
 			shard.rotation = randi_range(1, ROTATE_STEPS - 1) * ROTATE_STEP

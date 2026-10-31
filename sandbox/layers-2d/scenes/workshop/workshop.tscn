@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=3]
+[gd_scene load_steps=25 format=3]
 
 [ext_resource type="Script" path="res://scenes/workshop/workshop.gd" id="1_workshop"]
 [ext_resource type="Texture2D" path="res://scenes/workshop/workshop_background.webp" id="2_background"]
@@ -12,6 +12,9 @@
 [ext_resource type="Script" path="res://scenes/workshop/shards_game.gd" id="11_shards"]
 [ext_resource type="Script" path="res://scenes/workshop/rivets_game.gd" id="12_rivets"]
 [ext_resource type="Texture2D" path="res://scenes/workshop/belt_torn.png" id="13_belt"]
+[ext_resource type="Script" path="res://scenes/workshop/scales_game.gd" id="14_scales"]
+[ext_resource type="Script" path="res://scenes/workshop/chain_game.gd" id="15_chain"]
+[ext_resource type="Script" path="res://scenes/workshop/rune_game.gd" id="16_runes"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
 content_margin_left = 48.0
@@ -125,6 +128,15 @@ script = ExtResource("12_rivets")
 
 [node name="Belt" type="Sprite2D" parent="RivetsGame"]
 texture = ExtResource("13_belt")
+
+[node name="ScalesGame" type="Node2D" parent="."]
+script = ExtResource("14_scales")
+
+[node name="ChainGame" type="Node2D" parent="."]
+script = ExtResource("15_chain")
+
+[node name="RuneGame" type="Node2D" parent="."]
+script = ExtResource("16_runes")
 
 [node name="UI" type="CanvasLayer" parent="."]
 layer = 2

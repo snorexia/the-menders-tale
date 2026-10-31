@@ -34,6 +34,9 @@ var _game: Node
 @onready var _seam: StitchSeam = $Bag/Seam
 @onready var _shards_game: ShardsGame = $ShardsGame
 @onready var _rivets_game: RivetsGame = $RivetsGame
+@onready var _scales_game: ScalesGame = $ScalesGame
+@onready var _chain_game: ChainGame = $ChainGame
+@onready var _rune_game: RuneGame = $RuneGame
 @onready var _table_hint: Label = %TableHint
 @onready var _repair_panel: Control = %RepairPanel
 @onready var _recipes: RecipeMenu = %Recipes
@@ -62,7 +65,14 @@ func _ready() -> void:
 	_table_area.clicked.connect(_on_table_area_clicked)
 	_recipes.recipe_chosen.connect(_on_recipe_chosen)
 	_again_button.pressed.connect(get_tree().reload_current_scene)
-	_games = {STITCH_GAME: _seam, "shards": _shards_game, "rivets": _rivets_game}
+	_games = {
+		STITCH_GAME: _seam,
+		"shards": _shards_game,
+		"rivets": _rivets_game,
+		"scales": _scales_game,
+		"chain": _chain_game,
+		"runes": _rune_game,
+	}
 	for game: Node in _games.values():
 		game.finished.connect(_on_game_finished)
 		game.mistake_made.connect(_on_game_mistake_made)
@@ -83,9 +93,9 @@ func _make_stars_text(stars: int) -> String:
 	return STAR_FILLED.repeat(stars) + STAR_EMPTY.repeat(STARS_MAX - stars)
 
 
-func _show_game_ui() -> void:
+func _show_game_ui(variant: Dictionary) -> void:
 	var tension_text: String = _recipe.get("tension_label", "")
-	_game_hint.text = _recipe.get("hint", "")
+	_game_hint.text = variant.get("hint", _recipe.get("hint", ""))
 	_progress_label.text = _recipe.get("progress_label", "")
 	_tension_label.text = tension_text
 	_tension_label.visible = not tension_text.is_empty()
@@ -114,8 +124,9 @@ func _on_recipe_chosen(recipe: Dictionary) -> void:
 		await tween.finished
 
 	var variants: Array = recipe.get("variants", [])
-	_show_game_ui()
-	_game.start(SandboxState.pick_variant(recipe.get("gives", ""), variants))
+	var variant := SandboxState.pick_variant(recipe.get("gives", ""), variants)
+	_show_game_ui(variant)
+	_game.start(variant)
 
 
 func _on_game_mistake_made() -> void:
