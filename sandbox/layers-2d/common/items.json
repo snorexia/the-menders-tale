@@ -1,6 +1,6 @@
 {
-  "_note": "Предметы, рецепты и лавка песочницы (#37, #51, #56). Не данные игры. items — по id: name, icon, description, not_for_sale (необязательно: в лавке не продать). start_items, start_coins — что есть на старте. grade_names — как называть итог вещи. material_bonus — сколько монет прибавляет к цене качество материала. recipes — что где можно сделать: station (smelter, anvil, workshop), name, needs, gives, gives_count (сколько штук, по умолчанию 1), blueprint (необязательно: рецепт виден, только если чертёж куплен), price_by_forge и price_by_edge (цена: монеты за ковку плюс прибавка за заточку), price_by_stars (цена по звёздам подшива), grade_from_price (с какой цены вещь обычная и хорошая, ниже — плохая). blueprints — чертежи лавки: name, price. shop — goods: что продаёт лавка, sell_ratio: какую долю цены вещи она платит.",
-  "start_items": ["ore"],
+  "_note": "Предметы, рецепты и лавка песочницы (#37, #51, #56). Не данные игры. items — по id: name, icon, description, not_for_sale (необязательно: в лавке не продать). start_items, start_coins — что есть на старте. grade_names — как называть итог вещи. material_bonus — сколько монет прибавляет к цене качество материала. recipes — что где можно сделать: station (smelter, anvil, workshop), name, needs, gives, gives_count (сколько штук, по умолчанию 1), blueprint (необязательно: рецепт виден, только если чертёж куплен), needs_count (сколько штук материала, по умолчанию 1), forge (сложность ковки: rings_per_stage, ring_shrink_time, ring_hit_from, ring_late_time, stages — картинки стадий, strike_area — [x, y, ширина, высота]), edge (сложность заточки: sharpen_time, snag_strength), price_by_forge и price_by_edge (цена: монеты за ковку плюс прибавка за заточку), price_by_stars (цена по звёздам починки), game (мини-игра верстака: stitch, shards, rivets), hint, progress_label, tension_label (нет — шкала скрыта), mistake_text — тексты мини-игры, variants — варианты вещи, выпадают случайно, price_bonus у варианта прибавляется к цене, grade_from_price (с какой цены вещь обычная и хорошая, ниже — плохая). blueprints — чертежи лавки: name, price. shop — goods: что продаёт лавка, sell_ratio: какую долю цены вещи она платит.",
+  "start_items": ["ore", "belt_torn", "jug_broken"],
   "start_coins": 0,
   "grade_names": {"bad": "плохая вещь", "normal": "обычная вещь", "good": "хорошая вещь"},
   "material_bonus": {"Чистейший металл": 3, "Хороший металл": 1, "С примесями": 0, "Грязный металл": -2},
@@ -15,10 +15,30 @@
       "icon": "res://common/icons/iron_ingot.png",
       "description": "Материал для ковки. Чем чище металл, тем дороже вещь."
     },
+    "sword_short": {
+      "name": "Короткий меч",
+      "icon": "res://common/icons/sword_short.png",
+      "description": "Самый простой в ковке и самый дешёвый."
+    },
     "sword": {
       "name": "Обычный меч",
       "icon": "res://common/icons/sword.png",
       "description": "Простой одноручный меч."
+    },
+    "sabre": {
+      "name": "Сабля",
+      "icon": "res://common/icons/sabre.png",
+      "description": "Изогнутый клинок. Круги сжимаются быстро."
+    },
+    "sword_long": {
+      "name": "Длинный меч",
+      "icon": "res://common/icons/sword_long.png",
+      "description": "Много ударов, узкое окно попадания."
+    },
+    "greatsword": {
+      "name": "Двуручный меч",
+      "icon": "res://common/icons/greatsword.png",
+      "description": "Два слитка и самая трудная ковка, зато дорогой."
     },
     "dagger": {
       "name": "Кинжал",
@@ -33,18 +53,50 @@
     "bag_torn": {
       "name": "Порванная сумка",
       "icon": "res://common/icons/bag_torn_icon.png",
-      "description": "Подшей её на столе в мастерской.",
+      "description": "Подшей её на столе в мастерской. Разрыв каждый раз другой.",
       "not_for_sale": true
     },
     "bag_repaired": {
       "name": "Подшитая сумка",
       "icon": "res://common/icons/bag_repaired_icon.png",
-      "description": "Как новая. Верни её хозяину.",
+      "description": "Как новая. Верни хозяину или продай в лавке."
+    },
+    "belt_torn": {
+      "name": "Рваный ремень",
+      "icon": "res://common/icons/belt_torn_icon.png",
+      "description": "Заклепай его на столе в мастерской.",
       "not_for_sale": true
+    },
+    "belt_repaired": {
+      "name": "Заклёпанный ремень",
+      "icon": "res://common/icons/belt_repaired_icon.png",
+      "description": "Держит крепко. Можно продать в лавке."
+    },
+    "jug_broken": {
+      "name": "Разбитый кувшин",
+      "icon": "res://common/icons/jug_broken_icon.png",
+      "description": "Склей его на столе в мастерской.",
+      "not_for_sale": true
+    },
+    "jug_repaired": {
+      "name": "Склеенный кувшин",
+      "icon": "res://common/icons/jug_repaired_icon.png",
+      "description": "Трещины видно, но вода не течёт. Можно продать в лавке."
     }
   },
   "recipes": [
     {"station": "smelter", "name": "Железные слитки", "needs": "ore", "gives": "ingot", "gives_count": 4},
+    {
+      "station": "anvil",
+      "name": "Короткий меч",
+      "needs": "ingot",
+      "gives": "sword_short",
+      "forge": {"rings_per_stage": 2, "ring_shrink_time": 0.65, "ring_hit_from": 0.7, "ring_late_time": 0.3, "stages": ["res://scenes/anvil/sword_short_bar.webp", "res://scenes/anvil/sword_short_rough.webp", "res://scenes/anvil/sword_short_blade.webp"], "strike_area": [689, 469, 563, 55]},
+      "edge": {"sharpen_time": 3.0, "snag_strength": 0.16},
+      "price_by_forge": {"Высокая рарность": 10, "Хорошее качество": 7, "Плохое качество": 5, "Мусор": 3},
+      "price_by_edge": {"средне": -2, "хорошо": 1, "отлично": 3},
+      "grade_from_price": {"normal": 6, "good": 9}
+    },
     {
       "station": "anvil",
       "name": "Обычный меч",
@@ -53,6 +105,40 @@
       "price_by_forge": {"Высокая рарность": 15, "Хорошее качество": 10, "Плохое качество": 7, "Мусор": 4},
       "price_by_edge": {"средне": -2, "хорошо": 1, "отлично": 3},
       "grade_from_price": {"normal": 8, "good": 14}
+    },
+    {
+      "station": "anvil",
+      "name": "Сабля",
+      "needs": "ingot",
+      "gives": "sabre",
+      "forge": {"rings_per_stage": 3, "ring_shrink_time": 0.42, "ring_hit_from": 0.78, "stages": ["res://scenes/anvil/sword_sabre_bar.webp", "res://scenes/anvil/sword_sabre_rough.webp", "res://scenes/anvil/sword_sabre_blade.webp"], "strike_area": [459, 428, 815, 95]},
+      "edge": {"sharpen_time": 5.0, "snag_strength": 0.26},
+      "price_by_forge": {"Высокая рарность": 20, "Хорошее качество": 14, "Плохое качество": 10, "Мусор": 5},
+      "price_by_edge": {"средне": -2, "хорошо": 1, "отлично": 3},
+      "grade_from_price": {"normal": 11, "good": 18}
+    },
+    {
+      "station": "anvil",
+      "name": "Длинный меч",
+      "needs": "ingot",
+      "gives": "sword_long",
+      "forge": {"rings_per_stage": 4, "ring_shrink_time": 0.5, "ring_hit_from": 0.82, "stages": ["res://scenes/anvil/sword_long_bar.webp", "res://scenes/anvil/sword_long_rough.webp", "res://scenes/anvil/sword_long_blade.webp"], "strike_area": [390, 469, 907, 55]},
+      "edge": {"sharpen_time": 5.5, "snag_strength": 0.26},
+      "price_by_forge": {"Высокая рарность": 26, "Хорошее качество": 18, "Плохое качество": 12, "Мусор": 6},
+      "price_by_edge": {"средне": -2, "хорошо": 1, "отлично": 3},
+      "grade_from_price": {"normal": 13, "good": 24}
+    },
+    {
+      "station": "anvil",
+      "name": "Двуручный меч",
+      "needs": "ingot",
+      "needs_count": 2,
+      "gives": "greatsword",
+      "forge": {"rings_per_stage": 5, "ring_shrink_time": 0.42, "ring_hit_from": 0.85, "ring_late_time": 0.2, "stages": ["res://scenes/anvil/sword_great_bar.webp", "res://scenes/anvil/sword_great_rough.webp", "res://scenes/anvil/sword_great_blade.webp"], "strike_area": [373, 469, 936, 55]},
+      "edge": {"sharpen_time": 6.5, "snag_strength": 0.3},
+      "price_by_forge": {"Высокая рарность": 40, "Хорошее качество": 28, "Плохое качество": 18, "Мусор": 8},
+      "price_by_edge": {"средне": -2, "хорошо": 1, "отлично": 3},
+      "grade_from_price": {"normal": 20, "good": 36}
     },
     {
       "station": "anvil",
@@ -79,8 +165,57 @@
       "name": "Кожаная сумка",
       "needs": "bag_torn",
       "gives": "bag_repaired",
+      "game": "stitch",
+      "hint": "Зажми кнопку у мигающего кружка и веди иглу по пунктиру, не спеша",
+      "progress_label": "Шов",
+      "tension_label": "Натяжение нитки",
+      "mistake_text": "Нитка порвалась! Подхвати шов снова",
       "price_by_stars": {"1": 8, "2": 14, "3": 20},
-      "grade_from_price": {"normal": 14, "good": 20}
+      "grade_from_price": {"normal": 14, "good": 20},
+      "variants": [
+        {"name": "прямой", "points": [[500, 240], [800, 340], [1160, 450]]},
+        {"name": "дуга", "smooth": true, "price_bonus": 1, "points": [[470, 500], [540, 350], [700, 250], [880, 225], [1050, 270], [1180, 390]]},
+        {"name": "зигзаг", "price_bonus": 4, "max_deviation": 38, "points": [[470, 230], [610, 350], [750, 225], [890, 350], [1030, 225], [1180, 350]]},
+        {"name": "угол", "price_bonus": 2, "points": [[480, 190], [850, 190], [860, 470], [1170, 500]]},
+        {"name": "змейка", "smooth": true, "price_bonus": 3, "max_deviation": 40, "points": [[1190, 190], [900, 170], [680, 240], [860, 340], [1130, 370], [1000, 490], [660, 480], [470, 400]]},
+        {"name": "низ сумки", "smooth": true, "price_bonus": 2, "points": [[540, 760], [640, 670], [760, 750], [880, 680], [960, 760], [1090, 800]]}
+      ]
+    },
+    {
+      "station": "workshop",
+      "name": "Кожаный ремень",
+      "needs": "belt_torn",
+      "gives": "belt_repaired",
+      "game": "rivets",
+      "hint": "Клик или пробел — удар. Бей, когда бегунок в зелёной зоне",
+      "progress_label": "Заклёпки",
+      "mistake_text": "Заклёпка погнулась! Бей ещё раз",
+      "price_by_stars": {"1": 7, "2": 12, "3": 18},
+      "grade_from_price": {"normal": 12, "good": 18},
+      "variants": [
+        {"name": "ряд", "speed": 0.7, "zone": 0.11, "rivets": [[-170, 0], [-60, 0], [60, 0], [170, 0]]},
+        {"name": "два ряда", "speed": 0.8, "zone": 0.1, "price_bonus": 2, "rivets": [[-170, -40], [-60, -40], [60, -40], [170, -40], [-170, 40], [-60, 40], [60, 40], [170, 40]]},
+        {"name": "зигзаг", "speed": 0.85, "zone": 0.09, "price_bonus": 2, "rivets": [[-180, -40], [-90, 40], [0, -40], [90, 40], [180, -40]]},
+        {"name": "крест", "speed": 1.0, "zone": 0.08, "price_bonus": 4, "rivets": [[0, 0], [-110, -40], [110, 40], [-110, 40], [110, -40], [-190, 0], [190, 0]]}
+      ]
+    },
+    {
+      "station": "workshop",
+      "name": "Глиняный кувшин",
+      "needs": "jug_broken",
+      "gives": "jug_repaired",
+      "game": "shards",
+      "hint": "Тащи осколки на контур. Колесо мыши или клавиша R поворачивают осколок",
+      "progress_label": "Осколки",
+      "tension_label": "Клей сохнет",
+      "mistake_text": "Не подходит! Посмотри на форму и поворот",
+      "price_by_stars": {"1": 8, "2": 15, "3": 22},
+      "grade_from_price": {"normal": 15, "good": 22},
+      "variants": [
+        {"name": "горшок", "texture": "res://scenes/workshop/jug_pot.png", "pieces": 6, "glue_time": 40, "show_cracks": true},
+        {"name": "амфора", "texture": "res://scenes/workshop/jug_amphora.png", "pieces": 8, "glue_time": 50, "rotate": true, "show_cracks": true, "price_bonus": 2},
+        {"name": "ваза", "texture": "res://scenes/workshop/jug_vase.png", "pieces": 10, "glue_time": 60, "rotate": true, "price_bonus": 5}
+      ]
     }
   ],
   "blueprints": {
@@ -88,7 +223,7 @@
     "axe_plan": {"name": "Чертёж топора", "price": 40}
   },
   "shop": {
-    "goods": [{"item": "ore", "price": 6}],
+    "goods": [{"item": "ore", "price": 6}, {"item": "bag_torn", "price": 3}, {"item": "belt_torn", "price": 3}, {"item": "jug_broken", "price": 3}],
     "sell_ratio": 0.5
   }
 }

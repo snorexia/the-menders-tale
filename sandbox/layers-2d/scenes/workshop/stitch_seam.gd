@@ -2,11 +2,12 @@ class_name StitchSeam
 extends Node2D
 ## Мини-игра подшива (песочница, #54): зажатой кнопкой мыши ведёшь иглу по пунктиру.
 ## Стежки ложатся там, где реально прошла игла: криво ведёшь — криво шьёшь.
+## Линию шва и её сложность задаёт вариант из `common/items.json`, разрыв рисуется кодом.
 ## Слишком далеко от линии или слишком быстро — нитка рвётся, шов откатывается на стежок.
 ## Координаты — в пикселях картинки сумки: узел стоит в её левом верхнем углу.
 
 signal finished(stars: int)
-signal thread_snapped
+signal mistake_made
 
 const DASH_LENGTH := 22.0
 const DASH_GAP := 16.0
@@ -19,6 +20,10 @@ const STARS_MAX := 3
 const THREAD_SEGMENTS := 8
 const THREAD_SAG := 26.0
 const PULSE_SPEED := 5.0
+const SMOOTH_PASSES := 3
+const TEAR_STEP := 14.0
+const TEAR_HALF_WIDTH := 15.0
+const TEAR_FRAY_WIDTH := 7.0
 
 ## Линия шва вдоль разрыва, в пикселях картинки.
 @export var path: PackedVector2Array = PackedVector2Array()
@@ -58,6 +63,8 @@ const PULSE_SPEED := 5.0
 @export var tense_thread_color: Color = Color(1.0, 0.25, 0.15)
 @export var thread_shadow_color: Color = Color(0.12, 0.07, 0.04, 0.8)
 @export var needle_color: Color = Color(0.86, 0.88, 0.92)
+@export var tear_color: Color = Color(0.05, 0.03, 0.02)
+@export var tear_edge_color: Color = Color(0.62, 0.42, 0.26)
 
 var _is_running: bool = false
 var _is_holding: bool = false
@@ -71,13 +78,9 @@ var _time: float = 0.0
 ## Стежки: {"position": ..., "angle": ..., "score": ..., "at": ...}.
 var _stitches: Array[Dictionary] = []
 var _lengths: PackedFloat32Array = PackedFloat32Array()
-
-
-func _ready() -> void:
-	_lengths.append(0.0)
-	for point_index in range(1, path.size()):
-		var segment := path[point_index].distance_to(path[point_index - 1])
-		_lengths.append(_lengths[point_index - 1] + segment)
+## Края разрыва вдоль шва: {"left": ..., "right": ..., "fray": ..., "normal": ...}.
+var _tear_points: Array[Dictionary] = []
+var _price_bonus: int = 0
 
 
 func _process(delta: float) -> void:
@@ -110,6 +113,7 @@ func _draw() -> void:
 	if path.size() < 2:
 		return
 
+	_draw_tear()
 	_draw_dashes()
 	for stitch in _stitches:
 		_draw_stitch(stitch)
@@ -119,8 +123,9 @@ func _draw() -> void:
 		_draw_thread_and_needle()
 
 
-## Начать шов сначала.
-func start() -> void:
+## Начать шов по варианту: points, smooth, max_deviation, price_bonus.
+func start(variant: Dictionary) -> void:
+	_use_variant(variant)
 	_stitches.clear()
 	_progress = 0.0
 	_next_stitch_at = stitch_spacing
@@ -161,6 +166,11 @@ func get_total_length() -> float:
 	return _lengths[-1] if not _lengths.is_empty() else 0.0
 
 
+## Сколько монет этот разрыв прибавляет к цене.
+func get_price_bonus() -> int:
+	return _price_bonus
+
+
 ## Сколько шва пройдено: доля от 0 до 1.
 func get_progress_ratio() -> float:
 	return _progress / maxf(get_total_length(), 1.0)
@@ -181,6 +191,59 @@ func get_stars() -> int:
 		stars = 2
 
 	return stars
+
+
+func _use_variant(variant: Dictionary) -> void:
+	var points := PackedVector2Array()
+	for point: Array in variant.get("points", []):
+		points.append(Vector2(point[0], point[1]))
+
+	if not points.is_empty():
+		path = _smoothed(points) if variant.get("smooth", false) else points
+
+	max_deviation = variant.get("max_deviation", max_deviation)
+	_price_bonus = int(variant.get("price_bonus", 0))
+	_lengths = PackedFloat32Array([0.0])
+	for point_index in range(1, path.size()):
+		var segment := path[point_index].distance_to(path[point_index - 1])
+		_lengths.append(_lengths[point_index - 1] + segment)
+
+	_build_tear()
+
+
+## Срезать углы линии несколько раз: она становится плавной, концы на месте.
+func _smoothed(points: PackedVector2Array) -> PackedVector2Array:
+	var result := points
+	for _pass_index in SMOOTH_PASSES:
+		var next := PackedVector2Array([result[0]])
+		for point_index in range(1, result.size()):
+			next.append(result[point_index - 1].lerp(result[point_index], 0.25))
+			next.append(result[point_index - 1].lerp(result[point_index], 0.75))
+
+		next.append(result[-1])
+		result = next
+
+	return result
+
+
+func _build_tear() -> void:
+	_tear_points.clear()
+	var total := get_total_length()
+	var count := maxi(int(total / TEAR_STEP), 2)
+	for step_index in count + 1:
+		var at := total * step_index / count
+		var point := _get_point_at(at)
+		var tangent := (_get_point_at(at + 1.0) - _get_point_at(at - 1.0)).normalized()
+		var normal := tangent.orthogonal()
+		# К концам разрыв сходится на нет, края рваные.
+		var width := TEAR_HALF_WIDTH * sqrt(sin(PI * step_index / count))
+		var tear_point := {
+			"left": point + normal * (width + randf_range(-3.0, 4.0)),
+			"right": point - normal * (width + randf_range(-3.0, 4.0)),
+			"fray": randf_range(0.5, 1.0) * TEAR_FRAY_WIDTH,
+			"normal": normal,
+		}
+		_tear_points.append(tear_point)
 
 
 func _get_accuracy() -> float:
@@ -223,7 +286,7 @@ func _snap() -> void:
 	_progress = _stitches[-1]["at"] if not _stitches.is_empty() else 0.0
 	_next_stitch_at = _progress + stitch_spacing
 	_needle_position = _get_point_at(_progress)
-	thread_snapped.emit()
+	mistake_made.emit()
 
 
 func _finish() -> void:
@@ -262,6 +325,20 @@ func _get_point_at(at: float) -> Vector2:
 			break
 
 	return point
+
+
+func _draw_tear() -> void:
+	for index in range(1, _tear_points.size()):
+		var before: Dictionary = _tear_points[index - 1]
+		var after: Dictionary = _tear_points[index]
+		var left_fray: Vector2 = after["normal"] * after["fray"]
+		var right_fray: Vector2 = after["normal"] * -after["fray"]
+		draw_line(before["left"], after["left"] + left_fray, tear_edge_color, 4.0)
+		draw_line(before["right"], after["right"] + right_fray, tear_edge_color, 4.0)
+		var middle_before: Vector2 = (before["left"] + before["right"]) / 2.0
+		var middle_after: Vector2 = (after["left"] + after["right"]) / 2.0
+		var width := maxf(before["left"].distance_to(before["right"]), 1.0)
+		draw_line(middle_before, middle_after, tear_color, width)
 
 
 func _draw_dashes() -> void:

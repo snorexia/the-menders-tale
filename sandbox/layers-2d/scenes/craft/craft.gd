@@ -45,6 +45,8 @@ func _ready() -> void:
 func _run_craft(recipe: Dictionary) -> void:
 	_recipe = recipe
 	_create_panel.hide()
+	_anvil.configure(recipe.get("forge", {}))
+	_grinder.configure(recipe.get("edge", {}))
 	_anvil.start()
 	var forge_rating: String = await _anvil.forged
 	_anvil.set_ui_visible(false)
@@ -70,7 +72,8 @@ func _finish(forge_rating: String, edge_rating: String) -> void:
 	var material := SandboxState.get_item_quality(needed_item)
 	var price := _get_price(forge_rating, edge_rating, material)
 	var grade := SandboxState.get_grade(_recipe, price)
-	if SandboxState.try_take_item(needed_item):
+	var needed_count := RecipeMenu.get_needed_count(_recipe)
+	if _try_take_material(needed_item, needed_count):
 		var quality := item_quality_format % [material, forge_rating.to_lower(), edge_rating]
 		SandboxState.add_item(crafted_item, quality, grade, price)
 
@@ -80,8 +83,19 @@ func _finish(forge_rating: String, edge_rating: String) -> void:
 	_forge_rating_label.text = forge_rating_format % forge_rating.to_lower()
 	_edge_rating_label.text = edge_rating_format % edge_rating
 	_price_label.text = price_format % [price, SandboxState.get_grade_name(grade)]
-	_again_button.visible = SandboxState.has_item(needed_item)
+	_again_button.visible = SandboxState.count_item(needed_item) >= needed_count
 	_result_card.show()
+
+
+## Забрать материал, только если его хватает целиком.
+func _try_take_material(item_id: String, count: int) -> bool:
+	if SandboxState.count_item(item_id) < count:
+		return false
+
+	for _index in count:
+		SandboxState.try_take_item(item_id)
+
+	return true
 
 
 ## Цена по рецепту: монеты за ковку, прибавка за заточку и за качество металла.

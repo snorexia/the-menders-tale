@@ -91,6 +91,23 @@ func _unhandled_input(event: InputEvent) -> void:
 	_active_ring.strike(get_global_mouse_position())
 
 
+## Сложность и картинки меча из рецепта (`forge` в `common/items.json`). Нет поля — как в сцене.
+func configure(settings: Dictionary) -> void:
+	rings_per_stage = int(settings.get("rings_per_stage", rings_per_stage))
+	ring_shrink_time = settings.get("ring_shrink_time", ring_shrink_time)
+	ring_hit_from = settings.get("ring_hit_from", ring_hit_from)
+	ring_late_time = settings.get("ring_late_time", ring_late_time)
+	var area: Array = settings.get("strike_area", [])
+	if not area.is_empty():
+		strike_area = Rect2(area[0], area[1], area[2], area[3])
+
+	var stage_paths: Array = settings.get("stages", [])
+	if not stage_paths.is_empty():
+		stage_textures.clear()
+		for stage_path: String in stage_paths:
+			stage_textures.append(load(stage_path))
+
+
 ## Начать ковку; по окончании — сигнал `forged` с оценкой.
 func start() -> void:
 	_hit_count = 0

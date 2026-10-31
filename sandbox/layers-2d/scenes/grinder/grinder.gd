@@ -117,6 +117,12 @@ func _unhandled_input(event: InputEvent) -> void:
 	_speed = minf(_speed + pedal_impulse, 1.0)
 
 
+## Сложность заточки из рецепта (`edge` в `common/items.json`). Нет поля — как в сцене.
+func configure(settings: Dictionary) -> void:
+	sharpen_time = settings.get("sharpen_time", sharpen_time)
+	snag_strength = settings.get("snag_strength", snag_strength)
+
+
 ## Предложить выбор «Сам» или «Быстро»; по окончании — сигнал `sharpened`.
 func start() -> void:
 	is_excellent = false

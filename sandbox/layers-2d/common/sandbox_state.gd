@@ -35,6 +35,8 @@ var known_blueprints: Array[String] = []
 var sell_ratio: float = 0.0
 
 var _item_infos: Dictionary = {}
+## Какой вариант вещи выпал в прошлый раз — по id вещи.
+var _last_variants: Dictionary[String, int] = {}
 var _grade_names: Dictionary = {}
 var _material_bonus: Dictionary = {}
 var _order_rounds: Array = []
@@ -74,6 +76,19 @@ func get_recipes(station: String) -> Array:
 			var is_available := blueprint.is_empty() or is_blueprint_known(blueprint)
 			return recipe.get("station") == station and is_available
 	)
+
+
+## Случайный вариант вещи: не тот же, что в прошлый раз. Вариантов нет — пусто.
+func pick_variant(item_id: String, variants: Array) -> Dictionary:
+	if variants.is_empty():
+		return {}
+
+	var index := randi() % variants.size()
+	if variants.size() > 1 and index == _last_variants.get(item_id, -1):
+		index = (index + 1 + randi() % (variants.size() - 1)) % variants.size()
+
+	_last_variants[item_id] = index
+	return variants[index]
 
 
 ## Описание предмета из `items.json`: name, icon, description.
