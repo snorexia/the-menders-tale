@@ -1,8 +1,9 @@
 extends Node2D
-## Крупный план наковальни с мини-игрой ковки (песочница, #25).
+## Наковальня в сцене создания, мини-игра ковки (песочница, #25, #51).
 ## Стадии сменяют картинку заготовки; на каждой по очереди сжимаются круги,
 ## клик в такт — удар засчитан. В конце качество меча — по доле попаданий.
-## Сначала выбираешь, что сковать (#37): рецепт тратит нагретую заготовку и даёт меч.
+
+signal forged(quality: String)
 
 const STAGE_FADE_TIME := 0.6
 const FEEDBACK_RISE := 50.0
@@ -11,14 +12,11 @@ const FEEDBACK_SIZE := Vector2(240, 48)
 const FLASH_ENERGY := 1.6
 const FLASH_TIME := 0.25
 const RING_PLACE_TRIES := 12
-const PERCENT := 100.0
-## Рецепты какого места показывать — `station` в `common/items.json`.
-const STATION := "anvil"
 
 ## Картинки стадий по порядку: заготовка → полоса → клинок.
 @export var stage_textures: Array[Texture2D] = []
 ## Сколько кругов на одной стадии.
-@export var rings_per_stage: int = 5
+@export var rings_per_stage: int = 3
 ## Где появляются круги — прямоугольник поверх заготовки, в пикселях сцены.
 @export var strike_area: Rect2 = Rect2(430, 470, 840, 75)
 ## Не ставить новый круг ближе этого к предыдущему, px.
@@ -33,7 +31,7 @@ const STATION := "anvil"
 @export var ring_start_radius: float = 150.0
 @export var ring_end_radius: float = 30.0
 ## Сколько секунд круг сжимается.
-@export var ring_shrink_time: float = 0.75
+@export var ring_shrink_time: float = 0.5
 ## С какой доли сжатия клик засчитывается: 0.8 — последние 20 % времени.
 @export_range(0.0, 1.0) var ring_hit_from: float = 0.8
 ## Сколько секунд сжатый круг ждёт клика.
@@ -46,14 +44,6 @@ const STATION := "anvil"
 @export var quality_names: PackedStringArray = PackedStringArray(
 	["Высокая рарность", "Хорошее качество", "Плохое качество", "Мусор"]
 )
-@export var quality_colors: PackedColorArray = PackedColorArray(
-	[
-		Color(1.0, 0.8, 0.3),
-		Color(0.55, 0.85, 1.0),
-		Color(0.85, 0.75, 0.65),
-		Color(0.6, 0.55, 0.5),
-	]
-)
 
 @export_group("Тексты")
 ## Вид всплывающих надписей «Точно!» и др.
@@ -64,15 +54,15 @@ const STATION := "anvil"
 @export var late_text: String = "Не успел"
 @export var hit_color: Color = Color(1.0, 0.9, 0.5)
 @export var fail_color: Color = Color(0.8, 0.7, 0.65)
-## Заголовок итога: перед названием рецепта.
-@export var result_title_prefix: String = "Выковано: "
-@export var item_added_prefix: String = "В инвентаре: "
+## Заголовок итога: перед оценкой ковки.
+@export var result_title_prefix: String = "Ковка: "
+## Сколько секунд показать оценку, прежде чем сообщить об итоге.
+@export var result_show_time: float = 1.2
 
 var _hit_count: int = 0
 var _strike_count: int = 0
 var _active_ring: StrikeRing
 var _last_ring_position: Vector2 = Vector2.ZERO
-var _recipe: Dictionary = {}
 
 @onready var _background: Sprite2D = $Background
 @onready var _next_background: Sprite2D = $NextBackground
@@ -80,21 +70,14 @@ var _recipe: Dictionary = {}
 @onready var _effects: Node2D = $Effects
 @onready var _hit_sparks: CPUParticles2D = $HitSparks
 @onready var _hit_flash: PointLight2D = $HitFlash
+@onready var _vignette_layer: CanvasLayer = $VignetteLayer
+@onready var _ui: CanvasLayer = $UI
 @onready var _title: Label = %Title
 @onready var _hint: Label = $UI/Hint
-@onready var _recipe_panel: Control = %RecipePanel
-@onready var _recipes: RecipeMenu = %Recipes
-@onready var _result_panel: Control = %ResultPanel
-@onready var _quality_label: Label = %QualityLabel
-@onready var _score_label: Label = %ScoreLabel
 
 
 func _ready() -> void:
-	_result_panel.hide()
-	_hint.hide()
-	_title.text = ""
-	_recipes.recipe_chosen.connect(_on_recipe_chosen)
-	_recipes.fill(STATION)
+	set_ui_visible(false)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -108,12 +91,35 @@ func _unhandled_input(event: InputEvent) -> void:
 	_active_ring.strike(get_global_mouse_position())
 
 
-func _start_forging() -> void:
+## Сложность и картинки меча из рецепта (`forge` в `common/items.json`). Нет поля — как в сцене.
+func configure(settings: Dictionary) -> void:
+	rings_per_stage = int(settings.get("rings_per_stage", rings_per_stage))
+	ring_shrink_time = settings.get("ring_shrink_time", ring_shrink_time)
+	ring_hit_from = settings.get("ring_hit_from", ring_hit_from)
+	ring_late_time = settings.get("ring_late_time", ring_late_time)
+	var area: Array = settings.get("strike_area", [])
+	if not area.is_empty():
+		strike_area = Rect2(area[0], area[1], area[2], area[3])
+
+	var stage_paths: Array = settings.get("stages", [])
+	if not stage_paths.is_empty():
+		stage_textures.clear()
+		for stage_path: String in stage_paths:
+			stage_textures.append(load(stage_path))
+
+
+## Начать ковку; по окончании — сигнал `forged` с оценкой.
+func start() -> void:
 	_hit_count = 0
 	_strike_count = 0
-	_recipe_panel.hide()
-	_hint.show()
+	set_ui_visible(true)
 	_run_stages()
+
+
+## Показать или скрыть интерфейс наковальни: слои экрана не подчиняются видимости узла.
+func set_ui_visible(value: bool) -> void:
+	_vignette_layer.visible = value
+	_ui.visible = value
 
 
 func _run_stages() -> void:
@@ -128,16 +134,14 @@ func _run_stages() -> void:
 			_count_strike(result)
 			await get_tree().create_timer(pause_between_rings).timeout
 
-	_show_result()
+	_finish_forging()
 
 
 func _show_stage(stage_index: int) -> void:
 	var stage_number := stage_index + 1
 	_title.text = "Ковка — стадия %d из %d" % [stage_number, stage_textures.size()]
-	if stage_index == 0:
-		_background.texture = stage_textures[stage_index]
-	else:
-		_fade_to_stage(stage_index)
+	# Первая стадия тоже проявляется: до ковки наковальня пуста.
+	_fade_to_stage(stage_index)
 
 
 func _fade_to_stage(stage_index: int) -> void:
@@ -233,18 +237,12 @@ func _show_feedback(text: String, color: Color, at_position: Vector2) -> void:
 	tween.chain().tween_callback(label.queue_free)
 
 
-func _show_result() -> void:
+func _finish_forging() -> void:
 	var hit_ratio := float(_hit_count) / maxf(_strike_count, 1.0)
-	var quality_index := _get_quality_index(hit_ratio)
-	var percent := roundi(hit_ratio * PERCENT)
-	var recipe_name: String = _recipe.get("name", "")
-	_title.text = result_title_prefix + recipe_name.to_lower()
-	_quality_label.text = quality_names[quality_index]
-	_quality_label.label_settings.font_color = quality_colors[quality_index]
-	_score_label.text = "Попаданий: %d из %d (%d %%)" % [_hit_count, _strike_count, percent]
-	_result_panel.show()
-	_hint.hide()
-	_craft(quality_names[quality_index])
+	var quality: String = quality_names[_get_quality_index(hit_ratio)]
+	_title.text = result_title_prefix + quality.to_lower()
+	await get_tree().create_timer(result_show_time).timeout
+	forged.emit(quality)
 
 
 func _get_quality_index(hit_ratio: float) -> int:
@@ -255,19 +253,3 @@ func _get_quality_index(hit_ratio: float) -> int:
 			break
 
 	return quality_index
-
-
-## Заготовка тратится только в конце: ушёл посреди ковки — она осталась.
-func _craft(quality: String) -> void:
-	if not SandboxState.try_take_item(_recipe.get("needs", "")):
-		return
-
-	var crafted_item: String = _recipe.get("gives", "")
-	SandboxState.add_item(crafted_item, quality)
-	var crafted_name: String = SandboxState.get_item_info(crafted_item).get("name", crafted_item)
-	SandboxHud.show_message(item_added_prefix + crafted_name.to_lower())
-
-
-func _on_recipe_chosen(recipe: Dictionary) -> void:
-	_recipe = recipe
-	_start_forging()

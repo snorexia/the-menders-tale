@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene load_steps=13 format=3]
 
 [ext_resource type="Script" path="res://common/hud.gd" id="1_hud"]
 [ext_resource type="Texture2D" path="res://common/icons/gold_coin.png" id="2_coin"]
@@ -69,10 +69,24 @@ font_color = Color(1, 0.92, 0.8, 1)
 outline_size = 10
 outline_color = Color(0, 0, 0, 0.8)
 
+[sub_resource type="LabelSettings" id="LabelSettings_quest_title"]
+font_size = 30
+font_color = Color(1, 0.88, 0.5, 1)
+outline_size = 8
+outline_color = Color(0, 0, 0, 0.8)
+
+[sub_resource type="LabelSettings" id="LabelSettings_quest_step"]
+font_size = 26
+font_color = Color(1, 0.95, 0.85, 1)
+outline_size = 8
+outline_color = Color(0, 0, 0, 0.8)
+
 [node name="SandboxHud" type="CanvasLayer"]
 layer = 10
 script = ExtResource("1_hud")
 slot_style = SubResource("StyleBoxFlat_slot")
+quest_title_settings = SubResource("LabelSettings_quest_title")
+quest_step_settings = SubResource("LabelSettings_quest_step")
 
 [node name="Root" type="Control" parent="."]
 layout_mode = 3
@@ -113,6 +127,20 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "0"
 label_settings = SubResource("LabelSettings_coins")
+
+[node name="QuestList" type="VBoxContainer" parent="Root"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -600.0
+offset_top = 112.0
+offset_right = -36.0
+offset_bottom = 112.0
+grow_horizontal = 0
+mouse_filter = 2
+theme_override_constants/separation = 4
 
 [node name="InventoryButton" type="TextureButton" parent="Root"]
 unique_name_in_owner = true
@@ -163,7 +191,7 @@ layout_mode = 2
 mouse_filter = 2
 theme_override_constants/h_separation = 10
 theme_override_constants/v_separation = 10
-columns = 4
+columns = 6
 
 [node name="MessageLabel" type="Label" parent="Root"]
 unique_name_in_owner = true

@@ -1,0 +1,35 @@
+{
+  "_note": "Песочница (#56): путник ждёт кинжал. Не канон сценария. Формат — как в guard_order_dialogue.json.",
+  "start": "ask",
+  "nodes": {
+    "ask": {
+      "speaker": "Путник",
+      "text": "Как там мой кинжал?",
+      "choices": [
+        {"text": "Держи, готов.", "needs_item": "dagger", "missing_text": "  (кинжала ещё нет)", "take_item": "dagger", "pay_item_price": true, "complete_quest": "traveller_dagger", "next_by_grade": {"good": "thanks_good", "normal": "thanks", "bad": "thanks_bad"}},
+        {"text": "Сейчас вернусь."}
+      ]
+    },
+    "thanks_good": {
+      "speaker": "Путник",
+      "text": "[color=#86603c][i](срезает волосок с рукава)[/i][/color]\nС таким и ночевать в лесу не страшно. [i]Получено монет: {coins}[/i]",
+      "choices": [
+        {"text": "Доброй дороги.", "event": "traveller_leave"}
+      ]
+    },
+    "thanks": {
+      "speaker": "Путник",
+      "text": "Ладный кинжал. Спасибо, мастер. [i]Получено монет: {coins}[/i]",
+      "choices": [
+        {"text": "Доброй дороги.", "event": "traveller_leave"}
+      ]
+    },
+    "thanks_bad": {
+      "speaker": "Путник",
+      "text": "[color=#86603c][i](с сомнением пробует лезвие)[/i][/color]\nХлеб им резать можно. Разбойников — вряд ли. [i]Получено монет: {coins}[/i]",
+      "choices": [
+        {"text": "Доброй дороги.", "event": "traveller_leave"}
+      ]
+    }
+  }
+}

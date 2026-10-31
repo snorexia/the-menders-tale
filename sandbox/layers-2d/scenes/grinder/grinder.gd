@@ -1,29 +1,35 @@
 extends Node2D
-## Крупный план точильного колеса с мини-игрой «педаль и скорость» (песочница, #42).
+## Точильное колесо в сцене создания, мини-игра «педаль и скорость» (песочница, #42, #51).
 ## Клик или пробел жмёт педаль — колесо разгоняется, без кликов замедляется.
-## Скорость в зелёной зоне — меч точится; выше зоны клинок греется. Перегрел —
-## меч остался незаточенным, можно ещё раз. Заточил — незаточенный меч становится
-## обычным с тем же качеством ковки. Сначала выбираешь рецепт: что точим и что получаем —
-## в `common/items.json`.
+## Скорость в зелёной зоне — меч точится; выше зоны клинок греется. Камень время от времени
+## заедает: скорость вдруг скачет. Заточил — оценка: почти не выходил из зоны — отлично,
+## иначе хорошо. Перегрел — «Ещё раз» или оставить среднюю.
+## Сначала выбор на самом колесе: «Сам» — мини-игра, «Быстро» — сразу средняя заточка.
+
+signal sharpened(rating: String)
 
 const PERCENT := 100.0
 const HINT_FADE_TIME := 1.0
-## Рецепты какого места показывать — `station` в `common/items.json`.
-const STATION := "grinder"
 
 ## Насколько разгоняет одно нажатие педали: доля полной скорости.
-@export var pedal_impulse: float = 0.12
+@export var pedal_impulse: float = 0.13
 ## Насколько колесо замедляется само: доля полной скорости в секунду.
-@export var friction: float = 0.28
+@export var friction: float = 0.3
 ## Зелёная зона скорости: от и до, доли шкалы.
-@export_range(0.0, 1.0) var good_from: float = 0.45
-@export_range(0.0, 1.0) var good_to: float = 0.75
+@export_range(0.0, 1.0) var good_from: float = 0.5
+@export_range(0.0, 1.0) var good_to: float = 0.72
 ## Сколько секунд в зелёной зоне нужно, чтобы заточить.
-@export var sharpen_time: float = 5.0
+@export var sharpen_time: float = 4.5
 ## Сколько секунд выше зоны выдерживает клинок.
 @export var overheat_limit: float = 1.5
 ## Как быстро клинок остывает, когда скорость не выше зоны: доля от нагрева.
 @export var cool_rate: float = 0.5
+## Как часто камень заедает, с: случайно от и до. И на сколько скачет скорость, доля шкалы.
+@export var snag_interval_min: float = 0.9
+@export var snag_interval_max: float = 1.7
+@export var snag_strength: float = 0.22
+## «Отлично», если вне зелёной зоны провёл не больше стольких секунд.
+@export var excellent_off_zone_time: float = 0.6
 ## Оборотов колеса в секунду на полной скорости — только для вида.
 @export var max_turns_per_second: float = 2.5
 
@@ -35,18 +41,25 @@ const STATION := "grinder"
 
 @export_group("Тексты")
 @export var too_fast_text: String = "Слишком быстро — клинок греется!"
-@export var sharpened_text: String = "Меч заточен"
 @export var overheated_text: String = "Перегрел — меч не заточен"
-@export var sharpened_color: Color = Color(0.55, 0.85, 1.0)
-@export var overheated_color: Color = Color(1.0, 0.5, 0.35)
-@export var item_added_prefix: String = "В инвентаре: "
+@export var excellent_text: String = "отлично"
+@export var good_text: String = "хорошо"
+## Оценка без мини-игры и после отказа от новой попытки.
+@export var medium_text: String = "средне"
+
+## Заточка вышла отличной — читает сцена создания после `sharpened`.
+var is_excellent: bool = false
 
 var _speed: float = 0.0
 var _sharpness: float = 0.0
 var _overheat: float = 0.0
-var _is_finished: bool = false
-var _recipe: Dictionary = {}
+var _off_zone_time: float = 0.0
+var _snag_left: float = 0.0
+var _has_reached_zone: bool = false
+var _is_running: bool = false
 
+@onready var _vignette_layer: CanvasLayer = $VignetteLayer
+@onready var _ui: CanvasLayer = $UI
 @onready var _wheel_spin: WheelSpin = $Background/WheelSpin
 @onready var _blade_glow: Polygon2D = $Background/BladeGlow
 @onready var _sparks: CPUParticles2D = $Background/Sparks
@@ -54,37 +67,41 @@ var _recipe: Dictionary = {}
 @onready var _good_zone: Control = %GoodZone
 @onready var _sharpness_bar: ProgressBar = %SharpnessBar
 @onready var _status_label: Label = %StatusLabel
-@onready var _hint: Label = $UI/Hint
-@onready var _recipe_panel: Control = %RecipePanel
-@onready var _recipes: RecipeMenu = %Recipes
+@onready var _choice_panel: Control = %ChoicePanel
+@onready var _by_hand_button: Button = %ByHandButton
+@onready var _fast_button: Button = %FastButton
 @onready var _result_panel: Control = %ResultPanel
 @onready var _quality_label: Label = %QualityLabel
 @onready var _score_label: Label = %ScoreLabel
 @onready var _retry_button: Button = %RetryButton
+@onready var _medium_button: Button = %MediumButton
 
 
 func _ready() -> void:
-	_retry_button.pressed.connect(_start_sharpening)
+	_retry_button.pressed.connect(_reset)
+	_medium_button.pressed.connect(_finish_with_medium)
+	_fast_button.pressed.connect(_finish_with_medium)
+	_by_hand_button.pressed.connect(_reset)
 	_good_zone.anchor_left = good_from
 	_good_zone.anchor_right = good_to
 	# Заливку шкалы перекрашиваем по скорости — у сцены своя копия стиля.
 	var fill_style: StyleBox = _speed_bar.get_theme_stylebox("fill").duplicate()
 	_speed_bar.add_theme_stylebox_override("fill", fill_style)
-	_start_sharpening()
-	_hint.hide()
-	_recipes.recipe_chosen.connect(_on_recipe_chosen)
-	_recipes.fill(STATION)
+	set_ui_visible(false)
 
 
 func _process(delta: float) -> void:
 	_speed = maxf(_speed - friction * delta, 0.0)
-	if not _is_finished and not _recipe.is_empty():
+	if _is_running:
 		_grind(delta)
 
 	_update_visuals()
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if not _is_running:
+		return
+
 	var mouse_event := event as InputEventMouseButton
 	var key_event := event as InputEventKey
 	var is_click := (
@@ -93,24 +110,53 @@ func _unhandled_input(event: InputEvent) -> void:
 	var is_space := (
 		key_event != null and key_event.pressed and not key_event.echo and key_event.keycode == KEY_SPACE
 	)
-	if _recipe.is_empty() or (not is_click and not is_space):
+	if not is_click and not is_space:
 		return
 
 	get_viewport().set_input_as_handled()
-	if not _is_finished:
-		_speed = minf(_speed + pedal_impulse, 1.0)
+	_speed = minf(_speed + pedal_impulse, 1.0)
 
 
-func _start_sharpening() -> void:
+## Сложность заточки из рецепта (`edge` в `common/items.json`). Нет поля — как в сцене.
+func configure(settings: Dictionary) -> void:
+	sharpen_time = settings.get("sharpen_time", sharpen_time)
+	snag_strength = settings.get("snag_strength", snag_strength)
+
+
+## Предложить выбор «Сам» или «Быстро»; по окончании — сигнал `sharpened`.
+func start() -> void:
+	is_excellent = false
+	_result_panel.hide()
+	_choice_panel.show()
+	set_ui_visible(true)
+
+
+## Показать или скрыть интерфейс колеса: слои экрана не подчиняются видимости узла.
+func set_ui_visible(value: bool) -> void:
+	_vignette_layer.visible = value
+	_ui.visible = value
+
+
+func _reset() -> void:
 	_speed = 0.0
 	_sharpness = 0.0
 	_overheat = 0.0
-	_is_finished = false
+	_off_zone_time = 0.0
+	_snag_left = snag_interval_max
+	_has_reached_zone = false
+	_is_running = true
+	_choice_panel.hide()
 	_result_panel.hide()
 	_status_label.modulate.a = 0.0
 
 
 func _grind(delta: float) -> void:
+	var is_in_zone := _speed >= good_from and _speed <= good_to
+	_has_reached_zone = _has_reached_zone or is_in_zone
+	if _has_reached_zone:
+		_update_snag(delta)
+		_off_zone_time += 0.0 if is_in_zone else delta
+
 	if _speed > good_to:
 		_overheat += delta
 		_status_label.text = too_fast_text
@@ -119,44 +165,42 @@ func _grind(delta: float) -> void:
 		_overheat = maxf(_overheat - cool_rate * delta, 0.0)
 		_status_label.modulate.a = maxf(_status_label.modulate.a - delta / HINT_FADE_TIME, 0.0)
 
-	if _speed >= good_from and _speed <= good_to:
+	if is_in_zone:
 		_sharpness = minf(_sharpness + delta / sharpen_time, 1.0)
 
 	if _overheat >= overheat_limit:
-		_finish(false)
+		_fail()
 	elif _sharpness >= 1.0:
-		_finish(true)
+		_succeed()
 
 
-func _finish(is_sharpened: bool) -> void:
-	_is_finished = true
-	_status_label.modulate.a = 0.0
-	var percent := roundi(_sharpness * PERCENT)
-	_quality_label.text = sharpened_text if is_sharpened else overheated_text
-	_quality_label.label_settings.font_color = sharpened_color if is_sharpened else overheated_color
-	_score_label.text = "Заточка: %d %%" % percent
-	_retry_button.visible = not is_sharpened
-	_result_panel.show()
-	if is_sharpened:
-		_sharpen_item()
-
-
-## Меч остаётся того же качества, что выковали.
-func _sharpen_item() -> void:
-	var input_item: String = _recipe.get("needs", "")
-	var quality := SandboxState.get_item_quality(input_item)
-	if not SandboxState.try_take_item(input_item):
+func _update_snag(delta: float) -> void:
+	_snag_left -= delta
+	if _snag_left > 0.0:
 		return
 
-	var output_item: String = _recipe.get("gives", "")
-	SandboxState.add_item(output_item, quality)
-	var output_name: String = SandboxState.get_item_info(output_item).get("name", output_item)
-	SandboxHud.show_message(item_added_prefix + output_name.to_lower())
+	_snag_left = randf_range(snag_interval_min, snag_interval_max)
+	_speed = clampf(_speed + randf_range(-snag_strength, snag_strength), 0.0, 1.0)
+
+
+func _succeed() -> void:
+	_is_running = false
+	is_excellent = _off_zone_time <= excellent_off_zone_time
+	sharpened.emit(excellent_text if is_excellent else good_text)
+
+
+func _fail() -> void:
+	_is_running = false
+	_status_label.modulate.a = 0.0
+	var percent := roundi(_sharpness * PERCENT)
+	_quality_label.text = overheated_text
+	_score_label.text = "Заточка: %d %%" % percent
+	_result_panel.show()
 
 
 func _update_visuals() -> void:
 	_wheel_spin.spin_speed = _speed * max_turns_per_second
-	_sparks.emitting = _speed >= good_from and not _is_finished
+	_sparks.emitting = _speed >= good_from and _is_running
 	var heat_ratio := _overheat / overheat_limit
 	_blade_glow.color = Color(overheat_glow, overheat_glow.a * heat_ratio)
 	_speed_bar.value = _speed * PERCENT
@@ -166,7 +210,8 @@ func _update_visuals() -> void:
 		fill_style.bg_color = too_fast_fill_color if _speed > good_to else speed_fill_color
 
 
-func _on_recipe_chosen(recipe: Dictionary) -> void:
-	_recipe = recipe
-	_recipe_panel.hide()
-	_hint.show()
+func _finish_with_medium() -> void:
+	_choice_panel.hide()
+	_result_panel.hide()
+	is_excellent = false
+	sharpened.emit(medium_text)

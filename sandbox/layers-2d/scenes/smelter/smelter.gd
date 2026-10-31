@@ -1,8 +1,8 @@
 extends Node2D
 ## Крупный план плавильни с мини-игрой «сними шлак» (песочница, #41).
 ## По расплаву по очереди всплывают куски шлака — кликни, пока не утонули.
-## Доля снятых — качество отливки. Сначала выбираешь, что отлить: слиток из руды или
-## заготовку меча из слитка. Материал тратится в конце: ушёл посреди — он остался.
+## Доля снятых — качество отливки. Сначала выбираешь, что отлить; из одной руды выходит
+## партия слитков (#51). Материал тратится в конце: ушёл посреди — он остался.
 
 const PERCENT := 100.0
 ## Рецепты какого места показывать — `station` в `common/items.json`.
@@ -50,7 +50,8 @@ const FEEDBACK_ABOVE_SLAG := 1.5
 @export var feedback_settings: LabelSettings
 @export var skim_text: String = "Снял!"
 @export var skim_color: Color = Color(1.0, 0.9, 0.5)
-@export var item_added_prefix: String = "В инвентаре: "
+## Надпись об отливке: название и сколько штук.
+@export var item_added_format: String = "В инвентаре: %s × %d"
 @export var result_title_prefix: String = "Отлито: "
 
 var _skimmed_count: int = 0
@@ -173,9 +174,12 @@ func _smelt(quality: String) -> void:
 		return
 
 	var output_item: String = _recipe.get("gives", "")
-	SandboxState.add_item(output_item, quality)
+	var output_count := int(_recipe.get("gives_count", 1))
+	for _item_index in output_count:
+		SandboxState.add_item(output_item, quality)
+
 	var output_name: String = SandboxState.get_item_info(output_item).get("name", output_item)
-	SandboxHud.show_message(item_added_prefix + output_name.to_lower())
+	SandboxHud.show_message(item_added_format % [output_name.to_lower(), output_count])
 
 
 func _on_recipe_chosen(recipe: Dictionary) -> void:

@@ -1,44 +1,401 @@
 {
-  "_note": "Предметы и рецепты песочницы (#37). Не данные игры. items — по id: name, icon, description. start_items — что лежит в инвентаре на старте, start_coins — монеты на старте. recipes — что где можно сделать: station (anvil — наковальня, smelter — плавильня, hearth — горн, grinder — точильное колесо), name, needs (id предмета, который тратится), gives (id предмета, который получаешь).",
-  "start_items": ["ore"],
-  "start_coins": 0,
+  "_note": "Предметы, рецепты и лавка песочницы (#37, #51, #56). Не данные игры. items — по id: name, icon, description, not_for_sale (необязательно: в лавке не продать). start_items, start_coins — что есть на старте. grade_names — как называть итог вещи. material_bonus — сколько монет прибавляет к цене качество материала. recipes — что где можно сделать: station (smelter, anvil, workshop), name, needs, gives, gives_count (сколько штук, по умолчанию 1), blueprint (необязательно: рецепт виден, только если чертёж куплен), needs_count (сколько штук материала, по умолчанию 1), forge (сложность ковки: rings_per_stage, ring_shrink_time, ring_hit_from, ring_late_time, stages — картинки стадий, strike_area — [x, y, ширина, высота]), edge (сложность заточки: sharpen_time, snag_strength), price_by_forge и price_by_edge (цена: монеты за ковку плюс прибавка за заточку), price_by_stars (цена по звёздам починки), game (мини-игра верстака: stitch, shards, chain, runes, sharpen, embroidery, gears, box), hint, progress_label, tension_label (нет — шкала скрыта), mistake_text — тексты мини-игры, variants — варианты вещи, выпадают случайно, hint у варианта заменяет подсказку рецепта, price_bonus у варианта прибавляется к цене, grade_from_price (с какой цены вещь обычная и хорошая, ниже — плохая). blueprints — чертежи лавки: name, price. shop — goods: что продаёт лавка, sell_ratio: какую долю цены вещи она платит.",
+  "start_items": ["ore", "jug_broken", "mail_torn", "amulet_broken", "sickle_broken", "coat_broken", "map_broken", "clock_broken", "box_broken"],
+  "start_coins": 50,
+  "grade_names": {"bad": "плохая вещь", "normal": "обычная вещь", "good": "хорошая вещь"},
+  "material_bonus": {"Чистейший металл": 3, "Хороший металл": 1, "С примесями": 0, "Грязный металл": -2},
   "items": {
     "ore": {
       "name": "Железная руда",
       "icon": "res://common/icons/iron_ore.png",
-      "description": "Переплавь её в слиток в плавильне."
+      "description": "Переплавь её в слитки в плавильне. Продаётся в лавке."
     },
     "ingot": {
       "name": "Железный слиток",
       "icon": "res://common/icons/iron_ingot.png",
-      "description": "Отлей из него заготовку меча в плавильне."
+      "description": "Материал для ковки. Чем чище металл, тем дороже вещь."
     },
-    "blank": {
-      "name": "Заготовка меча",
-      "icon": "res://common/icons/sword_blank.png",
-      "description": "Холодная. Нагрей её в горне."
-    },
-    "heated_blank": {
-      "name": "Нагретая заготовка",
-      "icon": "res://common/icons/sword_blank_hot.png",
-      "description": "Раскалена. Куй её на наковальне."
-    },
-    "sword_blunt": {
-      "name": "Незаточенный меч",
-      "icon": "res://common/icons/sword_blunt.png",
-      "description": "Выкован, но тупой. Заточи его на точильном колесе."
+    "sword_short": {
+      "name": "Короткий меч",
+      "icon": "res://common/icons/sword_short.png",
+      "description": "Самый простой в ковке и самый дешёвый."
     },
     "sword": {
       "name": "Обычный меч",
       "icon": "res://common/icons/sword.png",
-      "description": "Простой одноручный меч, заточен."
+      "description": "Простой одноручный меч."
+    },
+    "sabre": {
+      "name": "Сабля",
+      "icon": "res://common/icons/sabre.png",
+      "description": "Изогнутый клинок. Круги сжимаются быстро."
+    },
+    "sword_long": {
+      "name": "Длинный меч",
+      "icon": "res://common/icons/sword_long.png",
+      "description": "Много ударов, узкое окно попадания."
+    },
+    "greatsword": {
+      "name": "Двуручный меч",
+      "icon": "res://common/icons/greatsword.png",
+      "description": "Два слитка и самая трудная ковка, зато дорогой."
+    },
+    "dagger": {
+      "name": "Кинжал",
+      "icon": "res://common/icons/dagger.png",
+      "description": "Короткий клинок, удобный в дороге."
+    },
+    "axe": {
+      "name": "Топор",
+      "icon": "res://common/icons/axe.png",
+      "description": "Тяжёлый и дорогой."
+    },
+    "bag_torn": {
+      "name": "Порванная сумка",
+      "icon": "res://common/icons/bag_torn_icon.png",
+      "description": "Подшей её на столе в мастерской. Разрыв каждый раз другой.",
+      "not_for_sale": true
+    },
+    "bag_repaired": {
+      "name": "Подшитая сумка",
+      "icon": "res://common/icons/bag_repaired_icon.png",
+      "description": "Как новая. Верни хозяину или продай в лавке."
+    },
+    "jug_broken": {
+      "name": "Разбитый кувшин",
+      "icon": "res://common/icons/jug_broken_icon.png",
+      "description": "Склей его на столе в мастерской.",
+      "not_for_sale": true
+    },
+    "jug_repaired": {
+      "name": "Склеенный кувшин",
+      "icon": "res://common/icons/jug_repaired_icon.png",
+      "description": "Трещины видно, но вода не течёт. Можно продать в лавке."
+    },
+    "mail_torn": {
+      "name": "Порванная кольчуга",
+      "icon": "res://common/icons/mail_torn_icon.png",
+      "description": "Кольчуга рыцаря. Собери цепь звеньев на столе в мастерской.",
+      "not_for_sale": true
+    },
+    "mail_repaired": {
+      "name": "Целая кольчуга",
+      "icon": "res://common/icons/mail_repaired_icon.png",
+      "description": "Звенья держат. Можно продать в лавке."
+    },
+    "amulet_broken": {
+      "name": "Угасший амулет",
+      "icon": "res://common/icons/amulet_broken_icon.png",
+      "description": "Амулет ведьмы. Повтори порядок рун на столе в мастерской.",
+      "not_for_sale": true
+    },
+    "amulet_repaired": {
+      "name": "Заряженный амулет",
+      "icon": "res://common/icons/amulet_repaired_icon.png",
+      "description": "Снова тёплый на ощупь. Можно продать в лавке."
+    },
+    "sickle_broken": {
+      "name": "Тупая коса",
+      "icon": "res://common/icons/sickle_broken_icon.png",
+      "description": "Коса крестьянина вся в зазубринах. Заточи её в мастерской.",
+      "not_for_sale": true
+    },
+    "sickle_repaired": {
+      "name": "Острая коса",
+      "icon": "res://common/icons/sickle_repaired_icon.png",
+      "description": "Режет траву как новая. Можно продать в лавке."
+    },
+    "coat_broken": {
+      "name": "Выцветший герб",
+      "icon": "res://common/icons/coat_broken_icon.png",
+      "description": "Герб рыцаря выцвел. Вышей его заново в мастерской.",
+      "not_for_sale": true
+    },
+    "coat_repaired": {
+      "name": "Вышитый герб",
+      "icon": "res://common/icons/coat_repaired_icon.png",
+      "description": "Горит золотой нитью. Можно продать в лавке."
+    },
+    "map_broken": {
+      "name": "Порванная карта",
+      "icon": "res://common/icons/map_broken_icon.png",
+      "description": "Гонец порвал карту или письмо. Сложи обрывки в мастерской.",
+      "not_for_sale": true
+    },
+    "map_repaired": {
+      "name": "Склеенная карта",
+      "icon": "res://common/icons/map_repaired_icon.png",
+      "description": "Всё снова читается. Можно продать в лавке."
+    },
+    "clock_broken": {
+      "name": "Вставшие часы",
+      "icon": "res://common/icons/clock_broken_icon.png",
+      "description": "Часы торговца встали. Собери механизм в мастерской.",
+      "not_for_sale": true
+    },
+    "clock_repaired": {
+      "name": "Идущие часы",
+      "icon": "res://common/icons/clock_repaired_icon.png",
+      "description": "Снова идут. Можно продать в лавке."
+    },
+    "box_broken": {
+      "name": "Сломанная шкатулка",
+      "icon": "res://common/icons/box_broken_icon.png",
+      "description": "Вытащи гвозди, замени часть, забей гвозди обратно.",
+      "not_for_sale": true
+    },
+    "box_repaired": {
+      "name": "Целая шкатулка",
+      "icon": "res://common/icons/box_repaired_icon.png",
+      "description": "Закрывается как надо. Можно продать в лавке."
     }
   },
   "recipes": [
-    {"station": "smelter", "name": "Слиток", "needs": "ore", "gives": "ingot"},
-    {"station": "smelter", "name": "Заготовка меча", "needs": "ingot", "gives": "blank"},
-    {"station": "hearth", "name": "Нагреть заготовку", "needs": "blank", "gives": "heated_blank"},
-    {"station": "anvil", "name": "Обычный меч", "needs": "heated_blank", "gives": "sword_blunt"},
-    {"station": "grinder", "name": "Заточить меч", "needs": "sword_blunt", "gives": "sword"}
-  ]
+    {"station": "smelter", "name": "Железные слитки", "needs": "ore", "gives": "ingot", "gives_count": 4},
+    {
+      "station": "anvil",
+      "name": "Короткий меч",
+      "needs": "ingot",
+      "gives": "sword_short",
+      "forge": {"rings_per_stage": 2, "ring_shrink_time": 0.65, "ring_hit_from": 0.7, "ring_late_time": 0.3, "stages": ["res://scenes/anvil/sword_short_bar.webp", "res://scenes/anvil/sword_short_rough.webp", "res://scenes/anvil/sword_short_blade.webp"], "strike_area": [689, 469, 563, 55]},
+      "edge": {"sharpen_time": 3.0, "snag_strength": 0.16},
+      "price_by_forge": {"Высокая рарность": 10, "Хорошее качество": 7, "Плохое качество": 5, "Мусор": 3},
+      "price_by_edge": {"средне": -2, "хорошо": 1, "отлично": 3},
+      "grade_from_price": {"normal": 6, "good": 9}
+    },
+    {
+      "station": "anvil",
+      "name": "Обычный меч",
+      "needs": "ingot",
+      "gives": "sword",
+      "price_by_forge": {"Высокая рарность": 15, "Хорошее качество": 10, "Плохое качество": 7, "Мусор": 4},
+      "price_by_edge": {"средне": -2, "хорошо": 1, "отлично": 3},
+      "grade_from_price": {"normal": 8, "good": 14}
+    },
+    {
+      "station": "anvil",
+      "name": "Сабля",
+      "needs": "ingot",
+      "gives": "sabre",
+      "forge": {"rings_per_stage": 3, "ring_shrink_time": 0.42, "ring_hit_from": 0.78, "stages": ["res://scenes/anvil/sword_sabre_bar.webp", "res://scenes/anvil/sword_sabre_rough.webp", "res://scenes/anvil/sword_sabre_blade.webp"], "strike_area": [459, 428, 815, 95]},
+      "edge": {"sharpen_time": 5.0, "snag_strength": 0.26},
+      "price_by_forge": {"Высокая рарность": 20, "Хорошее качество": 14, "Плохое качество": 10, "Мусор": 5},
+      "price_by_edge": {"средне": -2, "хорошо": 1, "отлично": 3},
+      "grade_from_price": {"normal": 11, "good": 18}
+    },
+    {
+      "station": "anvil",
+      "name": "Длинный меч",
+      "needs": "ingot",
+      "gives": "sword_long",
+      "forge": {"rings_per_stage": 4, "ring_shrink_time": 0.5, "ring_hit_from": 0.82, "stages": ["res://scenes/anvil/sword_long_bar.webp", "res://scenes/anvil/sword_long_rough.webp", "res://scenes/anvil/sword_long_blade.webp"], "strike_area": [390, 469, 907, 55]},
+      "edge": {"sharpen_time": 5.5, "snag_strength": 0.26},
+      "price_by_forge": {"Высокая рарность": 26, "Хорошее качество": 18, "Плохое качество": 12, "Мусор": 6},
+      "price_by_edge": {"средне": -2, "хорошо": 1, "отлично": 3},
+      "grade_from_price": {"normal": 13, "good": 24}
+    },
+    {
+      "station": "anvil",
+      "name": "Двуручный меч",
+      "needs": "ingot",
+      "needs_count": 2,
+      "gives": "greatsword",
+      "forge": {"rings_per_stage": 5, "ring_shrink_time": 0.42, "ring_hit_from": 0.85, "ring_late_time": 0.2, "stages": ["res://scenes/anvil/sword_great_bar.webp", "res://scenes/anvil/sword_great_rough.webp", "res://scenes/anvil/sword_great_blade.webp"], "strike_area": [373, 469, 936, 55]},
+      "edge": {"sharpen_time": 6.5, "snag_strength": 0.3},
+      "price_by_forge": {"Высокая рарность": 40, "Хорошее качество": 28, "Плохое качество": 18, "Мусор": 8},
+      "price_by_edge": {"средне": -2, "хорошо": 1, "отлично": 3},
+      "grade_from_price": {"normal": 20, "good": 36}
+    },
+    {
+      "station": "anvil",
+      "name": "Кинжал",
+      "blueprint": "dagger_plan",
+      "needs": "ingot",
+      "gives": "dagger",
+      "price_by_forge": {"Высокая рарность": 18, "Хорошее качество": 13, "Плохое качество": 9, "Мусор": 5},
+      "price_by_edge": {"средне": -2, "хорошо": 1, "отлично": 3},
+      "grade_from_price": {"normal": 10, "good": 17}
+    },
+    {
+      "station": "anvil",
+      "name": "Топор",
+      "blueprint": "axe_plan",
+      "needs": "ingot",
+      "gives": "axe",
+      "price_by_forge": {"Высокая рарность": 26, "Хорошее качество": 18, "Плохое качество": 12, "Мусор": 6},
+      "price_by_edge": {"средне": -2, "хорошо": 1, "отлично": 3},
+      "grade_from_price": {"normal": 13, "good": 24}
+    },
+    {
+      "station": "workshop",
+      "name": "Кожаная сумка",
+      "needs": "bag_torn",
+      "gives": "bag_repaired",
+      "game": "stitch",
+      "hint": "Зажми кнопку у мигающего кружка и веди иглу по пунктиру, не спеша",
+      "progress_label": "Шов",
+      "tension_label": "Натяжение нитки",
+      "mistake_text": "Нитка порвалась! Подхвати шов снова",
+      "price_by_stars": {"1": 8, "2": 14, "3": 20},
+      "grade_from_price": {"normal": 14, "good": 20},
+      "variants": [
+        {"name": "прямой", "points": [[500, 240], [800, 340], [1160, 450]]},
+        {"name": "дуга", "smooth": true, "price_bonus": 1, "points": [[470, 500], [540, 350], [700, 250], [880, 225], [1050, 270], [1180, 390]]},
+        {"name": "зигзаг", "price_bonus": 4, "max_deviation": 38, "points": [[470, 230], [610, 350], [750, 225], [890, 350], [1030, 225], [1180, 350]]},
+        {"name": "угол", "price_bonus": 2, "points": [[480, 190], [850, 190], [860, 470], [1170, 500]]},
+        {"name": "змейка", "smooth": true, "price_bonus": 3, "max_deviation": 40, "points": [[1190, 190], [900, 170], [680, 240], [860, 340], [1130, 370], [1000, 490], [660, 480], [470, 400]]},
+        {"name": "низ сумки", "smooth": true, "price_bonus": 2, "points": [[540, 760], [640, 670], [760, 750], [880, 680], [960, 760], [1090, 800]]}
+      ]
+    },
+    {
+      "station": "workshop",
+      "name": "Глиняный кувшин",
+      "needs": "jug_broken",
+      "gives": "jug_repaired",
+      "game": "shards",
+      "hint": "Тащи осколки на контур. Колесо мыши или клавиша R поворачивают осколок",
+      "progress_label": "Осколки",
+      "tension_label": "Клей сохнет",
+      "mistake_text": "Не подходит! Посмотри на форму и поворот",
+      "price_by_stars": {"1": 8, "2": 15, "3": 22},
+      "grade_from_price": {"normal": 15, "good": 22},
+      "variants": [
+        {"name": "горшок", "texture": "res://scenes/workshop/jug_pot.png", "pieces": 6, "glue_time": 40, "show_cracks": true, "show_picture": true},
+        {"name": "амфора", "texture": "res://scenes/workshop/jug_amphora.png", "pieces": 8, "glue_time": 50, "rotate": true, "show_cracks": true, "price_bonus": 2},
+        {"name": "ваза", "texture": "res://scenes/workshop/jug_vase.png", "pieces": 10, "glue_time": 60, "rotate": true, "price_bonus": 5}
+      ]
+    },
+    {
+      "station": "workshop",
+      "name": "Кольчуга рыцаря",
+      "needs": "mail_torn",
+      "gives": "mail_repaired",
+      "game": "chain",
+      "hint": "Клик поворачивает плитку. Собери цепь от левого кольца до зелёного справа",
+      "progress_label": "Звенья в цепи",
+      "tension_label": "Рыцарь ждёт",
+      "price_by_stars": {"1": 10, "2": 16, "3": 24},
+      "grade_from_price": {"normal": 16, "good": 24},
+      "variants": [
+        {"name": "дырка", "columns": 4, "rows": 3, "time_limit": 35},
+        {"name": "разрез", "columns": 5, "rows": 4, "time_limit": 60, "price_bonus": 2},
+        {"name": "рваный бок", "columns": 7, "rows": 5, "time_limit": 100, "price_bonus": 6}
+      ]
+    },
+    {
+      "station": "workshop",
+      "name": "Амулет ведьмы",
+      "needs": "amulet_broken",
+      "gives": "amulet_repaired",
+      "game": "runes",
+      "hint": "Запомни, как загораются руны, и повтори кликами",
+      "progress_label": "Заряд",
+      "mistake_text": "Не та руна! Амулет трескается, смотри снова",
+      "price_by_stars": {"1": 12, "2": 20, "3": 30},
+      "grade_from_price": {"normal": 20, "good": 30},
+      "variants": [
+        {"name": "простой", "runes": 5, "length": 5},
+        {"name": "длинный", "runes": 6, "length": 7, "price_bonus": 3},
+        {"name": "наоборот", "runes": 5, "length": 5, "reversed": true, "price_bonus": 3, "hint": "Заклятие читается задом наперёд: повтори руны с последней до первой"},
+        {"name": "проклятый", "runes": 8, "length": 6, "same_color": true, "show_time": 0.45, "price_bonus": 6, "hint": "Проклятый амулет: у рун нет цвета. Запоминай значки"}
+      ]
+    },
+    {
+      "station": "workshop",
+      "name": "Коса крестьянина",
+      "needs": "sickle_broken",
+      "gives": "sickle_repaired",
+      "game": "sharpen",
+      "hint": "Зажми кнопку и води точилом вдоль лезвия. Не гони, а то перегреешь",
+      "progress_label": "Заточка",
+      "tension_label": "Нагрев",
+      "mistake_text": "Перегрел! Лезвие снова затупилось",
+      "price_by_stars": {"1": 8, "2": 14, "3": 20},
+      "grade_from_price": {"normal": 14, "good": 20},
+      "variants": [
+        {"name": "нож", "edge": [[460, 650], [1500, 590]], "width": 90, "passes": 240, "max_speed": 3200},
+        {"name": "серп", "edge": [[1180, 780], [820, 760], [640, 580], [720, 400], [960, 330], [1200, 410]], "smooth": true, "width": 90, "passes": 300, "max_speed": 2800, "price_bonus": 2},
+        {"name": "коса", "edge": [[430, 720], [720, 630], [1020, 590], [1320, 620], [1600, 730]], "smooth": true, "width": 120, "passes": 420, "max_speed": 2500, "price_bonus": 4}
+      ]
+    },
+    {
+      "station": "workshop",
+      "name": "Герб рыцаря",
+      "needs": "coat_broken",
+      "gives": "coat_repaired",
+      "game": "embroidery",
+      "hint": "Зажми кнопку у мигающего кружка и веди иглу по контуру рисунка",
+      "progress_label": "Вышивка",
+      "tension_label": "Натяжение нитки",
+      "mistake_text": "Нитка порвалась! Подхвати шов снова",
+      "price_by_stars": {"1": 10, "2": 18, "3": 26},
+      "grade_from_price": {"normal": 18, "good": 26},
+      "variants": [
+        {"name": "щит", "cloth": "c8bb96", "shapes": [{"points": [[760, 360], [1160, 360], [1160, 640], [960, 860], [760, 640]], "fill": "8c2f39"}, {"points": [[920, 430], [1000, 430], [1000, 520], [1090, 520], [1090, 590], [1000, 590], [1000, 740], [920, 740], [920, 590], [830, 590], [830, 520], [920, 520]], "fill": "e9c46a"}]},
+        {"name": "корона", "cloth": "3f6b52", "price_bonus": 2, "shapes": [{"points": [[700, 770], [650, 430], [800, 570], [960, 350], [1120, 570], [1270, 430], [1220, 770]], "fill": "e9c46a"}, {"points": [[960, 540], [1030, 640], [960, 730], [890, 640]], "fill": "3a6ea5"}]},
+        {"name": "луна и звезда", "cloth": "2b2140", "price_bonus": 5, "shapes": [{"points": [[790, 320], [670, 420], [620, 570], [670, 720], [790, 820], [740, 680], [720, 570], [740, 450]], "fill": "e8e3c9"}, {"points": [[1050, 340], [1106, 493], [1269, 499], [1140, 599], [1185, 756], [1050, 665], [915, 756], [960, 599], [831, 499], [994, 493]], "fill": "b08cd8"}]}
+      ]
+    },
+    {
+      "station": "workshop",
+      "name": "Карта гонца",
+      "needs": "map_broken",
+      "gives": "map_repaired",
+      "game": "shards",
+      "hint": "Середина уже собрана. Тащи обрывки к ней, смотри на цвета и рисунки",
+      "progress_label": "Обрывки",
+      "tension_label": "Гонец ждёт",
+      "mistake_text": "Не подходит! Смотри на цвета и рисунки",
+      "price_by_stars": {"1": 8, "2": 15, "3": 22},
+      "grade_from_price": {"normal": 15, "good": 22},
+      "variants": [
+        {"name": "королевство", "texture": "res://scenes/workshop/torn_map.png", "pieces": 8, "ready_pieces": 3, "glue_time": 50, "show_picture": true},
+        {"name": "острова", "texture": "res://scenes/workshop/torn_islands.png", "pieces": 9, "ready_pieces": 3, "glue_time": 60, "show_cracks": true, "price_bonus": 2},
+        {"name": "большая карта", "texture": "res://scenes/workshop/torn_map.png", "pieces": 12, "ready_pieces": 4, "glue_time": 80, "price_bonus": 4}
+      ]
+    },
+    {
+      "station": "workshop",
+      "name": "Часы торговца",
+      "needs": "clock_broken",
+      "gives": "clock_repaired",
+      "game": "gears",
+      "hint": "Перетащи шестерни на оси: вращение должно дойти от левой шестерни до правой",
+      "progress_label": "Шестерни крутятся",
+      "tension_label": "Торговец ждёт",
+      "mistake_text": "Не лезет! Шестерня упирается в соседнюю",
+      "price_by_stars": {"1": 10, "2": 18, "3": 26},
+      "grade_from_price": {"normal": 18, "good": 26},
+      "variants": [
+        {"name": "простые", "chain": 2, "extra_gears": 1, "extra_pegs": 1, "time_limit": 45},
+        {"name": "настенные", "chain": 3, "extra_gears": 2, "extra_pegs": 1, "time_limit": 70, "price_bonus": 2},
+        {"name": "башенные", "chain": 4, "extra_gears": 2, "extra_pegs": 2, "time_limit": 100, "price_bonus": 5}
+      ]
+    },
+    {
+      "station": "workshop",
+      "name": "Шкатулка",
+      "needs": "box_broken",
+      "gives": "box_repaired",
+      "game": "box",
+      "hint": "Почини шкатулку",
+      "progress_label": "Работа",
+      "mistake_text": "Ай! Аккуратнее",
+      "price_by_stars": {"1": 9, "2": 16, "3": 24},
+      "grade_from_price": {"normal": 16, "good": 24},
+      "variants": [
+        {"name": "доска", "part": [-270, -60, 540, 120], "part_color": "8a5a2b", "notch": 0.5, "nails": [[-240, -35], [240, -35], [-240, 35], [240, 35]]},
+        {"name": "петля", "part": [-200, -255, 400, 90], "part_color": "b08d3c", "notch": 0.8, "price_bonus": 2, "nails": [[-170, -230], [-60, -230], [60, -230], [170, -230], [-170, -185], [170, -185]]},
+        {"name": "замок", "part": [-120, 100, 240, 150], "part_color": "8f8f96", "notch": 0.2, "price_bonus": 3, "nails": [[-95, 225], [95, 225], [-95, 130], [95, 130], [0, 225]]}
+      ]
+    }
+  ],
+  "blueprints": {
+    "dagger_plan": {"name": "Чертёж кинжала", "price": 25},
+    "axe_plan": {"name": "Чертёж топора", "price": 40}
+  },
+  "shop": {
+    "goods": [{"item": "ore", "price": 6}, {"item": "bag_torn", "price": 3}, {"item": "jug_broken", "price": 3}, {"item": "mail_torn", "price": 5}, {"item": "amulet_broken", "price": 6}, {"item": "sickle_broken", "price": 4}, {"item": "coat_broken", "price": 4}, {"item": "map_broken", "price": 4}, {"item": "clock_broken", "price": 4}, {"item": "box_broken", "price": 4}],
+    "sell_ratio": 0.5
+  }
 }

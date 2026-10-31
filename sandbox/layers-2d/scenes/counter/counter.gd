@@ -1,37 +1,96 @@
 extends Node2D
-## Прилавок (песочница, #37): связывает стражника и окно диалога.
-## Первый разговор начинается сам, когда стражник подошёл; потом клик по стражнику
-## открывает разговор о заказе. Отдал меч — стражник уходит.
+## Прилавок (песочница, #37, #54, #56): связывает посетителей, диалог и лавку.
+## Посетители приходят сразу и ждут: клик по любому — первый разговор, потом разговор
+## о заказе. Заказы можно брать и сдавать в любом порядке. Сдал заказ — посетитель уходит.
+## Ушли оба — приходят со следующим кругом заказов из `common/orders.json`.
 
-const GUARD_LEAVE_EVENT := "guard_leave"
+## События разговора: имя посетителя + окончание.
+const AGREED_EVENT_SUFFIX := "_agreed"
+const LEAVE_EVENT_SUFFIX := "_leave"
 
-## Разговор о заказе, по клику на стражника.
-@export_file("*.json") var order_dialogue_path: String
+## Где окно реплик относительно посетителя, px. Отрицательный X — окно слева от него.
+## Стражник — слева, чтобы не закрыть путника; у путника окно ниже лица стражника.
+@export var guard_box_offset: Vector2 = Vector2(-200, -600)
+@export var traveller_box_offset: Vector2 = Vector2(-130, -447)
+@export var talk_hint_text: String = "Кликни по посетителю, чтобы поговорить"
+@export var no_orders_text: String = "Заказов пока нет. Лишнее можно продать в лавке"
 
-@onready var _guard: WalkingNpc = $NpcLayer/Guard
-@onready var _guard_area: ClickableArea = $NpcLayer/Guard/Body/ClickArea
+var _visitors: Array[Dictionary] = []
+var _is_hint_shown: bool = false
+
 @onready var _dialogue_box: DialogueBox = $UI/DialogueBox
+@onready var _shop_button: Button = $UI/ShopButton
+@onready var _shop: ShopPanel = $UI/ShopPanel
 
 
 func _ready() -> void:
-	# Стражник уже ушёл раньше — его не видно, и кликать не по кому.
-	_guard_area.is_enabled = _guard.visible
-	_guard_area.clicked.connect(_on_guard_area_clicked)
+	_add_visitor("guard", $NpcLayer/Guard, guard_box_offset)
+	_add_visitor("traveller", $NpcLayer/Traveller, traveller_box_offset)
 	_dialogue_box.event_triggered.connect(_on_dialogue_box_event_triggered)
+	_shop_button.pressed.connect(_on_shop_button_pressed)
+	# Ушли, пока игрока здесь не было: следующий круг начинается при его возвращении.
+	if _are_all_visitors_gone():
+		_start_next_round()
 
 
-func _on_guard_area_clicked() -> void:
-	if _dialogue_box.visible or not _guard.is_standing():
+func _add_visitor(key: String, npc: WalkingNpc, box_offset: Vector2) -> void:
+	var area: ClickableArea = npc.get_node("Body/ClickArea")
+	area.is_enabled = false
+	var visitor := {"key": key, "npc": npc, "area": area, "box_offset": box_offset}
+	_visitors.append(visitor)
+	area.clicked.connect(_on_visitor_clicked.bind(visitor))
+	npc.arrived.connect(_on_visitor_arrived.bind(visitor))
+	npc.left.connect(_on_visitor_left)
+
+
+func _are_all_visitors_gone() -> bool:
+	return _visitors.all(
+		func(visitor: Dictionary) -> bool: return SandboxState.left_npcs.get(visitor["key"], false)
+	)
+
+
+func _start_next_round() -> void:
+	if not SandboxState.try_start_next_round():
+		SandboxHud.show_message(no_orders_text)
 		return
 
-	_dialogue_box.start()
+	for visitor in _visitors:
+		visitor["npc"].come_back()
+
+
+func _on_visitor_arrived(visitor: Dictionary) -> void:
+	visitor["area"].is_enabled = true
+	if not _is_hint_shown:
+		_is_hint_shown = true
+		SandboxHud.show_message(talk_hint_text)
+
+
+func _on_visitor_left() -> void:
+	if _are_all_visitors_gone():
+		_start_next_round()
+
+
+func _on_visitor_clicked(visitor: Dictionary) -> void:
+	var npc: WalkingNpc = visitor["npc"]
+	if _dialogue_box.visible or _shop.visible or not npc.is_standing():
+		return
+
+	var key: String = visitor["key"]
+	var is_order_known: bool = SandboxState.finished_dialogues.get(key, false)
+	var path := SandboxState.get_order_path(key, "order" if is_order_known else "intro")
+	_dialogue_box.start(path, npc, visitor["box_offset"])
+
+
+func _on_shop_button_pressed() -> void:
 	if not _dialogue_box.visible:
-		_dialogue_box.start_other(order_dialogue_path)
+		_shop.open()
 
 
 func _on_dialogue_box_event_triggered(event_name: String) -> void:
-	if event_name != GUARD_LEAVE_EVENT:
-		return
-
-	_guard_area.is_enabled = false
-	_guard.walk_away()
+	for visitor in _visitors:
+		var key: String = visitor["key"]
+		if event_name == key + AGREED_EVENT_SUFFIX:
+			SandboxState.finished_dialogues[key] = true
+		elif event_name == key + LEAVE_EVENT_SUFFIX:
+			visitor["area"].is_enabled = false
+			visitor["npc"].walk_away()

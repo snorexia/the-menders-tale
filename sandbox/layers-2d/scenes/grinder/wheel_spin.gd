@@ -11,7 +11,7 @@ const GRAIN_SEED := 42
 const GRAIN_LENGTH := 0.22
 
 ## Центр втулки и радиусы лица камня по горизонтали и вертикали, px картинки.
-@export var center: Vector2 = Vector2(627, 290)
+@export var center: Vector2 = Vector2(627, 313)
 @export var radii: Vector2 = Vector2(240, 252)
 ## Ниже этой линии камень в воде — там не рисуем.
 @export var water_line: float = 512.0
@@ -19,7 +19,7 @@ const GRAIN_LENGTH := 0.22
 @export_range(0.0, 1.0) var hub_ratio: float = 0.42
 ## Шатун педали поверх камня — многоугольник, px картинки.
 @export var rod_polygon: PackedVector2Array = PackedVector2Array(
-	[Vector2(614, 280), Vector2(662, 280), Vector2(748, 735), Vector2(698, 745)]
+	[Vector2(614, 305), Vector2(662, 305), Vector2(748, 735), Vector2(698, 745)]
 )
 ## Скорость вращения, оборотов в секунду. Меняет сцена колеса.
 @export var spin_speed: float = 0.0

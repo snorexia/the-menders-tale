@@ -1,0 +1,20 @@
+{
+  "_note": "Песочница (#54): путник приносит порванную сумку. Не канон сценария. Формат — как в guard_order_dialogue.json, плюс у ответа give_item — дать предмет.",
+  "start": "greeting",
+  "nodes": {
+    "greeting": {
+      "speaker": "Путник",
+      "text": "[color=#86603c][i](кладёт на прилавок сумку с разорванным клапаном)[/i][/color]\nГоворят, ты чинишь не только железо. Зацепился за сук в дороге. Подошьёшь?",
+      "choices": [
+        {"text": "Подошью, оставляй.", "next": "agreed", "give_item": "bag_torn", "start_quest": "traveller_bag", "event": "traveller_agreed"}
+      ]
+    },
+    "agreed": {
+      "speaker": "Путник",
+      "text": "Спасибо. Подожду здесь.",
+      "choices": [
+        {"text": "Пойду в мастерскую"}
+      ]
+    }
+  }
+}

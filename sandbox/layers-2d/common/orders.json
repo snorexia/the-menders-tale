@@ -1,0 +1,13 @@
+{
+  "_note": "Заказы посетителей по кругам (#56). Не данные игры. rounds — список кругов, в каждом у посетителя intro (первый разговор) и order (разговор о заказе). Оба сдали заказ — приходят со следующим кругом.",
+  "rounds": [
+    {
+      "guard": {"intro": "res://scenes/counter/guard_dialogue.json", "order": "res://scenes/counter/guard_order_dialogue.json"},
+      "traveller": {"intro": "res://scenes/counter/traveller_intro_dialogue.json", "order": "res://scenes/counter/traveller_order_dialogue.json"}
+    },
+    {
+      "guard": {"intro": "res://scenes/counter/guard2_intro_dialogue.json", "order": "res://scenes/counter/guard2_order_dialogue.json"},
+      "traveller": {"intro": "res://scenes/counter/traveller2_intro_dialogue.json", "order": "res://scenes/counter/traveller2_order_dialogue.json"}
+    }
+  ]
+}
