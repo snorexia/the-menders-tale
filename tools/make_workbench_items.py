@@ -1,4 +1,4 @@
-"""Делает картинки-заглушки для верстака: расписные сосуды, ремень из кожи сумки, иконки (#60).
+"""Делает картинки-заглушки для верстака: расписные сосуды и иконки (#60).
 
 Запуск из корня репозитория: python tools/make_workbench_items.py <папка с иконками 496_RPG_icons>
 Иконки: https://opengameart.org/content/496-pixel-art-icons-for-medievalfantasy-rpg (CC0), не в
@@ -7,7 +7,6 @@
 """
 
 import math
-import random
 import sys
 from pathlib import Path
 
@@ -15,8 +14,6 @@ from PIL import Image, ImageChops, ImageDraw, ImageEnhance
 
 WORKSHOP_DIR = Path("sandbox/layers-2d/scenes/workshop")
 ICONS_DIR = Path("sandbox/layers-2d/common/icons")
-BAG_PATH = WORKSHOP_DIR / "bag_repaired.png"
-LEATHER_BOX = (620, 180, 1120, 420)
 ICON_SIZE = 76
 SUPERSAMPLE = 2
 SWORD_ICONS = {
@@ -26,12 +23,16 @@ SWORD_ICONS = {
     "greatsword": "W_Sword007.png",
 }
 # Вещь: иконка из набора; сломанная — та же, тёмная и с трещиной.
-REPAIR_ICONS = {"mail": ("A_Armor04.png", "torn"), "amulet": ("Ac_Medal04.png", "broken")}
-BELT_SIZE = (1400, 220)
-STRAP_MARGIN_Y = 40
-RIP_X = 700
-RIP_HALF_WIDTH = 34
-BELT_DARKNESS = 0.42
+REPAIR_ICONS = {
+    "mail": ("A_Armor04.png", "torn"),
+    "amulet": ("Ac_Medal04.png", "broken"),
+    "coat": ("I_Fabric.png", "broken"),
+    "armor": ("A_Armour01.png", "broken"),
+    "window": ("I_Mirror.png", "broken"),
+    "map": ("I_Map.png", "broken"),
+    "clock": ("I_Clock.png", "broken"),
+    "box": ("I_Chest02.png", "broken"),
+}
 BROKEN_BRIGHTNESS = 0.6
 BROKEN_COLOR = 0.45
 
@@ -214,53 +215,20 @@ def make_broken_icon(icon: Image.Image) -> Image.Image:
     return colors
 
 
-def make_belt() -> Image.Image:
-    """Ремень: кожа сумки дизайнера, строчка, пряжка, дырки на конце."""
-    width, height = BELT_SIZE
-    leather = Image.open(BAG_PATH).convert("RGB").crop(LEATHER_BOX).resize((width, height))
-    # На столе того же цвета светлая кожа теряется: темним её.
-    belt = leather.point(lambda value: round(value * BELT_DARKNESS)).convert("RGBA")
-    mask = Image.new("L", BELT_SIZE, 0)
-    mask_draw = ImageDraw.Draw(mask)
-    strap = (70, STRAP_MARGIN_Y, width - 8, height - STRAP_MARGIN_Y)
-    mask_draw.rounded_rectangle(strap, radius=50, fill=255)
-    belt.putalpha(mask)
-
-    draw = ImageDraw.Draw(belt)
-    top = STRAP_MARGIN_Y + 14
-    bottom = height - STRAP_MARGIN_Y - 14
-    for x in range(110, width - 60, 34):
-        draw.line((x, top, x + 18, top), fill=(226, 180, 110, 255), width=4)
-        draw.line((x, bottom, x + 18, bottom), fill=(226, 180, 110, 255), width=4)
-
-    for x in range(width - 300, width - 60, 60):
-        draw.ellipse((x - 9, height / 2 - 9, x + 9, height / 2 + 9), fill=(22, 12, 8, 255))
-
-    gold = (205, 160, 70, 255)
-    draw.rounded_rectangle((16, 22, 140, height - 22), radius=14, outline=gold, width=16)
-    draw.line((78, height / 2, 170, height / 2), fill=gold, width=12)
-    return belt
-
-
-def tear_belt(belt: Image.Image) -> Image.Image:
-    """Разорвать ремень посередине: рваная прозрачная щель."""
-    random.seed(60)
-    height = belt.height
-    left = []
-    right = []
-    for y in range(0, height + 1, 14):
-        left.append((RIP_X - RIP_HALF_WIDTH + random.randint(-22, 22), y))
-        right.append((RIP_X + RIP_HALF_WIDTH + random.randint(-22, 22), y))
-
-    gap = Image.new("L", belt.size, 255)
-    ImageDraw.Draw(gap).polygon(left + right[::-1], fill=0)
-    result = belt.copy()
-    result.putalpha(ImageChops.multiply(result.getchannel("A"), gap))
-    return result
+def make_sickle_icon() -> Image.Image:
+    size = ICON_SIZE * SUPERSAMPLE
+    icon = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(icon)
+    box = (size * 0.2, size * 0.08, size * 0.92, size * 0.8)
+    draw.arc(box, 120, 330, fill=(200, 205, 215, 255), width=round(size * 0.1))
+    draw.line((size * 0.36, size * 0.72, size * 0.14, size * 0.94), fill=(125, 78, 38, 255), width=round(size * 0.09))
+    return icon.resize((ICON_SIZE, ICON_SIZE), Image.Resampling.LANCZOS)
 
 
 def find_icon(icon_source: Path, name: str) -> Image.Image:
-    return Image.open(next(icon_source.rglob(name))).convert("RGBA")
+    """Найти иконку по имени; у части иконок в наборе в конце ещё номер."""
+    stem = name.removesuffix(".png")
+    return Image.open(sorted(icon_source.rglob(f"{stem}*.png"))[0]).convert("RGBA")
 
 
 def main() -> None:
@@ -274,11 +242,9 @@ def main() -> None:
     jug_icon.save(ICONS_DIR / "jug_repaired_icon.png")
     make_broken_icon(jug_icon).save(ICONS_DIR / "jug_broken_icon.png")
 
-    belt = make_belt()
-    torn = tear_belt(belt)
-    torn.save(WORKSHOP_DIR / "belt_torn.png")
-    make_icon(belt).save(ICONS_DIR / "belt_repaired_icon.png")
-    make_icon(torn).save(ICONS_DIR / "belt_torn_icon.png")
+    sickle = make_sickle_icon()
+    sickle.save(ICONS_DIR / "sickle_repaired_icon.png")
+    make_broken_icon(sickle).save(ICONS_DIR / "sickle_broken_icon.png")
 
     for icon_name, (source_name, broken_word) in REPAIR_ICONS.items():
         icon = find_icon(icon_source, source_name)

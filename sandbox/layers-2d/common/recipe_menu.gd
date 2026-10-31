@@ -7,7 +7,7 @@ extends VBoxContainer
 signal recipe_chosen(recipe: Dictionary)
 
 const BUTTON_SIZE := Vector2(480, 0)
-const FONT_SIZE := 30
+const FONT_SIZE := 24
 const MISSING_ITEM_MODULATE := Color(1.0, 1.0, 1.0, 0.6)
 
 ## Подпись под рецептом: название материала, сколько есть, сколько нужно.

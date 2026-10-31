@@ -14,7 +14,7 @@ const ORDERS_PATH := "res://common/orders.json"
 ## Итоги вещи, от худшего к лучшему.
 const GRADES: Array[String] = ["bad", "normal", "good"]
 ## Сколько слотов в инвентаре.
-const SLOT_COUNT := 12
+const SLOT_COUNT := 24
 
 ## Персонажи, которые уже подошли и стоят на месте, — по имени.
 var arrived_npcs: Dictionary[String, bool] = {}

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://wh8ccif3crdr"
-path="res://.godot/imported/belt_torn.png-f8f9384c3cdacf75cafdbdca93f7a932.ctex"
+uid="uid://cbcrg0hwom4kx"
+path="res://.godot/imported/torn_map.png-a2958e3d428a99b8e0668f5844974dc3.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://scenes/workshop/belt_torn.png"
-dest_files=["res://.godot/imported/belt_torn.png-f8f9384c3cdacf75cafdbdca93f7a932.ctex"]
+source_file="res://scenes/workshop/torn_map.png"
+dest_files=["res://.godot/imported/torn_map.png-a2958e3d428a99b8e0668f5844974dc3.ctex"]
 
 [params]
 

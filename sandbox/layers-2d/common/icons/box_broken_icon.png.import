@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://rswosqif5yf7"
-path="res://.godot/imported/belt_torn_icon.png-f1fc1baa9d869f849dcc1bbb2523bb5b.ctex"
+uid="uid://d3t7m7tncyer0"
+path="res://.godot/imported/box_broken_icon.png-a3734fbc10ad0eaf7c796d75c8619378.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://common/icons/belt_torn_icon.png"
-dest_files=["res://.godot/imported/belt_torn_icon.png-f1fc1baa9d869f849dcc1bbb2523bb5b.ctex"]
+source_file="res://common/icons/box_broken_icon.png"
+dest_files=["res://.godot/imported/box_broken_icon.png-a3734fbc10ad0eaf7c796d75c8619378.ctex"]
 
 [params]
 

@@ -3,7 +3,8 @@ extends Node2D
 ## выбрал вещь — выпадает её случайный вариант и начинается мини-игра рецепта (`game`).
 ## Цена — от звёзд и сложности варианта. Материал тратится в конце: ушёл посреди — он остался.
 ## У каждой мини-игры одно и то же: `start(variant)`, `get_progress_ratio()`, `get_tension()`,
-## `get_stars()`, `get_price_bonus()`, сигналы `finished(stars)` и `mistake_made`.
+## `get_stars()`, `get_price_bonus()`, сигналы `finished(stars)` и `mistake_made`. Витраж и
+## карта — та же игра, что кувшин (`shards`), с другими картинками.
 
 ## Рецепты какого места показывать — `station` в `common/items.json`.
 const STATION := "workshop"
@@ -33,7 +34,11 @@ var _game: Node
 @onready var _bag: Sprite2D = $Bag
 @onready var _seam: StitchSeam = $Bag/Seam
 @onready var _shards_game: ShardsGame = $ShardsGame
-@onready var _rivets_game: RivetsGame = $RivetsGame
+@onready var _sharpen_game: SharpenGame = $SharpenGame
+@onready var _embroidery_game: EmbroideryGame = $EmbroideryGame
+@onready var _solder_game: SolderGame = $SolderGame
+@onready var _gears_game: GearsGame = $GearsGame
+@onready var _box_game: BoxGame = $BoxGame
 @onready var _chain_game: ChainGame = $ChainGame
 @onready var _rune_game: RuneGame = $RuneGame
 @onready var _table_hint: Label = %TableHint
@@ -67,7 +72,11 @@ func _ready() -> void:
 	_games = {
 		STITCH_GAME: _seam,
 		"shards": _shards_game,
-		"rivets": _rivets_game,
+		"sharpen": _sharpen_game,
+		"embroidery": _embroidery_game,
+		"solder": _solder_game,
+		"gears": _gears_game,
+		"box": _box_game,
 		"chain": _chain_game,
 		"runes": _rune_game,
 	}
@@ -83,6 +92,10 @@ func _process(delta: float) -> void:
 	_progress_bar.value = _game.get_progress_ratio() * PERCENT
 	_tension_bar.value = _game.get_tension() * PERCENT
 	_stars_label.text = _make_stars_text(_game.get_stars())
+	# Шкатулка из нескольких шагов: подсказка меняется по ходу.
+	if _game.has_method("get_hint"):
+		_game_hint.text = _game.get_hint()
+
 	_mistake_text_left = maxf(_mistake_text_left - delta, 0.0)
 	_mistake_label.modulate.a = 1.0 if _mistake_text_left > 0.0 else 0.0
 

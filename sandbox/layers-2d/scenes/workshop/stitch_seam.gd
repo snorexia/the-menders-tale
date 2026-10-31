@@ -166,6 +166,21 @@ func get_total_length() -> float:
 	return _lengths[-1] if not _lengths.is_empty() else 0.0
 
 
+## Срезать углы линии несколько раз: она становится плавной, концы на месте.
+static func smooth_path(points: PackedVector2Array) -> PackedVector2Array:
+	var result := points
+	for _pass_index in SMOOTH_PASSES:
+		var next := PackedVector2Array([result[0]])
+		for point_index in range(1, result.size()):
+			next.append(result[point_index - 1].lerp(result[point_index], 0.25))
+			next.append(result[point_index - 1].lerp(result[point_index], 0.75))
+
+		next.append(result[-1])
+		result = next
+
+	return result
+
+
 ## Сколько монет этот разрыв прибавляет к цене.
 func get_price_bonus() -> int:
 	return _price_bonus
@@ -181,9 +196,19 @@ func get_tension() -> float:
 	return _tension
 
 
+## Точность шва: средняя оценка стежков минус обрывы.
+func get_accuracy() -> float:
+	var total := 0.0
+	for stitch in _stitches:
+		total += stitch["score"]
+
+	var mean := total / _stitches.size() if not _stitches.is_empty() else 1.0
+	return mean - snap_penalty * _snap_count
+
+
 ## Сколько звёзд выйдет, если закончить сейчас.
 func get_stars() -> int:
-	var accuracy := _get_accuracy()
+	var accuracy := get_accuracy()
 	var stars := 1
 	if accuracy >= three_stars_from:
 		stars = STARS_MAX
@@ -198,8 +223,11 @@ func _use_variant(variant: Dictionary) -> void:
 	for point: Array in variant.get("points", []):
 		points.append(Vector2(point[0], point[1]))
 
+	if variant.get("closed", false) and not points.is_empty():
+		points.append(points[0])
+
 	if not points.is_empty():
-		path = _smoothed(points) if variant.get("smooth", false) else points
+		path = smooth_path(points) if variant.get("smooth", false) else points
 
 	max_deviation = variant.get("max_deviation", max_deviation)
 	_price_bonus = int(variant.get("price_bonus", 0))
@@ -208,22 +236,9 @@ func _use_variant(variant: Dictionary) -> void:
 		var segment := path[point_index].distance_to(path[point_index - 1])
 		_lengths.append(_lengths[point_index - 1] + segment)
 
-	_build_tear()
-
-
-## Срезать углы линии несколько раз: она становится плавной, концы на месте.
-func _smoothed(points: PackedVector2Array) -> PackedVector2Array:
-	var result := points
-	for _pass_index in SMOOTH_PASSES:
-		var next := PackedVector2Array([result[0]])
-		for point_index in range(1, result.size()):
-			next.append(result[point_index - 1].lerp(result[point_index], 0.25))
-			next.append(result[point_index - 1].lerp(result[point_index], 0.75))
-
-		next.append(result[-1])
-		result = next
-
-	return result
+	_tear_points.clear()
+	if not variant.get("no_tear", false):
+		_build_tear()
 
 
 func _build_tear() -> void:
@@ -244,15 +259,6 @@ func _build_tear() -> void:
 			"normal": normal,
 		}
 		_tear_points.append(tear_point)
-
-
-func _get_accuracy() -> float:
-	var total := 0.0
-	for stitch in _stitches:
-		total += stitch["score"]
-
-	var mean := total / _stitches.size() if not _stitches.is_empty() else 1.0
-	return mean - snap_penalty * _snap_count
 
 
 func _add_stitch(at: float, needle_position: Vector2, deviation: float) -> void:
@@ -299,6 +305,7 @@ func _finish() -> void:
 ## Ближайшая к точке позиция на шве, не дальше `lookahead` от пройденного.
 func _find_closest(point: Vector2) -> Dictionary:
 	var limit := _progress + lookahead
+	var back_limit := _progress - lookahead
 	var best_at := _progress
 	var best_deviation := point.distance_to(_get_point_at(_progress))
 	for point_index in range(1, path.size()):
@@ -307,7 +314,9 @@ func _find_closest(point: Vector2) -> Dictionary:
 		var on_segment := Geometry2D.get_closest_point_to_segment(point, from, to)
 		var at := _lengths[point_index - 1] + from.distance_to(on_segment)
 		var deviation := point.distance_to(on_segment)
-		if at <= limit and deviation < best_deviation:
+		# На замкнутом контуре конец линии лежит рядом с началом: старые участки не считаем.
+		var is_in_reach := at <= limit and at >= back_limit
+		if is_in_reach and deviation <= best_deviation:
 			best_at = at
 			best_deviation = deviation
 

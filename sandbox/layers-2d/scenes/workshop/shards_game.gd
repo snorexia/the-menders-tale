@@ -114,6 +114,7 @@ func _draw() -> void:
 
 
 ## Начать по варианту: texture, pieces, glue_time, rotate, show_cracks, show_picture, price_bonus.
+## Для витража: pieces_file — готовые контуры кусков, ghost_texture — рамка вместо контура.
 func start(variant: Dictionary) -> void:
 	var texture: Texture2D = load(variant.get("texture", ""))
 	_can_rotate = variant.get("rotate", false)
@@ -129,8 +130,18 @@ func start(variant: Dictionary) -> void:
 
 	var shows_picture: bool = variant.get("show_picture", false)
 	_ghost.modulate = picture_color if shows_picture else ghost_color
+	var ghost_path: String = variant.get("ghost_texture", "")
+	if not ghost_path.is_empty():
+		_ghost.texture = load(ghost_path)
+		_ghost.modulate = Color.WHITE
+
 	_whole.modulate.a = 0.0
-	_build_shards(texture, int(variant.get("pieces", 6)))
+	var pieces_path: String = variant.get("pieces_file", "")
+	if pieces_path.is_empty():
+		_build_shards(texture, int(variant.get("pieces", 6)))
+	else:
+		_load_shards(texture, pieces_path)
+
 	_scatter_shards()
 	queue_redraw()
 	show()
@@ -164,6 +175,21 @@ func get_stars() -> int:
 		stars = 2
 
 	return stars
+
+
+## Куски заданы файлом: стёкла витража идут по свинцовым линиям.
+func _load_shards(texture: Texture2D, path: String) -> void:
+	var data: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
+	if not data is Dictionary:
+		push_warning("ShardsGame: не удалось прочитать %s" % path)
+		return
+
+	for raw_polygon: Array in data.get("polygons", []):
+		var polygon := PackedVector2Array()
+		for point: Array in raw_polygon:
+			polygon.append(Vector2(point[0], point[1]))
+
+		_add_shard(texture, polygon, texture.get_size())
 
 
 ## Разрезать картинку сеткой со сдвинутыми узлами. Общие края у соседей совпадают.

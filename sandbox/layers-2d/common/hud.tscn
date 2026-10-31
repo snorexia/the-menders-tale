@@ -191,7 +191,7 @@ layout_mode = 2
 mouse_filter = 2
 theme_override_constants/h_separation = 10
 theme_override_constants/v_separation = 10
-columns = 4
+columns = 6
 
 [node name="MessageLabel" type="Label" parent="Root"]
 unique_name_in_owner = true

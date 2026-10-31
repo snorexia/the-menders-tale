@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://5wvowug7vafq"
-path="res://.godot/imported/belt_repaired_icon.png-a7043b6bf48d5e585976849fc0cad2f5.ctex"
+uid="uid://dh2ldv4ssypw7"
+path="res://.godot/imported/glass_lancet_frame.png-eb1527628338ca72453ae60d5e5c10da.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://common/icons/belt_repaired_icon.png"
-dest_files=["res://.godot/imported/belt_repaired_icon.png-a7043b6bf48d5e585976849fc0cad2f5.ctex"]
+source_file="res://scenes/workshop/glass_lancet_frame.png"
+dest_files=["res://.godot/imported/glass_lancet_frame.png-eb1527628338ca72453ae60d5e5c10da.ctex"]
 
 [params]
 
